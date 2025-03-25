@@ -8,6 +8,7 @@ import Storage from "./storage.svelte";
 
 export default new class CustomServer {
     config: CustomServerConfig = $state();
+    user: any;
 
     init(config: CustomServerConfig) {
         this.config = config;
@@ -18,20 +19,28 @@ export default new class CustomServer {
             document.documentElement.classList.toggle("noServerButton", !this.config.enabled);
         });        
         this.addJoinToggle();
-        
+
         // requester
         let params = new URLSearchParams(location.search);
-        Parcel.getLazy(null, exports => exports?.request && exports?.generateId, exports => {
+        Parcel.getLazy(null, exports => exports?.request && exports?.generateId, (exports) => {
             Patcher.before(null, exports, "request", (_, args) => {
                 if(!config.enabled) return;
                 let req = args[0];
 
+                if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
+                    req.url = "/gimloader" + req.url;
+                    
+                    if(!this.user) this.user = Parcel.query((exports) => exports?.default?.user?.user)?.default;
+                    if(this.user) req.data.name = this.user.user.user.firstName;
+
+                    return;
+                }
+                
                 // redirect calls to make custom games to the custom server
                 if(
                     (location.pathname === "/join" && Storage.settings.joiningCustomServer && req.url.startsWith("/api/matchmaker")) ||
                     (location.pathname === "/host" && params.get("custom") === "true" && req.url.startsWith("/api/matchmaker")) ||
-                    (req.url === "/api/experience/map/hooks" && req.data?.experience?.startsWith("gimloader")) ||
-                    (req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader"))
+                    (req.url === "/api/experience/map/hooks" && req.data?.experience?.startsWith("gimloader"))
                 ) {
                     req.url = "/gimloader" + req.url;
                     return;
