@@ -23,15 +23,34 @@ export default new class CustomServer {
         // requester
         let params = new URLSearchParams(location.search);
         Parcel.getLazy(null, exports => exports?.request && exports?.generateId, (exports) => {
-            Patcher.before(null, exports, "request", (_, args) => {
-                if(!config.enabled) return;
-                let req = args[0];
+            let request = exports.request;
+            delete exports.request;
+            let me = this;
 
+            exports.request = function(req: any) {
+                if(!config.enabled) return;
+    
                 if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
                     req.url = "/gimloader" + req.url;
                     
-                    if(!this.user) this.user = Parcel.query((exports) => exports?.default?.user?.user)?.default;
-                    if(this.user) req.data.name = this.user.user.user.firstName;
+                    if(!me.user) me.user = Parcel.query((exports) => exports?.default?.user?.user)?.default;
+                    if(me.user) req.data.name = me.user.user.user.firstName;
+   
+                    me.fetchCosmetics().then((cosmetics) => {
+                        req.data.cosmetics = cosmetics;
+                        request.apply(this, [req]);
+                    });
+
+                    return;
+                }
+
+                if(req.url === "/api/matchmaker/join" && Storage.settings.joiningCustomServer) {
+                    req.url = "/gimloader" + req.url;
+
+                    me.fetchCosmetics().then((cosmetics) => {
+                        req.data.cosmetics = cosmetics;
+                        request.apply(this, [req]);
+                    });
 
                     return;
                 }
@@ -43,13 +62,13 @@ export default new class CustomServer {
                     (req.url === "/api/experience/map/hooks" && req.data?.experience?.startsWith("gimloader"))
                 ) {
                     req.url = "/gimloader" + req.url;
-                    return;
+                    return request.apply(this, arguments);
                 }
-
+    
                 // add the experiences from the custom server
                 if(req.url === "/api/experiences") {
                     let onSuccess = req.success;
-
+    
                     Promise.all<any[]>([
                         new Promise(async (res) => {
                             try {
@@ -68,9 +87,10 @@ export default new class CustomServer {
                     ]).then(([ customExperiences, experiences ]) => {
                         onSuccess(customExperiences.concat(experiences));
                     });
-                    return;
                 }
-            });
+
+                return request.apply(this, arguments);
+            }
         });
     }
 
@@ -113,5 +133,19 @@ export default new class CustomServer {
                 returnVal.type = innerType;
             });
         });
+    }
+
+    async fetchCosmetics() {
+        try {
+            let res = await fetch("/api/cosmos/owned-cosmetics");
+            let json = await res.json();
+
+            return json.selected;
+        } catch {
+            return {
+                character: { id: "default_gray" },
+                trail: null
+            }
+        }
     }
 }
