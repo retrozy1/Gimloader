@@ -28,7 +28,7 @@ export default new class CustomServer {
             let me = this;
 
             exports.request = function(req: any) {
-                if(!config.enabled) return;
+                if(!config.enabled) return request.apply(this, arguments);
     
                 if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
                     req.url = "/gimloader" + req.url;
