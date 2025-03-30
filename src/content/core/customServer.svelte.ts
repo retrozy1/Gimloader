@@ -1,4 +1,4 @@
-import type { CustomServerConfig } from "$types/state";
+import type { CustomServer as CustomServerType, CustomServerConfig } from "$types/state";
 import Port from "$shared/port.svelte";
 import Parcel from "$core/parcel";
 import Patcher from "$core/patcher";
@@ -6,8 +6,15 @@ import UI from "./ui/ui";
 import customServerToggle from "$content/ui/server/customServerToggle";
 import Storage from "./storage.svelte";
 
+export interface CreatedInfo {
+    name: string;
+    address: string;
+    port: number;
+}
+
 export default new class CustomServer {
     config: CustomServerConfig = $state();
+    selected: CustomServerType = $derived(this.config.servers[this.config.selected]);
     user: any;
 
     init(config: CustomServerConfig) {
@@ -147,5 +154,44 @@ export default new class CustomServer {
                 trail: null
             }
         }
+    }
+
+    arrangeServers(order: string[]) {
+        let selected = this.config.servers[this.config.selected];
+        let newOrder = [];
+
+        for (let id of order) {
+            let server = this.getServer(id);
+            if (server) newOrder.push(server);
+        }
+
+        this.config.servers = newOrder;
+        if(selected) {
+            this.config.selected = this.config.servers.indexOf(selected);
+        }
+        this.save();
+    }
+
+    getServer(id: string) {
+        return this.config.servers.find(s => s.id === id);
+    }
+
+    createServer(info: CreatedInfo) {
+        this.config.servers.push({
+            ...info,
+            id: crypto.randomUUID()
+        });
+        this.save();
+    }
+
+    deleteServer(server: CustomServerType) {
+        this.config.servers = this.config.servers.filter(s => s !== server);
+    }
+
+    editServer(server: CustomServerType, info: CreatedInfo) {
+        server.name = info.name;
+        server.address = info.address;
+        server.port = info.port;
+        this.save();
     }
 }

@@ -1,44 +1,77 @@
 <script lang="ts">
-    import CustomServer from "$content/core/customServer.svelte";
-    import { Toggle } from "flowbite-svelte";
+    import CustomServer, { type CreatedInfo } from "$core/customServer.svelte";
+    import type { CustomServer as CustomServerType } from "$types/state";
+    import { Checkbox } from "flowbite-svelte";
+    import Card from "../components/Card.svelte";
+    import ListItem from "../components/ListItem.svelte";
+    import Storage from "$core/storage.svelte";
 
-    let isAddressValid = $derived.by(() => {
-        let address = CustomServer.config.address.trim();
+    import Delete from "svelte-material-icons/Delete.svelte";
+    import Pencil from "svelte-material-icons/Pencil.svelte";
+    import CreateServer from "./CreateServer.svelte";
 
-        if(!address.startsWith("http://") && !address.startsWith("https://")) {
-            address = "http://" + address;
+    interface Props {
+        startDrag: () => void;
+        dragDisabled: boolean;
+        server: CustomServerType;
+        index: number;
+    }
+
+    let {
+        startDrag,
+        dragDisabled,
+        server,
+        index
+    }: Props = $props();
+
+    function toggleEnabled() {
+        if(CustomServer.config.selected === index) {
+            CustomServer.config.selected = null;
+        } else {
+            CustomServer.config.selected = index;
         }
+        CustomServer.save();
+    }
 
-        let site = address.slice(address.indexOf("://") + 3);
-        if(site.includes(":") || site.includes("/") || site.includes(" ")) return false;
-        
-        try {
-            new URL(address);
-            return true;
-        } catch {
-            return false;
-        }
-    });
+    let editingOpen = $state(false);
+
+    function onSubmit(info: CreatedInfo | null) {
+        editingOpen = false;
+        if(info) CustomServer.editServer(server, info);
+    }
+
+    function deleteServer() {
+        if(!confirm(`Do you want to delete ${server.name}?`)) return;
+        CustomServer.deleteServer(server);
+    }
+
+    let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
+    const SvelteComponent = $derived(component);
 </script>
 
-<h1 class="text-xl font-bold">Custom Server</h1>
-<div class="flex items-center text-xl gap-2">
-    <Toggle bind:checked={CustomServer.config.enabled} on:change={() => CustomServer.save()} />
-    Enable Custom Server
-</div>
+{#if editingOpen}
+    <CreateServer submitText="Update" onsubmit={onSubmit} />
+{/if}
 
-<div class="mt-1 {CustomServer.config.enabled ? "" : "opacity-50 pointer-events-none"}">
-    <div class="flex items-center gap-2 text-xl"> 
-        <input class="{isAddressValid ? "border-b border-x-0 border-t-0 border-gray-700" : "!outline-2 outline outline-red-600"}
-        w-[200px] pl-2 text-lg" bind:value={CustomServer.config.address}
-        onchange={() => CustomServer.save()} placeholder="..." />
-        Server Address
-    </div>
-    <h1 class="font-bold text-xl mt-3">Advanced Settings</h1>
-    <div class="text-sm">You shouldn't touch these unless you know what you're doing</div>
-    <div class="flex items-center gap-2 text-xl mt-1"> 
-        <input class="border-b border-x-0 border-t-0 border-gray-700 w-[200px] text-lg"
-        type="number" placeholder="5823" bind:value={CustomServer.config.port} onchange={() => CustomServer.save()} />
-        API Port
-    </div>
-</div>
+<SvelteComponent {dragDisabled} {startDrag} dragAllowed={true}>
+    {#snippet header()}
+        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
+            {server?.name}
+        </h2>
+    {/snippet}
+    {#snippet toggle()}
+        <Checkbox onclick={toggleEnabled} class="h-6 w-6" checked={CustomServer.selected === server} />
+    {/snippet}
+    {#snippet description()}
+        <div>Address: {server?.address}</div>
+        <div>Port: {server?.port}</div>
+    {/snippet}
+    {#snippet buttons()}
+        <button onclick={deleteServer}>
+            <Delete size={28} />
+        </button>
+        <button onclick={() => editingOpen = true}>
+            <Pencil size={28} />
+        </button>
+    {/snippet}
+</SvelteComponent>

@@ -13,8 +13,7 @@
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-    import ViewModule from 'svelte-material-icons/ViewModule.svelte';
-    import ViewList from 'svelte-material-icons/ViewList.svelte';
+    import ViewControl from "../components/ViewControl.svelte";
     
     let { onDrop }: { onDrop: (callback: (text: string) => void) => void } = $props();
 
@@ -69,10 +68,6 @@
         });
     }
 
-    function setView(mode: string) {
-        Storage.updateSetting('menuView', mode);
-    }
-
     let flipDurationMs = $state(0);
     setTimeout(() => flipDurationMs = 300);
 </script>
@@ -89,42 +84,22 @@
         <Dropdown bind:open={bulkOpen}>
             <DropdownItem on:click={deleteAll}>Delete all</DropdownItem>
         </Dropdown>
-        <button class="w-[30px] h-7 flex items-center justify-center rounded-md ml-1" 
-        class:bg-gray-200={Storage.settings.menuView == 'grid'}
-        onclick={() => setView('grid')}>
-            <ViewModule width={24} height={24} />
-        </button>
-        <button class="w-[30px] h-7 flex items-center justify-center rounded-md ml-1"
-            class:bg-gray-200={Storage.settings.menuView == 'list'}
-            onclick={() => setView('list')}>
-            <ViewList width={24} height={24} />
-        </button>
+        <ViewControl />
         <Search bind:value={searchValue} />
     </div>
     {#if LibManager.libs.length === 0}
         <h2 class="text-xl">No libraries installed!</h2>
     {/if}
-    <div class="max-h-full overflow-y-auto grid gap-4 libs-{Storage.settings.menuView} pb-1 flex-grow"
+    <div class="max-h-full overflow-y-auto grid gap-4 view-{Storage.settings.menuView} pb-1 flex-grow"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
                 {@const library = LibManager.getLib(item.id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <Library {library} {startDrag} {dragDisabled}
-                        view={Storage.settings.menuView} dragAllowed={searchValue == ''} />
+                    <Library {library} {startDrag} {dragDisabled} dragAllowed={searchValue == ''} />
                 </div>
             {/each}
         {/key}
     </div>
 </div>
-
-<style>
-    .libs-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .libs-list {
-        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    }
-</style>

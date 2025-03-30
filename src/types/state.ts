@@ -26,10 +26,17 @@ export interface Settings {
     joiningCustomServer: boolean;
 }
 
-export interface CustomServerConfig {
-    enabled: boolean;
+export interface CustomServer {
+    name: string;
     address: string;
     port: number;
+    id: string;
+}
+
+export interface CustomServerConfig {
+    enabled: boolean;
+    selected: number | null;
+    servers: CustomServer[];
 }
 
 export interface SavedState {

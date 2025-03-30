@@ -10,7 +10,7 @@
     import Port from "$shared/port.svelte";
     import { onMount } from "svelte";
     import toast from "svelte-5-french-toast";
-    import CustomServer from "./server/CustomServer.svelte";
+    import CustomServer from "./server/CustomServerConfig.svelte";
     
     import Wrench from 'svelte-material-icons/Wrench.svelte';
     import Book from 'svelte-material-icons/Book.svelte';
@@ -157,10 +157,5 @@
 
     .changeStyles div[role="document"] > button {
         z-index: 100;
-    }
-
-    /* Prevent disabled toggles from becoming grayscale */
-    .changeStyles label.grayscale {
-        filter: none !important;
     }
 </style>

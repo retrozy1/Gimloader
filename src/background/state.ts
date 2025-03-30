@@ -1,6 +1,6 @@
 import type { ConfigurableHotkeysState, CustomServerConfig, LibraryInfo, PluginInfo, PluginStorage,
     SavedState, ScriptInfo, Settings, State } from "$types/state";
-import { defaultCustomServer, defaultSettings } from "$shared/consts";
+import { makeDefaultCustomServer, defaultCustomServerConfig, defaultSettings } from "$shared/consts";
 import debounce from "debounce";
 
 export let statePromise = new Promise<State>(async (res) => {
@@ -10,7 +10,7 @@ export let statePromise = new Promise<State>(async (res) => {
         pluginStorage: {},
         settings: defaultSettings,
         hotkeys: {},
-        customServer: defaultCustomServer
+        customServer: defaultCustomServerConfig
     });
 
     res({
@@ -155,8 +155,23 @@ export function sanitizeSettings(settings: Settings) {
     return newSettings;
 }
 
-export function sanitizeCustomServer(server: CustomServerConfig) {
-    let newServer = copyOverDefault(server, defaultCustomServer);
+export function sanitizeCustomServer(config: CustomServerConfig) {
+    if(typeof config !== "object" || config === null) return defaultCustomServerConfig;
+    
+    if(Array.isArray(config.servers)) {
+        for(let i = 0; i < config.servers.length; i++) {
+            config.servers[i] = copyOverDefault(config.servers[i], makeDefaultCustomServer());
+        }
+    } else {
+        config.servers = [ makeDefaultCustomServer() ];
+    }
 
-    return newServer;
+    if(config.selected !== null) {
+        if(typeof config.selected !== "number" || config.selected < 0 || config.selected >= config.servers.length) {
+            config.selected = 0;
+        }
+    }
+    if(typeof config.enabled !== "boolean") config.enabled = false;
+
+    return config;
 }

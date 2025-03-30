@@ -92,3 +92,16 @@
         transform: scale(1);
     }
 }
+
+.view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.view-list {
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+}
+
+/* Prevent disabled toggles from becoming grayscale */
+label.grayscale {
+    filter: none !important;
+}

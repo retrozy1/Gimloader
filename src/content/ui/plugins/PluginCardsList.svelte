@@ -9,12 +9,12 @@
     import PluginManager from "$core/pluginManager/pluginManager.svelte";
     import Storage from "$core/storage.svelte";
     import Port from "$shared/port.svelte";
+    import { flipDurationMs } from "$shared/consts";
 
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-    import ViewModule from 'svelte-material-icons/ViewModule.svelte';
-    import ViewList from 'svelte-material-icons/ViewList.svelte';
+    import ViewControl from "../components/ViewControl.svelte";
 
     let { onDrop }: { onDrop: (callback: (text: string) => void) => void } = $props();
 
@@ -22,7 +22,6 @@
         PluginManager.createPlugin(text);
     });
     
-    const flipDurationMs = 300;
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
 
@@ -86,10 +85,6 @@
 
         PluginManager.deleteAll();
     }
-
-    function setView(mode: string) {
-        Storage.updateSetting('menuView', mode);
-    }
 </script>
 
 <div class="flex flex-col">
@@ -111,42 +106,22 @@
             <DropdownItem on:click={sortEnabled}>Enabled</DropdownItem>
             <DropdownItem on:click={sortAlphabetical}>Alphabetical</DropdownItem>
         </Dropdown>
-        <button class="w-[30px] h-7 flex items-center justify-center rounded-md ml-1" 
-            class:bg-gray-200={Storage.settings.menuView == 'grid'}
-            onclick={() => setView('grid')}>
-            <ViewModule width={24} height={24} />
-        </button>
-        <button class="w-[30px] h-7 flex items-center justify-center rounded-md ml-1"
-            class:bg-gray-200={Storage.settings.menuView == 'list'}
-            onclick={() => setView('list')}>
-            <ViewList width={24} height={24} />
-        </button>
+        <ViewControl />
         <Search bind:value={searchValue} />
     </div>
     {#if PluginManager.plugins.length === 0}
         <h2 class="text-xl">No plugins installed! Import or create one to get started.</h2>
     {/if}
-    <div class="max-h-full overflow-y-auto grid gap-4 pb-1 flex-grow plugins-{Storage.settings.menuView}"
+    <div class="max-h-full overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
                 {@const plugin = PluginManager.getPlugin(item.id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <Plugin {plugin} {startDrag} {dragDisabled}
-                        view={Storage.settings.menuView} dragAllowed={searchValue == ""} />
+                    <Plugin {plugin} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
                 </div>
             {/each}
         {/key}
     </div>
 </div>
-
-<style>
-    .plugins-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
-
-    .plugins-list {
-        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    }
-</style>

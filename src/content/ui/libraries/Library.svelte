@@ -9,6 +9,7 @@
     import { showLibCodeEditor } from "../editCodeModals.svelte";
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import ListItem from "../components/ListItem.svelte";
+    import Storage from "$core/storage.svelte";
 
     function deleteLib() {
         let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
@@ -21,7 +22,6 @@
         startDrag: () => void;
         dragDisabled: boolean;
         library: Lib;
-        view: string;
         dragAllowed: boolean;
     }
 
@@ -29,11 +29,10 @@
         startDrag,
         dragDisabled,
         library,
-        view,
         dragAllowed
     }: Props = $props();
-    let component = $derived(view === 'grid' ? Card : ListItem);
 
+    let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
     const SvelteComponent = $derived(component);
 </script>
 

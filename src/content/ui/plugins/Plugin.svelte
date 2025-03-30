@@ -8,6 +8,7 @@
     import PluginLibrariesInfo from "./PluginLibrariesInfo.svelte";
     import ListItem from '../components/ListItem.svelte'
     import { Tooltip } from "flowbite-svelte";
+    import Storage from "$core/storage.svelte";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
@@ -17,11 +18,17 @@
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertCircleOutline from 'svelte-material-icons/AlertCircleOutline.svelte';
 
+    interface Props {
+        startDrag: () => void;
+        dragDisabled: boolean;
+        plugin: Plugin;
+        dragAllowed: boolean;
+    }
+
     let {
         startDrag,
         dragDisabled,
         plugin,
-        view,
         dragAllowed
     }: Props = $props();
 
@@ -49,16 +56,7 @@
 
     let libInfoOpen = $state(false);
 
-    interface Props {
-        startDrag: () => void;
-        dragDisabled: boolean;
-        plugin: Plugin;
-        view: string;
-        dragAllowed: boolean;
-    }
-
-    let component = $derived(view === 'grid' ? Card : ListItem);
-
+    let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
     const SvelteComponent = $derived(component);
 </script>
 
