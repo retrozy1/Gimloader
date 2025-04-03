@@ -5,6 +5,7 @@ import Patcher from "$core/patcher";
 import UI from "./ui/ui";
 import customServerToggle from "$content/ui/server/customServerToggle";
 import Storage from "./storage.svelte";
+import toast from "svelte-5-french-toast";
 
 export interface CreatedInfo {
     name: string;
@@ -34,9 +35,10 @@ export default new class CustomServer {
             delete exports.request;
             let me = this;
 
-            exports.request = function(req: any) {
+            exports.request = async function(req: any) {
                 if(!config.enabled) return request.apply(this, arguments);
     
+                // get cosmetics when making games
                 if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
                     req.url = "/gimloader" + req.url;
                     
@@ -51,6 +53,7 @@ export default new class CustomServer {
                     return;
                 }
 
+                // get cosmetics when joining games
                 if(req.url === "/api/matchmaker/join" && Storage.settings.joiningCustomServer) {
                     req.url = "/gimloader" + req.url;
 
@@ -58,6 +61,52 @@ export default new class CustomServer {
                         req.data.cosmetics = cosmetics;
                         request.apply(this, [req]);
                     });
+
+                    return;
+                }
+
+                // attempt to use the other server type if a code request fails
+                const codeUrl = "/api/matchmaker/find-info-from-code";
+                if(req.url === codeUrl) {
+                    const returnMissing = () => {
+                        req.error({ message: { text:"Game not found" }, code: 404 });
+                    }
+
+                    const runFetch = async (url: string) => {
+                        try {
+                            let res = await fetch(url, {
+                                method: "POST",
+                                headers: { "content-type": "application/json" },
+                                body: JSON.stringify({ code: req.data.code })
+                            });
+                            if(res.status !== 200) return null;
+                            return await res.json();
+                        } catch {
+                            return null;
+                        }
+                    }
+
+                    if(Storage.settings.joiningCustomServer) {
+                        let customRes = await runFetch("/gimloader" + codeUrl);
+                        if(customRes) return req.success(customRes);
+                        
+                        let mainRes = await runFetch(codeUrl);
+                        if(!mainRes) return returnMissing();
+
+                        Storage.updateSetting("joiningCustomServer", false);
+                        toast("Automatically switched to default server");
+                        req.success(mainRes);
+                    } else {
+                        let mainRes = await runFetch(codeUrl);
+                        if(mainRes) return req.success(mainRes);
+                        
+                        let customRes = await runFetch("/gimloader" + codeUrl);
+                        if(!customRes) return returnMissing();
+
+                        Storage.updateSetting("joiningCustomServer", true);
+                        toast("Automatically switched to custom server");
+                        req.success(customRes);
+                    }
 
                     return;
                 }
