@@ -23,6 +23,7 @@
         server,
         index
     }: Props = $props();
+    let selected = $derived(CustomServer.selected === server);
 
     function toggleEnabled() {
         if(CustomServer.config.selected === index) {
@@ -50,17 +51,19 @@
 </script>
 
 {#if editingOpen}
-    <CreateServer submitText="Update" onsubmit={onSubmit} />
+    <CreateServer submitText="Update" onsubmit={onSubmit}
+        name={server.name} address={server.address} port={server.port} />
 {/if}
 
-<SvelteComponent {dragDisabled} {startDrag} dragAllowed={true}>
+<SvelteComponent {dragDisabled} {startDrag} dragAllowed={true}
+    border={selected ? "border-2 border-primary-500" : null}>
     {#snippet header()}
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
             {server?.name}
         </h2>
     {/snippet}
     {#snippet toggle()}
-        <Checkbox onclick={toggleEnabled} class="h-6 w-6" checked={CustomServer.selected === server} />
+        <Checkbox onclick={toggleEnabled} class="h-6 w-6" checked={selected} />
     {/snippet}
     {#snippet description()}
         <div>Address: {server?.address}</div>

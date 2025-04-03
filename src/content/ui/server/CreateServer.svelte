@@ -1,11 +1,12 @@
 <script lang="ts">
     import { Modal, Button } from "flowbite-svelte";
 
-    let name = $state("");
-    let address = $state("");
-    let port = $state(5823);
-    let { submitText, onsubmit } = $props();
+    let { submitText, onsubmit, name: startName = "", address: startAddress = "", port: startPort = 5823 } = $props();
+    let name = $state(startName);
+    let address = $state(startAddress);
+    let port = $state(startPort);
 
+    let addressChanged = $state(false);
     let isAddressValid = $derived.by(() => {
         let trimmed = address.trim();
 
@@ -36,14 +37,14 @@
 <Modal class="z-50" open autoclose outsideclose on:close={cancel}>
     <div class="grid text-xl gap-3" style="grid-template-columns: auto 1fr">
         Server name
-        <input class="border-b border-x-0 border-t-0 border-gray-700 pl-2 text-lg" 
-        bind:value={name} placeholder="Custom Server Name" />
+        <input class="border-b border-x-0 border-t-0 border-gray-700 pl-2 text-lg h-8" 
+        bind:value={name} />
         Server address
-        <input class="{isAddressValid ? "border-b border-x-0 border-t-0 border-gray-700" : "!outline-2 outline outline-red-600"}
-        pl-2 text-lg" bind:value={address} placeholder="http://localhost" />
+        <input class="{(isAddressValid || !addressChanged) ? "border-b border-x-0 border-t-0 border-gray-700" : "!outline-2 outline outline-red-600"}
+        pl-2 text-lg h-8" bind:value={address} oninput={() => addressChanged = true} />
         Port
-        <input class="border-b border-x-0 border-t-0 border-gray-700 text-lg"
-        type="number" placeholder="5823" bind:value={port} />
+        <input class="border-b border-x-0 border-t-0 border-gray-700 text-lg h-8"
+        type="number" bind:value={port} />
     </div>
     <svelte:fragment slot="footer">
         <div class="flex w-full justify-end gap-3">

@@ -1,17 +1,19 @@
 <script lang="ts">
     import DotsGrid from "svelte-material-icons/DotsGrid.svelte";
     import ChevronRight from "svelte-material-icons/ChevronRight.svelte";
+    import type { Snippet } from "svelte";
 
     interface Props {
         startDrag: () => void;
         dragDisabled: boolean;
         loading?: boolean;
         dragAllowed?: boolean;
-        toggle?: import('svelte').Snippet;
-        header?: import('svelte').Snippet;
-        buttons?: import('svelte').Snippet;
-        author?: import('svelte').Snippet;
-        description?: import('svelte').Snippet;
+        toggle?: Snippet;
+        header?: Snippet;
+        buttons?: Snippet;
+        author?: Snippet;
+        description?: Snippet;
+        border?: string;
     }
 
     let {
@@ -23,7 +25,8 @@
         header,
         buttons,
         author,
-        description
+        description,
+        border
     }: Props = $props();
 
     function checkDrag() {
@@ -33,7 +36,7 @@
     let expanded = $state(false);
 </script>
 
-<div class="border border-gray-500 p-3 h-full bg-white preflight rounded-xl relative">
+<div class="{border ?? "border border-gray-500"} p-3 h-full bg-white preflight rounded-xl relative">
     <div class="flex items-center">
         {#if loading}
             <div class="absolute bottom-0 left-0 z-0 overflow-hidden w-full rounded-bl-xl rounded-br-xl h-6 animWrap">

@@ -13,6 +13,7 @@
         author?: Snippet;
         description?: Snippet;
         buttons?: Snippet;
+        border?: string;
     }
 
     let {
@@ -25,7 +26,8 @@
         toggle,
         author,
         description,
-        buttons
+        buttons,
+        border
     }: Props = $props();
 
     function checkDrag() {
@@ -33,7 +35,7 @@
     }
 </script>
 
-<div class="{error ? 'border-2 border-red-500' : 'border border-gray-500'}
+<div class="{error ? 'border-2 border-red-500' : border ?? "border border-gray-500"}
 h-full relative bg-white min-h-[150px] rounded-xl preflight flex flex-col p-3">
     {#if loading}
         <div class="absolute bottom-0 left-0 z-0 overflow-hidden w-full rounded-bl-xl rounded-br-xl h-6 animWrap">
