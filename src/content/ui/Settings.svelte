@@ -3,6 +3,7 @@
     import Storage from "$core/storage.svelte";
     import { isFirefox } from "$shared/consts";
     import StateManager from "$core/state";
+    import CustomServer from "$core/customServer.svelte";
 
     function saveAutoUpdate() {
         Storage.updateSetting('autoUpdate', Storage.settings.autoUpdate);
@@ -10,6 +11,15 @@
 
     function saveAutoDownloadLibs() {
         Storage.updateSetting('autoDownloadMissingLibs', Storage.settings.autoDownloadMissingLibs);
+    }
+
+    function saveShowCustomServer() {
+        // disable the server if it's not shown
+        if(!Storage.settings.showCustomServer) {
+            CustomServer.config.enabled = false;
+            CustomServer.save();
+        }
+        Storage.updateSetting('showCustomServer', Storage.settings.showCustomServer);
     }
 </script>
 
@@ -32,9 +42,13 @@
     }} />
     Show buttons to open Gimloader menu
 </div>
-<div class="flex items-center">
+<div class="flex items-center mb-2">
     <Toggle bind:checked={Storage.settings.autoDownloadMissingLibs} on:change={saveAutoDownloadLibs} />
     Attempt to automatically download missing libraries
+</div>
+<div class="flex items-center">
+    <Toggle bind:checked={Storage.settings.showCustomServer} on:change={saveShowCustomServer} />
+    (Beta) Show custom server tab
 </div>
 
 <h1 class="text-xl font-bold mt-3">Developer Settings</h1>

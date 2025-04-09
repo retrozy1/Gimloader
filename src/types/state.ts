@@ -23,6 +23,7 @@ export interface Settings {
     autoDownloadMissingLibs: boolean;
     menuView: 'grid' | 'list';
     showPluginButtons: boolean;
+    showCustomServer: boolean;
     joiningCustomServer: boolean;
 }
 

@@ -19,6 +19,7 @@
     import Cog from 'svelte-material-icons/Cog.svelte';
     import Web from 'svelte-material-icons/Web.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
+    import Storage from "$content/core/storage.svelte";
 
     interface Props {
         onClose: () => void;
@@ -107,13 +108,15 @@
                     </div>
                     <Updates />
                 </TabItem>
-                <TabItem on:click={() => dropCallback = null}>
-                    <div class="flex items-center" slot="title">
-                        <Web size={24} />
-                        <span class="ml-2">Server</span>
-                    </div>
-                    <CustomServer />
-                </TabItem>
+                {#if Storage.settings.showCustomServer}
+                    <TabItem on:click={() => dropCallback = null}>
+                        <div class="flex items-center" slot="title">
+                            <Web size={24} />
+                            <span class="ml-2">Server</span>
+                        </div>
+                        <CustomServer />
+                    </TabItem>
+                {/if}
                 <TabItem on:click={() => dropCallback = null}>
                     <div class="flex items-center" slot="title">
                         <Cog size={24} />
