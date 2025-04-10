@@ -1,7 +1,7 @@
 import PluginManager from "$core/pluginManager/pluginManager.svelte";
 import LibManager from "$core/libManager/libManager.svelte";
 
-const scriptRegex = /gimloader:\/\/(plugins|libraries)\/(.+?).js:/g;
+const scriptRegex = /gimloader:\/\/(plugins|libraries)\/(.+?)\.js:\d+:\d+\n?$/;
 
 interface ScopedInfo {
     id: string;
@@ -13,9 +13,7 @@ export default function setupScoped(): ScopedInfo {
     let stack = new Error().stack;
 
     // get the uuid of the blob that called this function
-    let matches = stack.matchAll(scriptRegex);
-    let match: RegExpExecArray;
-    for(let newMatch of matches) match = newMatch;
+    let match = scriptRegex.exec(stack);
     if(!match) throw new Error("new GL() needs to be called by a plugin or library");
 
     let type = match[1];

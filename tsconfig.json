@@ -16,7 +16,8 @@
             "$types/*": ["./src/types/*"],
             "$shared/*": ["./src/shared/*"]
         },
-        "verbatimModuleSyntax": true
+        "verbatimModuleSyntax": true,
+        "noEmit": true
     },
     "include": ["./src/**/*.*", "main.d.ts"]
 }

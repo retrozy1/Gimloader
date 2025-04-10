@@ -20,7 +20,7 @@ state.init();
     
         if(existing) {
             existing.script = script;
-            Port.send("pluginEdit", { name: existing.name, script });
+            Port.send("pluginEdit", { name: existing.name, newName: existing.name, script });
         } else {
             state.plugins.push({ name: headers.name, script, enabled: true });
             Port.send("pluginCreate", { name: headers.name, script });

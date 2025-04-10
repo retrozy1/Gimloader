@@ -40,7 +40,7 @@ export interface Messages extends StateMessages {
 export interface OnceMessages {
     getState: void;
     setState: SavedState;
-    downloadLibraries: { libraries: string };
+    downloadLibraries: { libraries: string[] };
     applyUpdates: { apply: boolean };
     updateAll: void;
     updateSingle: { type: "plugin" | "library", name: string };
