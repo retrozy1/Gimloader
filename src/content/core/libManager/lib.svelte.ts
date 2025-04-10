@@ -1,7 +1,6 @@
 import Net from "$core/net/net";
 import { log } from "$content/utils";
 import { parseLibHeader } from "$shared/parseHeader";
-import { uuidRegex } from "$content/scopedApi";
 import type { LibHeaders } from "$types/headers";
 
 export default class Lib {
@@ -9,7 +8,6 @@ export default class Lib {
     library: any;
     headers: LibHeaders = $state();
     usedBy = new Set<string>();
-    blobUuid: string | null = null;
     onStop: (() => void)[] = [];
     enablePromise: Promise<boolean> | null = null;
     
@@ -27,9 +25,10 @@ export default class Lib {
         if(this.enablePromise) return this.enablePromise;
 
         this.enablePromise = new Promise((res, rej) => {
-            let blob = new Blob([this.script], { type: 'application/javascript' });
+            let sourceUrl = `\n//# sourceURL=gimloader://libraries/${this.headers.name}.js`
+
+            let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);
-            this.blobUuid = url.match(uuidRegex)?.[0];
     
             import(url)
                 .then((returnVal) => {

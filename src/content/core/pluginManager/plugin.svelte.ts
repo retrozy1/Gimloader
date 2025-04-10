@@ -3,7 +3,6 @@ import { parsePluginHeader } from "$shared/parseHeader";
 import { confirmLibReload, log } from "$content/utils";
 import Net from "$core/net/net";
 import LibManager from "$core/libManager/libManager.svelte";
-import { uuidRegex } from "$content/scopedApi";
 import type { PluginHeaders } from "$types/headers";
 
 export default class Plugin {
@@ -11,7 +10,6 @@ export default class Plugin {
     enabled: boolean = $state();
     headers: PluginHeaders = $state();
     return: any = $state();
-    blobUuid: string | null = null;
     onStop: (() => void)[] = [];
     openSettingsMenu: (() => void)[] = $state([]);
     enablePromise: Promise<void> | null = null;
@@ -86,9 +84,10 @@ export default class Plugin {
             }
         
             // create a blob from the script and import it
-            let blob = new Blob([this.script], { type: 'application/javascript' });
+            let sourceUrl = `\n//# sourceURL=gimloader://plugins/${this.headers.name}.js`
+
+            let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);
-            this.blobUuid = url.match(uuidRegex)?.[0];
             
             import(url)
                 .then((returnVal) => {
@@ -128,8 +127,7 @@ export default class Plugin {
                 .catch((e: Error) => {
                     console.error(e);
                     this.errored = true;
-                    let stack = e.stack.replaceAll(url, `blob:${this.headers.name}.js`);
-                    let err = new Error(`Failed to enable plugin ${this.headers.name}:\n${stack}`);
+                    let err = new Error(`Failed to enable plugin ${this.headers.name}:\n${e.stack}`);
                     rej(err);
                 })
                 .finally(() => {
