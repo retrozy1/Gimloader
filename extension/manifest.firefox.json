@@ -18,7 +18,8 @@
             "js": ["js/relay/index.js"],
             "matches": [
                 "https://www.gimkit.com/*",
-                "https://gimloader.github.io/*"
+                "https://gimloader.github.io/*",
+                "http://localhost:4321/*"
             ],
             "run_at": "document_start"
         },
@@ -26,13 +27,6 @@
             "js": ["js/content/index.js"],
             "matches": [
                 "https://www.gimkit.com/*"
-            ],
-            "run_at": "document_start",
-            "world": "MAIN"
-        }, {
-            "js": ["js/installApi/index.js"],
-            "matches": [
-                "https://gimloader.github.io/*"
             ],
             "run_at": "document_start",
             "world": "MAIN"

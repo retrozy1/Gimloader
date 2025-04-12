@@ -22,19 +22,13 @@
             ],
             "run_at": "document_start",
             "world": "MAIN"
-        }, {
-            "js": ["js/installApi/index.js"],
-            "matches": [
-                "https://gimloader.github.io/*"
-            ],
-            "run_at": "document_start",
-            "world": "MAIN"
         }
     ],
     "externally_connectable": {
         "matches": [
             "https://www.gimkit.com/*",
-            "https://gimloader.github.io/*"
+            "https://gimloader.github.io/*",
+            "http://localhost:4321/*"
         ]
     },
     "background": {

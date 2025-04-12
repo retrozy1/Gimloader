@@ -15,7 +15,7 @@ export default new class Port extends EventEmitter {
     disconnected = $state(false);
     pendingMessages = new Map<string, (response?: any) => void>();
     runtime: typeof chrome.runtime;
-    signKeyRes: (key: CryptoKey) => void;''
+    signKeyRes: (key: CryptoKey) => void;
     signKey = new Promise<CryptoKey>((res) => this.signKeyRes = res);
 
     init(callback: StateCallback, subsequentCallback: StateCallback) {
@@ -38,8 +38,10 @@ export default new class Port extends EventEmitter {
         } else {
             if(isFirefox) {
                 this.port = chrome.runtime.connect();
-            } else {
+            } else if(chrome.runtime) {
                 this.port = chrome.runtime.connect(extensionId);
+            } else {
+                return;
             }
     
             this.runtime = chrome.runtime;
@@ -133,7 +135,7 @@ export default new class Port extends EventEmitter {
         }
     }
 
-    async send<Channel extends keyof StateMessages>(type: Channel, message: StateMessages[Channel] = undefined) {
+    send<Channel extends keyof StateMessages>(type: Channel, message: StateMessages[Channel] = undefined) {
         this.postMessage(type, message);
     }
 

@@ -3,7 +3,6 @@ import sveltePlugin from 'esbuild-svelte';
 import { sveltePreprocess } from 'svelte-preprocess';
 import postcss from 'postcss';
 import postcssLoadConfig from 'postcss-load-config';
-
 import { compileAsync } from "sass";
 import path from "path";
 
@@ -39,7 +38,7 @@ function importStyles(): Plugin {
     }
 }
 
-let entryPoints = ["src/content/index.ts", "src/background/index.ts", "src/installApi/index.ts", "src/popup/index.ts"];
+let entryPoints = ["src/content/index.ts", "src/background/index.ts", "src/popup/index.ts"];
 if(process.argv.includes("--firefox")) entryPoints.push("src/relay/index.ts");
 
 let config: BuildOptions = {
