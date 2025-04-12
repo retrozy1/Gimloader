@@ -6,7 +6,7 @@
     import Close from "svelte-material-icons/Close.svelte";
     import { defaultLibraryScript, defaultPluginScript } from "./consts";
     import State from "$shared/bareState.svelte";
-    import { parseLibHeader, parsePluginHeader } from "$shared/parseHeader";
+    import { parsePluginHeader } from "$shared/parseHeader";
 
     const params = new URLSearchParams(location.search);
     const type = params.get("type") as "plugin" | "library";
@@ -17,6 +17,9 @@
         if(type === "plugin") return State.plugins.find(p => p.name === name);
         else return State.libraries.find(l => l.name === name);
     });
+
+    let title = $derived(`${existing ? "Editing" : "Creating"} ${name ? `${type} ${name}` : `a new ${type}`}`);
+    $effect(() => { document.title = `${title} | Gimloader` });
 
     let editorDiv: HTMLElement = $state();
     let saved = $state(true);
@@ -76,9 +79,16 @@
 
         chrome.tabs.getCurrent().then((tab) => chrome.tabs.remove(tab.id));
     }
+
+    function onKeydown(e: KeyboardEvent) {
+        if(e.code === "KeyS" && e.ctrlKey) {
+            e.preventDefault();
+            save();
+        }
+    }
 </script>
 
-<svelte:window on:beforeunload={beforeUnload} />
+<svelte:window on:beforeunload={beforeUnload} onkeydown={onKeydown} />
 
 <div class="w-screen h-screen bg">
     {#if type !== "plugin" && type !== "library"}
@@ -86,12 +96,7 @@
     {:else}
         <div class="h-10 border-0 border-solid border-b border-white text-white text-2xl flex gap-2 items-center px-2">
             <div>
-                {existing ? "Editing" : "Creating"}
-                {#if name}
-                    {type} {name}
-                {:else}
-                    a new {type}
-                {/if}
+                {title}
             </div>
             <div class="flex-grow"></div>
             <button class="bg-white rounded-full flex items-center gap-2 px-2 cursor-pointer"
