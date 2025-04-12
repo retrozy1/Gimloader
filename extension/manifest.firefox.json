@@ -18,8 +18,7 @@
             "js": ["js/relay/index.js"],
             "matches": [
                 "https://www.gimkit.com/*",
-                "https://gimloader.github.io/*",
-                "http://localhost:4321/*"
+                "https://gimloader.github.io/*"
             ],
             "run_at": "document_start"
         },
@@ -47,7 +46,8 @@
     "permissions": [
         "storage",
         "unlimitedStorage",
-        "declarativeNetRequest"
+        "declarativeNetRequest",
+        "tabs"
     ],
     "browser_specific_settings": {
         "gecko": {

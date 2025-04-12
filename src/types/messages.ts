@@ -44,6 +44,7 @@ export interface OnceMessages {
     applyUpdates: { apply: boolean };
     updateAll: void;
     updateSingle: { type: "plugin" | "library", name: string };
+    showEditor: { type: "plugin" | "library", name?: string };
 }
 
 export interface OnceResponses {
@@ -53,4 +54,5 @@ export interface OnceResponses {
     applyUpdates: void;
     updateAll: string[];
     updateSingle: { updated: boolean, failed?: boolean, version?: string };
+    showEditor: void;
 }

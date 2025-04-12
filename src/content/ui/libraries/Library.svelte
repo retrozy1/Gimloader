@@ -6,10 +6,10 @@
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import Update from "svelte-material-icons/Update.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
-    import { showLibCodeEditor } from "../editCodeModals.svelte";
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import ListItem from "../components/ListItem.svelte";
     import Storage from "$core/storage.svelte";
+    import { showEditor } from "$content/utils";
 
     function deleteLib() {
         let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
@@ -55,7 +55,7 @@
         <button onclick={deleteLib}>
             <Delete size={28} />
         </button>
-        <button onclick={() => showLibCodeEditor(library)}>
+        <button onclick={() => showEditor("library", library.headers.name)}>
             <Pencil size={28} />
         </button>
         {#if library?.headers.downloadUrl}

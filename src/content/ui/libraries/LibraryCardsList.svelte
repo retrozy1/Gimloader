@@ -4,8 +4,7 @@
     import { dndzone } from "svelte-dnd-action";
     import Library from "./Library.svelte";
     import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
-    import { createLib } from "../editCodeModals.svelte";
-    import { readUserFile } from "$content/utils";
+    import { readUserFile, showEditor } from "$content/utils";
     import LibManager from "$core/libManager/libManager.svelte";
     import Storage from "$core/storage.svelte";
     import Search from "../components/Search.svelte";
@@ -74,7 +73,7 @@
 
 <div class="flex flex-col">
     <div class="flex items-center mb-[3px]">
-        <button onclick={() => createLib()}>
+        <button onclick={() => showEditor("library")}>
             <PlusBoxOutline size={32} />
         </button>
         <button onclick={importLib}>

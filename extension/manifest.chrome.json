@@ -27,8 +27,7 @@
     "externally_connectable": {
         "matches": [
             "https://www.gimkit.com/*",
-            "https://gimloader.github.io/*",
-            "http://localhost:4321/*"
+            "https://gimloader.github.io/*"
         ]
     },
     "background": {
@@ -46,7 +45,8 @@
     "permissions": [
         "storage",
         "unlimitedStorage",
-        "declarativeNetRequest"
+        "declarativeNetRequest",
+        "tabs"
     ],
     "host_permissions": [
         "https://www.gimkit.com/*",

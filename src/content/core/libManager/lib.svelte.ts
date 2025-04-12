@@ -25,7 +25,7 @@ export default class Lib {
         if(this.enablePromise) return this.enablePromise;
 
         this.enablePromise = new Promise((res, rej) => {
-            let sourceUrl = `\n//# sourceURL=gimloader://libraries/${this.headers.name}.js`
+            let sourceUrl = `\n//# sourceURL=gimloader://libraries/${encodeURIComponent(this.headers.name)}.js`
 
             let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);

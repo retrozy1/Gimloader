@@ -84,7 +84,7 @@ export default class Plugin {
             }
         
             // create a blob from the script and import it
-            let sourceUrl = `\n//# sourceURL=gimloader://plugins/${this.headers.name}.js`
+            let sourceUrl = `\n//# sourceURL=gimloader://plugins/${encodeURIComponent(this.headers.name)}.js`
 
             let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);

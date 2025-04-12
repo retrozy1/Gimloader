@@ -11,14 +11,14 @@ export default new class Port extends EventEmitter {
     firstMessage = true;
     firstState = true;
     firstCallback: StateCallback;
-    subsequentCallback: StateCallback;
+    subsequentCallback?: StateCallback;
     disconnected = $state(false);
     pendingMessages = new Map<string, (response?: any) => void>();
     runtime: typeof chrome.runtime;
     signKeyRes: (key: CryptoKey) => void;
     signKey = new Promise<CryptoKey>((res) => this.signKeyRes = res);
 
-    init(callback: StateCallback, subsequentCallback: StateCallback) {
+    init(callback: StateCallback, subsequentCallback?: StateCallback) {
         this.firstCallback = callback;
         this.subsequentCallback = subsequentCallback;
 
@@ -116,7 +116,7 @@ export default new class Port extends EventEmitter {
                 this.firstState = false;
                 this.firstCallback(data);
             } else {
-                this.subsequentCallback(data);
+                this.subsequentCallback?.(data);
             }
             
             this.firstMessage = false;

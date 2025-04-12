@@ -10,6 +10,7 @@ if(!fs.existsSync("./build/images")) {
 }
 fs.copyFileSync('./edit_csp.json', './build/edit_csp.json');
 fs.copyFileSync('./popup.html', './build/popup.html');
+fs.copyFileSync('./editor.html', './build/editor.html');
 
 let manifest: any;
 if(type === "firefox") {

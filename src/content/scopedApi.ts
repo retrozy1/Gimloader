@@ -17,7 +17,7 @@ export default function setupScoped(): ScopedInfo {
     if(!match) throw new Error("new GL() needs to be called by a plugin or library");
 
     let type = match[1];
-    let name = match[2];
+    let name = decodeURIComponent(match[2]);
 
     if(type === "plugins") {
         let plugin = PluginManager.getPlugin(name);

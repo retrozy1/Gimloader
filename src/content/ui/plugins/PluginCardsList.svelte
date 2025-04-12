@@ -2,8 +2,7 @@
     import { flip } from "svelte/animate";
     import { dndzone } from "svelte-dnd-action";
     import Plugin from "./Plugin.svelte";
-    import { createPlugin } from "../editCodeModals.svelte";
-    import { readUserFile } from "$content/utils";
+    import { readUserFile, showEditor } from "$content/utils";
     import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
     import Search from '../components/Search.svelte';
     import PluginManager from "$core/pluginManager/pluginManager.svelte";
@@ -89,7 +88,7 @@
 
 <div class="flex flex-col">
     <div class="flex items-center mb-[3px]">
-        <button onclick={() => createPlugin()}>
+        <button onclick={() => showEditor("plugin")}>
             <PlusBoxOutline size={32} />
         </button>
         <button onclick={importPlugin}>

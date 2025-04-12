@@ -5,9 +5,27 @@ import postcss from 'postcss';
 import postcssLoadConfig from 'postcss-load-config';
 import { compileAsync } from "sass";
 import path from "path";
+import fs from 'fs';
 
-console.time("Built");
-let timerRunning = true;
+if(!fs.existsSync('extension/build/js/editor/vs')) {
+    console.time("Built monaco");
+
+    const workerEntryPoints = [
+        'vs/language/typescript/ts.worker.js',
+        'vs/editor/editor.worker.js'
+    ];
+
+    await build({
+        entryPoints: workerEntryPoints.map((entry) => `node_modules/monaco-editor/esm/${entry}`),
+        bundle: true,
+        format: "iife",
+        outbase: "node_modules/monaco-editor/esm/",
+        outdir: "extension/build/js/editor",
+        minify: true
+    });
+
+    console.timeEnd("Built monaco");
+}
 
 // unholy amalgamation of esbuild-postcss-inline-styles and esbuild-style-plugin
 function importStyles(): Plugin {
@@ -41,20 +59,23 @@ function importStyles(): Plugin {
 let entryPoints = ["src/content/index.ts", "src/background/index.ts", "src/popup/index.ts"];
 if(process.argv.includes("--firefox")) entryPoints.push("src/relay/index.ts");
 
-let config: BuildOptions = {
-    entryPoints,
+let base: BuildOptions = {
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser", "production"],
     bundle: true,
     outdir: "extension/build/js",
+    outbase: "src",
+    minify: true
+}
+
+let config: BuildOptions = {
+    ...base,
+    entryPoints,
     plugins: [
         sveltePlugin({
             preprocess: sveltePreprocess(),
             compilerOptions: {
                 css: "injected"
-            },
-            esbuildTsTransformOptions: {
-                loader: "ts"
             }
         }),
         importStyles()
@@ -66,32 +87,60 @@ let config: BuildOptions = {
     minify: true
 }
 
+let editorConfig: BuildOptions = {
+    ...base,
+    entryPoints: ["src/editor/index.ts"],
+    plugins: [
+        sveltePlugin({
+            preprocess: sveltePreprocess(),
+            compilerOptions: {
+                css: "injected"
+            }
+        }),
+        importStyles()
+    ],
+    loader: {
+        ".ttf": "file"
+    }
+}
+
+let buildsRunning = 0;
 
 if(process.argv.includes("-w") || process.argv.includes("--watch")) {
-    config.plugins!.push({
+    let rebuildNotify: Plugin = { 
         name: "rebuild-notify",
         setup(build) {
             build.onStart(() => {
+                buildsRunning++;
+                if(buildsRunning > 1) return;
                 process.stdout.write("Building...")
-                if(timerRunning) {
-                    timerRunning = false;
-                } else {
-                    console.time("Built");
-                }
-            })
+                console.time("Built");
+            });
             build.onEnd(result => {
+                buildsRunning--;
+                if(buildsRunning > 0) return;
                 process.stdout.write("\r")
                 console.timeEnd("Built");
                 if(result.errors.length > 0) {
                     console.log("Build finished with", result.errors, "errors");
                 }
-            })
+            });
         }
-    })
+    }
+    
+    config.plugins!.push(rebuildNotify);
+    editorConfig.plugins!.push(rebuildNotify);
 
     const ctx = await context(config);
-    await ctx.watch();
+    const editorCtx = await context(editorConfig);
+
+    ctx.watch();
+    editorCtx.watch();
 } else {
-    await build(config);
+    await Promise.all([
+        build(config),
+        build(editorConfig)
+    ]);
+
     console.timeEnd("Built")
 }

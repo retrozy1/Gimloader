@@ -1,4 +1,5 @@
 import type Lib from "$core/libManager/lib.svelte";
+import Port from "$shared/port.svelte";
 
 export function log(...args: any[]) {
     console.log('%c[GL]', 'color:#5030f2', ...args);
@@ -116,4 +117,8 @@ export function readUserFile(accept: string, callback: (text: string) => void) {
     });
 
     input.click();
+}
+
+export function showEditor(type: "plugin" | "library", name?: string) {
+    Port.sendAndRecieve("showEditor", { type, name });
 }

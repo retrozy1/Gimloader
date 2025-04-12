@@ -1,7 +1,6 @@
 <script lang="ts">
     import type Plugin from "$core/pluginManager/plugin.svelte";
     import PluginManager from "$core/pluginManager/pluginManager.svelte";
-    import { showPluginCodeEditor } from "../editCodeModals.svelte";
     import { checkPluginUpdate } from "$core/net/checkUpdates";
     import { Toggle, Modal } from "flowbite-svelte";
     import Card from "../components/Card.svelte";
@@ -17,6 +16,7 @@
     import Cog from "svelte-material-icons/Cog.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertCircleOutline from 'svelte-material-icons/AlertCircleOutline.svelte';
+    import { showEditor } from "$content/utils";
 
     interface Props {
         startDrag: () => void;
@@ -91,7 +91,7 @@
         <button onclick={() => deletePlugin(plugin)}>
             <Delete size={28} />
         </button>
-        <button onclick={() => showPluginCodeEditor(plugin)}>
+        <button onclick={() => showEditor("plugin", plugin.headers.name)}>
             <Pencil size={28} />
         </button>
         {#if plugin?.openSettingsMenu?.length != 0}
