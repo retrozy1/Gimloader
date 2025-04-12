@@ -46,7 +46,10 @@ export default new class Server {
 
     onConnect(port: Port) {
         this.open.add(port);
-        port.onDisconnect.addListener(() => this.open.delete(port));
+        port.onDisconnect.addListener(() => {
+            chrome.runtime.lastError; // suppress error messages
+            this.open.delete(port)
+        });
 
         statePromise.then((state) => port.postMessage(state));
 
