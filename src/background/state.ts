@@ -1,6 +1,6 @@
 import type { ConfigurableHotkeysState, CustomServerConfig, LibraryInfo, PluginInfo, PluginStorage,
     SavedState, ScriptInfo, Settings, State } from "$types/state";
-import { makeDefaultCustomServer, defaultCustomServerConfig, defaultSettings } from "$shared/consts";
+import { defaultCustomServerConfig, defaultSettings } from "$shared/consts";
 import debounce from "debounce";
 
 export let statePromise = new Promise<State>(async (res) => {
@@ -160,13 +160,20 @@ export function sanitizeCustomServer(config: CustomServerConfig) {
     
     if(Array.isArray(config.servers)) {
         for(let i = 0; i < config.servers.length; i++) {
-            config.servers[i] = copyOverDefault(config.servers[i], makeDefaultCustomServer());
+            let server = config.servers[i];
+            if(typeof server.address !== "string" || typeof server.id !== "string"
+                || typeof server.name !== "string" || typeof server.port !== "number") {
+                config.servers.splice(i, 1);
+                i--;
+            }
         }
     } else {
-        config.servers = [ makeDefaultCustomServer() ];
+        config.servers = [];
     }
 
-    if(config.selected !== null) {
+    if(config.servers.length === 0) {
+        config.selected = null;
+    } else if(config.selected !== null) {
         if(typeof config.selected !== "number" || config.selected < 0 || config.selected >= config.servers.length) {
             config.selected = 0;
         }

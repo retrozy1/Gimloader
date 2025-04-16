@@ -60,6 +60,9 @@
         </button>
         <ViewControl />
     </div>
+    {#if CustomServer.config.servers.length === 0}
+        <h2 class="text-xl">You have no custom servers added!</h2>
+    {/if}
     <div class="max-h-full overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
         use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
         onconsider={handleDndConsider} onfinalize={handleDndFinalize}>

@@ -230,11 +230,17 @@ export default new class CustomServer {
             ...info,
             id: crypto.randomUUID()
         });
+
+        if(this.config.selected === null) {
+            this.config.selected = this.config.servers.length - 1;
+        }
+        
         this.save();
     }
 
     deleteServer(server: CustomServerType) {
         this.config.servers = this.config.servers.filter(s => s !== server);
+        this.save();
     }
 
     editServer(server: CustomServerType, info: CreatedInfo) {
