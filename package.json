@@ -8,11 +8,11 @@
     "build": "bun run scripts/build.ts",
     "watch": "bun run scripts/build.ts -w",
     "buildExt": "cd extension && bun run scripts/build.ts chrome",
-    "buildAll": "bun run build && bun run buildExt",
+    "buildAll": "bun run buildExt && bun run build",
     "buildFirefox": "bun run scripts/build.ts --firefox",
     "watchFirefox": "bun run scripts/build.ts -w --firefox",
     "buildExtFirefox": "cd extension && bun run scripts/build.ts firefox",
-    "buildAllFirefox": "bun run buildFirefox && bun run buildExtFirefox",
+    "buildAllFirefox": "bun run buildExtFirefox && bun run buildFirefox",
     "buildTypes": "tsc -p declaration.tsconfig.json",
     "typeCheck": "tsc --noEmit"
   },
