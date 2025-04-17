@@ -75,6 +75,7 @@
 
     function close() {
         if(!saved && !confirm("You have unsaved changes! Are you sure you want to exit?")) return;
+        saved = true;
 
         chrome.tabs.getCurrent().then((tab) => chrome.tabs.remove(tab.id));
     }
