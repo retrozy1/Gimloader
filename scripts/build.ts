@@ -7,7 +7,9 @@ import { compileAsync } from "sass";
 import path from "path";
 import fs from 'fs';
 
-if(!fs.existsSync('extension/build/js/editor/vs')) {
+const isFirefox = process.argv.includes("--firefox");
+
+if(!isFirefox && !fs.existsSync('extension/build/js/editor/vs')) {
     console.time("Built monaco");
 
     const workerEntryPoints = [
@@ -57,19 +59,19 @@ function importStyles(): Plugin {
 }
 
 let entryPoints = ["src/content/index.ts", "src/background/index.ts", "src/popup/index.ts"];
-if(process.argv.includes("--firefox")) entryPoints.push("src/relay/index.ts");
+if(isFirefox) entryPoints.push("src/relay/index.ts");
 
 let base: BuildOptions = {
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser", "production"],
     bundle: true,
-    outdir: "extension/build/js",
     outbase: "src",
     minify: true
 }
 
 let config: BuildOptions = {
     ...base,
+    outdir: "extension/build/js",
     entryPoints,
     plugins: [
         sveltePlugin({
@@ -89,7 +91,8 @@ let config: BuildOptions = {
 
 let editorConfig: BuildOptions = {
     ...base,
-    entryPoints: ["src/editor/index.ts"],
+    entryPoints: [ isFirefox ? "src/editor/firefox.ts" : "src/editor/chrome.ts" ],
+    outfile: "extension/build/js/editor/index.js",
     plugins: [
         sveltePlugin({
             preprocess: sveltePreprocess(),

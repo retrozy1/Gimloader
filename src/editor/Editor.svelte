@@ -1,19 +1,20 @@
 <script lang="ts">
     import Port from "$shared/port.svelte";
-    import * as monaco from "monaco-editor";
     import ContentSaveAlertOutline from "svelte-material-icons/ContentSaveAlertOutline.svelte";
     import ContentSaveOutline from "svelte-material-icons/ContentSaveOutline.svelte";
     import Close from "svelte-material-icons/Close.svelte";
     import { defaultLibraryScript, defaultPluginScript } from "./consts";
     import State from "$shared/bareState.svelte";
     import { parsePluginHeader } from "$shared/parseHeader";
+    import type { CreateEditor, Editor } from "$types/editor";
+
+    let { createEditor }: { createEditor: CreateEditor } = $props();
 
     const params = new URLSearchParams(location.search);
     const type = params.get("type") as "plugin" | "library";
     let name: string | undefined = $state(params.get("name"));
 
     let existing = $derived.by(() => {
-        console.log(State.plugins)
         if(type === "plugin") return State.plugins.find(p => p.name === name);
         else return State.libraries.find(l => l.name === name);
     });
@@ -23,7 +24,7 @@
 
     let editorDiv: HTMLElement = $state();
     let saved = $state(true);
-    let editor: monaco.editor.IStandaloneCodeEditor;
+    let editor: Editor;
 
     State.init(() => {
         let value: string;
@@ -32,13 +33,11 @@
         else if(type === "plugin") value = defaultPluginScript;
         else value = defaultLibraryScript;
 
-        editor = monaco.editor.create(editorDiv, {
-            value,
-            language: "javascript",
-            theme: "vs-dark"
+        editor = createEditor({
+            element: editorDiv,
+            code: value,
+            onChange: () => saved = false
         });
-
-        editor.getModel().onDidChangeContent(() => saved = false);
     });
 
     function save() {
@@ -114,7 +113,7 @@
                 Exit
             </button>
         </div>
-        <div style="height: calc(100vh - 41px)" class="w-full" bind:this={editorDiv}></div>
+        <div style="height: calc(100vh - 41px)" class="w-full grid" bind:this={editorDiv}></div>
     {/if}
 </div>
 

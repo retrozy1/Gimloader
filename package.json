@@ -52,6 +52,13 @@
     "typescript": "^5.6.2"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-javascript": "^6.2.3",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@codemirror/view": "^6.36.5",
+    "@uiw/codemirror-extensions-hyper-link": "^4.23.10",
+    "codemirror": "^6.0.1",
     "debounce": "^2.1.0",
     "eventemitter2": "^6.4.9",
     "flowbite": "^2.5.1",

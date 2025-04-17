@@ -3,6 +3,7 @@ import types from "./gimloaderTypes.txt";
 import { mount } from 'svelte';
 import Editor from './Editor.svelte';
 import styles from "../shared/tailwind.scss";
+import type { EditorOptions } from '$types/editor';
 
 self.MonacoEnvironment = {
 	getWorkerUrl: function (moduleId, label) {
@@ -19,4 +20,21 @@ let style = document.createElement("style");
 style.innerHTML = styles;
 document.head.appendChild(style);
 
-mount(Editor, { target: document.body });
+mount(Editor, {
+	props: {
+		createEditor: (options: EditorOptions) => {
+			let editor = monaco.editor.create(options.element, {
+				value: options.code,
+				language: "javascript",
+				theme: "vs-dark"
+			});
+	
+			editor.getModel().onDidChangeContent(options.onChange);
+
+			return {
+				getValue: () => editor.getValue()
+			}
+		}
+	},
+	target: document.body
+});
