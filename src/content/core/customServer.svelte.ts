@@ -6,6 +6,7 @@ import UI from "./ui/ui";
 import customServerToggle from "$content/ui/server/customServerToggle";
 import Storage from "./storage.svelte";
 import toast from "svelte-5-french-toast";
+import Net from "./net/net";
 
 export interface CreatedInfo {
     name: string;
@@ -17,9 +18,11 @@ export default new class CustomServer {
     config: CustomServerConfig = $state();
     selected: CustomServerType = $derived(this.config.servers[this.config.selected]);
     user: any;
+    inCustomServer = false;
 
     init(config: CustomServerConfig) {
         this.config = config;
+        let params = new URLSearchParams(location.search);
 
         document.documentElement.classList.toggle("noServerButton", !this.config.enabled);
         Port.on("customServerUpdate", (config) => {
@@ -28,8 +31,21 @@ export default new class CustomServer {
         });        
         this.addJoinToggle();
 
+        if(location.pathname === "/host" && params.get("custom") === "true") this.inCustomServer = true;
+
+        // listen for cosmetic changes
+        Parcel.getLazy(null, exports => exports?.selectCosmetic, (exports) => {
+            Patcher.after(null, exports, "selectCosmetic", (_, args) => {
+                if(!config.enabled || !Storage.settings.joiningCustomServer) return;
+                Net.send("SELECT_COSMETIC", {
+                    cosmeticId: args[0].cosmeticId,
+                    cosmeticType: args[0].cosmeticType,
+                    editStyles: args[0].editStyles
+                });
+            });
+        });
+
         // requester
-        let params = new URLSearchParams(location.search);
         Parcel.getLazy(null, exports => exports?.request && exports?.generateId, (exports) => {
             let request = exports.request;
             delete exports.request;
@@ -88,7 +104,10 @@ export default new class CustomServer {
 
                     if(Storage.settings.joiningCustomServer) {
                         let customRes = await runFetch("/gimloader" + codeUrl);
-                        if(customRes) return req.success(customRes);
+                        if(customRes) {
+                            me.inCustomServer = true;
+                            return req.success(customRes);
+                        }
                         
                         let mainRes = await runFetch(codeUrl);
                         if(!mainRes) return returnMissing();
@@ -103,6 +122,7 @@ export default new class CustomServer {
                         let customRes = await runFetch("/gimloader" + codeUrl);
                         if(!customRes) return returnMissing();
 
+                        me.inCustomServer = true;
                         Storage.updateSetting("joiningCustomServer", true);
                         toast("Automatically switched to custom server");
                         req.success(customRes);
