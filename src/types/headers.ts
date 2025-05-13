@@ -1,4 +1,4 @@
-export interface PluginHeaders {
+export interface ScriptHeaders {
     name: string;
     description: string;
     author: string;
@@ -6,21 +6,9 @@ export interface PluginHeaders {
     reloadRequired: string;
     isLibrary: string;
     downloadUrl: string | null;
+    webpage: string | null;
     needsLib: string[];
     optionalLib: string[];
+    /** Only available for plugins */
     hasSettings: string;
-    webpage: string | null;
 }
-
-export interface LibHeaders {
-    name: string;
-    description: string;
-    author: string;
-    version: string | null;
-    reloadRequired: string;
-    isLibrary: string;
-    downloadUrl: string | null;
-    webpage: string | null;
-}
-
-export type ScriptHeaders = PluginHeaders | LibHeaders;

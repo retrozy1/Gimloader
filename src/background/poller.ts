@@ -1,6 +1,6 @@
 import SettingsHandler from './messageHandlers/settings';
 import { saveDebounced, statePromise } from './state';
-import { parseLibHeader, parsePluginHeader } from '$shared/parseHeader';
+import { parseScriptHeaders } from '$shared/parseHeader';
 import Server from './server';
 import { isFirefox } from '$shared/consts';
 
@@ -41,8 +41,8 @@ export default class Poller {
 
         this.sendRequest();
 
+        let headers = parseScriptHeaders(text);
         if(res.headers.get('is-library') === 'true') {
-            let headers = parseLibHeader(text);
             let lib = state.libraries.find(l => l.name === headers.name);
             if(lib) {
                 lib.script = text;
@@ -56,7 +56,6 @@ export default class Poller {
             Server.send("toast", { type: "success", message: `Hot reloaded library ${headers.name}`});
             saveDebounced('libraries');
         } else {
-            let headers = parsePluginHeader(text);
             let plugin = state.plugins.find(p => p.name === headers.name);
             if(plugin) {
                 plugin.script = text;

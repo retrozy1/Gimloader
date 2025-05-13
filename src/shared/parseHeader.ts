@@ -1,7 +1,7 @@
-import type { LibHeaders, PluginHeaders } from "$types/headers";
+import type { ScriptHeaders } from "$types/headers";
 
-export function parsePluginHeader(code: string): PluginHeaders {
-    const basePluginHeaders: PluginHeaders = {
+export function parseScriptHeaders(code: string): ScriptHeaders {
+    const basePluginHeaders: ScriptHeaders = {
         name: "Unnamed Plugin",
         description: "No description provided",
         author: "Unknown Author",
@@ -15,22 +15,7 @@ export function parsePluginHeader(code: string): PluginHeaders {
         webpage: null
     };
 
-    return parseHeader<PluginHeaders>(code, basePluginHeaders);
-}
-
-export function parseLibHeader(code: string): LibHeaders {
-    const baseLibHeaders: LibHeaders = {
-        name: 'Unnamed Library',
-        description: 'No description provided',
-        author: 'Unknown Author',
-        version: null,
-        downloadUrl: null,
-        isLibrary: "false",
-        reloadRequired: "false",
-        webpage: null
-    }
-
-    return parseHeader<LibHeaders>(code, baseLibHeaders);
+    return parseHeader<ScriptHeaders>(code, basePluginHeaders);
 }
 
 export function parseHeader<T>(code: string, headers: T): T {    

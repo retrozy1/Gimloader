@@ -1,6 +1,6 @@
 import showErrorMessage from "$content/ui/showErrorMessage";
 import { log } from "$content/utils";
-import { parsePluginHeader } from "$shared/parseHeader";
+import { parseScriptHeaders } from "$shared/parseHeader";
 import Plugin from "./plugin.svelte";
 import Storage from "$core/storage.svelte";
 import type { PluginInfo } from "$types/state";
@@ -26,7 +26,7 @@ export default new class PluginManager {
         Port.on("pluginsSetAll", ({ enabled }) => this.setAll(enabled, false));
         Port.on("pluginsDeleteAll", () => this.deleteAll(false));
 
-        let results = await Promise.allSettled(this.plugins.filter(p => p.enabled).map(p => p.launch(true)));
+        let results = await Promise.allSettled(this.plugins.filter(p => p.enabled).map(p => p.start(true)));
         let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
 
         if(fails.length > 0) {
@@ -69,7 +69,7 @@ export default new class PluginManager {
 
             if(plugin.enabled !== info.enabled) {
                 if(info.enabled) {
-                    plugin.launch()
+                    plugin.start()
                         .catch((e: Error) => {
                             showErrorMessage(e.message, `Failed to enable plugin ${info.name}`);
                         });
@@ -98,7 +98,7 @@ export default new class PluginManager {
     }
 
     async createPlugin(script: string, emit = true) {
-        let headers = parsePluginHeader(script);
+        let headers = parseScriptHeaders(script);
 
         if(headers.isLibrary !== "false") {
             toast.error("That script doesn't appear to be a plugin! If it should be, please remove the isLibrary header, and if not, please import it as a library.");
@@ -130,7 +130,7 @@ export default new class PluginManager {
             }
         }
 
-        plugin.launch()
+        plugin.start()
             .catch((e: Error) => {
                 showErrorMessage(e.message, `Failed to enable plugin ${plugin.headers.name}`);
             });
@@ -162,7 +162,7 @@ export default new class PluginManager {
         for(let plugin of this.plugins) plugin.enabled = enabled;
 
         if(enabled) {
-            Promise.allSettled(this.plugins.filter(p => !p.enabled).map(p => p.launch()))
+            Promise.allSettled(this.plugins.filter(p => !p.enabled).map(p => p.start()))
                 .then(results => {
                     let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
                     if(fails.length > 0) {
@@ -196,7 +196,7 @@ export default new class PluginManager {
         let plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
 
-        let headers = parsePluginHeader(script);
+        let headers = parseScriptHeaders(script);
 
         if(plugin.enabled) plugin.stop();
 
@@ -219,7 +219,7 @@ export default new class PluginManager {
         plugin.headers = headers;
 
         if(plugin.enabled) {
-            plugin.launch(false)
+            plugin.start(false)
                 .catch((e) => {
                     showErrorMessage(e.message, `Failed to enable plugin ${plugin.headers.name}`);
                 });
@@ -245,7 +245,7 @@ export default new class PluginManager {
         if(enabled) {
             plugin.enabled = true;
             if(emit) Port.send("pluginToggled", { name: plugin.headers.name, enabled: true });
-            await plugin.launch()
+            await plugin.start()
                 .catch((e) => {
                     if(!e?.message) return;
                     showErrorMessage(e.message, `Failed to enable plugin ${plugin.headers.name}`);

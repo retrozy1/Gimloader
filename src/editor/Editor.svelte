@@ -5,7 +5,7 @@
     import Close from "svelte-material-icons/Close.svelte";
     import { defaultLibraryScript, defaultPluginScript } from "./consts";
     import State from "$shared/bareState.svelte";
-    import { parsePluginHeader } from "$shared/parseHeader";
+    import { parseScriptHeaders } from "$shared/parseHeader";
     import type { CreateEditor, Editor } from "$types/editor";
 
     let { createEditor }: { createEditor: CreateEditor } = $props();
@@ -42,7 +42,7 @@
 
     function save() {
         let script = editor.getValue();
-        let headers = parsePluginHeader(script); // works fine for both types, for what we need
+        let headers = parseScriptHeaders(script);
 
         if(type === "plugin") {
             if(headers.isLibrary !== "false") {

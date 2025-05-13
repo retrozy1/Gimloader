@@ -3,6 +3,7 @@ import type { OnceMessages, OnceResponses, StateMessages } from "$types/messages
 import { saveDebounced } from "$bg/state";
 import Server from "$bg/server";
 import { formatDownloadUrl } from "$shared/net";
+import { parseScriptHeaders } from "$shared/parseHeader";
 
 interface MissingLib {
     name: string;
@@ -59,52 +60,75 @@ export default class LibrariesHandler {
         this.save();
     }
 
-    static async downloadLibraries(state: State, message: OnceMessages["downloadLibraries"],
+    static downloadLibraries(state: State, message: OnceMessages["downloadLibraries"],
         reply: (response: OnceResponses["downloadLibraries"]) => void) {
-        let missing: MissingLib[] = [];
     
-        for(let lib of message.libraries) {
-            let parts = lib.split('|');
-            let name = parts[0].trim();
-            let url = parts[1]?.trim();
-    
-            if(state.libraries.some(l => l.name === name)) continue;    
-            missing.push({ name, url });
-        }
-    
-        if(missing.length === 0) return reply({ allDownloaded: true });
-    
-        // attempt to download ones with a url
-        let downloadable = missing.filter(m => m.url);
-        let results = await Promise.allSettled(downloadable.map(({ name, url }) => {
-            return new Promise<string>(async (res, rej) => {
-                let resp = await fetch(formatDownloadUrl(url))
-                    .catch(() => rej(`Failed to download library ${name} from ${url}`));
-                if(!resp) return;
-                if(resp.status !== 200) return rej(`Failed to download library ${name} from ${url}\nRecieved response status of ${resp.status}`);
+        let undownloadable = false;
+        let active = 0;
+        let errors: string[] = [];
+        const installing = new Set<string>();
 
-                let text = await resp.text();
-                res(text);
-            });
-        }));
-    
-        // create the libraries that successfully were returned
-        for(let i = 0; i < results.length; i++) {
-            let res = results[i];
-            if(res.status !== "fulfilled") continue;
-            
-            let message = { name: downloadable[i].name, script: res.value };
-            this.onLibraryCreate(state, message);
-            Server.send("libraryCreate", message);
-        }
-    
-        // return any errors that happened
-        let failed = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
-        if(failed.length > 0) {
-            let msg = failed.map(f => f.reason).join('\n');
-            return reply({ allDownloaded: false, error: msg });
+        const finish = () => {
+            // return any errors that happened
+            if(errors.length > 0) {
+                let message = errors.join("\n");
+                return reply({ allDownloaded: false, error: message });
+            }
+
+            reply({ allDownloaded: !undownloadable });
         }
 
-        reply({ allDownloaded: missing.length === downloadable.length });
+        const processLibs = (libraries: string[], first = false) => {
+            let missing: MissingLib[] = [];
+
+            for(let lib of libraries) {
+                let parts = lib.split('|');
+                let name = parts[0].trim();
+                let url = parts[1]?.trim();
+        
+                if(state.libraries.some(l => l.name === name)) continue;    
+                missing.push({ name, url });
+            }
+
+            if(missing.length === 0 && first) {
+                finish();
+                return;
+            }
+
+            // attempt to download ones with a url
+            let downloadable = missing.filter(m => m.url);
+            if(downloadable.length !== missing.length) undownloadable = true;
+
+            for(let { name, url } of downloadable) {
+                if(installing.has(name)) continue;
+                installing.add(name);
+                active++;
+
+                new Promise<string>(async (res, rej) => {
+                    let resp = await fetch(formatDownloadUrl(url))
+                        .catch(() => rej(`Failed to download library ${name} from ${url}`));
+                    if(!resp) return;
+                    if(resp.status !== 200) return rej(`Failed to download library ${name} from ${url}\nRecieved response status of ${resp.status}`);
+
+                    let text = await resp.text();
+                    res(text);
+                })
+                .then((script) => {
+                    let message = { name, script };
+                    this.onLibraryCreate(state, message);
+                    Server.send("libraryCreate", message);
+
+                    let headers = parseScriptHeaders(script);
+                    processLibs(headers.needsLib);
+                })
+                .catch((err) => errors.push(err))
+                .finally(() => {
+                    active--;
+                    if(active == 0) finish();
+                });
+            }
+        }
+
+        processLibs(message.libraries, true);
     }
 }

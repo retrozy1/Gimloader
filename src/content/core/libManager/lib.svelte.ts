@@ -1,31 +1,45 @@
 import Net from "$core/net/net";
-import { log } from "$content/utils";
-import { parseLibHeader } from "$shared/parseHeader";
-import type { LibHeaders } from "$types/headers";
+import { loadLibs, log } from "$content/utils";
+import { parseScriptHeaders } from "$shared/parseHeader";
+import type { ScriptHeaders } from "$types/headers";
 
 export default class Lib {
     script: string;
     library: any;
-    headers: LibHeaders = $state();
+    headers: ScriptHeaders = $state();
     usedBy = new Set<string>();
     onStop: (() => void)[] = [];
     enablePromise: Promise<boolean> | null = null;
     
-    constructor(script: string, headers?: LibHeaders) {
+    constructor(script: string, headers?: ScriptHeaders) {
         this.script = script;
 
         if(headers) {
             this.headers = headers;
         } else {
-            this.headers = parseLibHeader(script);
+            this.headers = parseScriptHeaders(script);
         }
     }
 
-    enable(initial: boolean = false) {
+    start(initial: boolean = false, alreadyStartedLibs: string[] = []) {
         if(this.enablePromise) return this.enablePromise;
 
-        this.enablePromise = new Promise((res, rej) => {
-            let sourceUrl = `\n//# sourceURL=gimloader://libraries/${encodeURIComponent(this.headers.name)}.js`
+        this.enablePromise = new Promise(async (res, rej) => {
+            if(alreadyStartedLibs.includes(this.headers.name)) {
+                // circular import, bad
+                rej(new Error(`Circular reference when importing library ${this.headers.name} (${alreadyStartedLibs.join(", ")})`));
+                return;
+            }
+            alreadyStartedLibs.push(this.headers.name);
+
+            try {
+                await loadLibs(this.headers, initial, alreadyStartedLibs);
+            } catch(err) {
+                rej(err);
+                return;
+            }
+
+            let sourceUrl = `\n//# sourceURL=gimloader://libraries/${encodeURIComponent(this.headers.name)}.js`;
 
             let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);

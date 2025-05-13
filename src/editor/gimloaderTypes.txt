@@ -158,7 +158,7 @@ export default EventEmitter2;
 
 }
 declare module "types/headers" {
-    export interface PluginHeaders {
+    export interface ScriptHeaders {
         name: string;
         description: string;
         author: string;
@@ -166,75 +166,11 @@ declare module "types/headers" {
         reloadRequired: string;
         isLibrary: string;
         downloadUrl: string | null;
+        webpage: string | null;
         needsLib: string[];
         optionalLib: string[];
+        /** Only available for plugins */
         hasSettings: string;
-        webpage: string | null;
-    }
-    export interface LibHeaders {
-        name: string;
-        description: string;
-        author: string;
-        version: string | null;
-        reloadRequired: string;
-        isLibrary: string;
-        downloadUrl: string | null;
-        webpage: string | null;
-    }
-    export type ScriptHeaders = PluginHeaders | LibHeaders;
-}
-declare module "content/core/parcel" {
-    interface ModuleObject {
-        id: string;
-        exports: any;
-    }
-    /** @inline */
-    export type Matcher = (exports: any, id: string) => boolean;
-    interface LazyCheck {
-        id: string;
-        matcher: Matcher;
-        callback: (exports: any) => any;
-    }
-    export default class Parcel {
-        static _parcelModuleCache: Record<string, ModuleObject>;
-        static _parcelModules: Record<string, any>;
-        static lazyChecks: LazyCheck[];
-        static init(): void;
-        static query(matcher: Matcher, multiple?: boolean): any;
-        static getLazy(id: string | null, matcher: Matcher, callback: (exports: any) => any, initial?: boolean): () => void;
-        static stopLazy(id: string): void;
-    }
-}
-declare module "content/core/patcher" {
-    /** @inline */
-    export type PatcherAfterCallback = (thisVal: any, args: IArguments, returnVal: any) => any;
-    /** @inline */
-    export type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | void;
-    /** @inline */
-    export type PatcherInsteadCallback = (thisVal: any, args: IArguments) => void;
-    type Patch = {
-        callback: PatcherBeforeCallback;
-        point: 'before';
-    } | {
-        callback: PatcherAfterCallback;
-        point: 'after';
-    } | {
-        callback: PatcherInsteadCallback;
-        point: 'instead';
-    };
-    export default class Patcher {
-        static patches: Map<object, Map<string, {
-            original: any;
-            patches: Patch[];
-        }>>;
-        static unpatchers: Map<string, (() => void)[]>;
-        static applyPatches(object: object, property: string): void;
-        static addPatch(object: object, property: string, patch: Patch): void;
-        static getRemovePatch(id: string | null, object: object, property: string, patch: Patch): () => void;
-        static after(id: string | null, object: object, property: string, callback: PatcherAfterCallback): () => void;
-        static before(id: string | null, object: object, property: string, callback: PatcherBeforeCallback): () => void;
-        static instead(id: string | null, object: object, property: string, callback: PatcherInsteadCallback): () => void;
-        static unpatchAll(id: string): void;
     }
 }
 declare module "types/hotkeys" {
@@ -305,6 +241,60 @@ declare module "types/state" {
     }
     export interface State extends SavedState {
         availableUpdates: string[];
+    }
+}
+declare module "content/core/parcel" {
+    interface ModuleObject {
+        id: string;
+        exports: any;
+    }
+    /** @inline */
+    export type Matcher = (exports: any, id: string) => boolean;
+    interface LazyCheck {
+        id: string;
+        matcher: Matcher;
+        callback: (exports: any) => any;
+    }
+    export default class Parcel {
+        static _parcelModuleCache: Record<string, ModuleObject>;
+        static _parcelModules: Record<string, any>;
+        static lazyChecks: LazyCheck[];
+        static init(): void;
+        static query(matcher: Matcher, multiple?: boolean): any;
+        static getLazy(id: string | null, matcher: Matcher, callback: (exports: any) => any, initial?: boolean): () => void;
+        static stopLazy(id: string): void;
+    }
+}
+declare module "content/core/patcher" {
+    /** @inline */
+    export type PatcherAfterCallback = (thisVal: any, args: IArguments, returnVal: any) => any;
+    /** @inline */
+    export type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | void;
+    /** @inline */
+    export type PatcherInsteadCallback = (thisVal: any, args: IArguments) => void;
+    type Patch = {
+        callback: PatcherBeforeCallback;
+        point: 'before';
+    } | {
+        callback: PatcherAfterCallback;
+        point: 'after';
+    } | {
+        callback: PatcherInsteadCallback;
+        point: 'instead';
+    };
+    export default class Patcher {
+        static patches: Map<object, Map<string, {
+            original: any;
+            patches: Patch[];
+        }>>;
+        static unpatchers: Map<string, (() => void)[]>;
+        static applyPatches(object: object, property: string): void;
+        static addPatch(object: object, property: string, patch: Patch): void;
+        static getRemovePatch(id: string | null, object: object, property: string, patch: Patch): () => void;
+        static after(id: string | null, object: object, property: string, callback: PatcherAfterCallback): () => void;
+        static before(id: string | null, object: object, property: string, callback: PatcherBeforeCallback): () => void;
+        static instead(id: string | null, object: object, property: string, callback: PatcherInsteadCallback): () => void;
+        static unpatchAll(id: string): void;
     }
 }
 declare module "content/core/net/net" {
@@ -789,6 +779,9 @@ declare module "content/api/libs" {
             isLibrary: string;
             downloadUrl: string | null;
             webpage: string | null;
+            needsLib: string[];
+            optionalLib: string[];
+            hasSettings: string;
         };
         /** Gets the exported values of a library */
         get<T = any>(name: string): T;
@@ -810,10 +803,10 @@ declare module "content/api/plugins" {
             reloadRequired: string;
             isLibrary: string;
             downloadUrl: string | null;
+            webpage: string | null;
             needsLib: string[];
             optionalLib: string[];
             hasSettings: string;
-            webpage: string | null;
         };
         /** Gets the exported values of a plugin, if it has been enabled */
         get<T = any>(name: string): T;

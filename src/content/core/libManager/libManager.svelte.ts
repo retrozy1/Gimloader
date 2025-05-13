@@ -1,4 +1,4 @@
-import { parseLibHeader } from '$shared/parseHeader';
+import { parseScriptHeaders } from '$shared/parseHeader';
 import Lib from './lib.svelte';
 import type { LibraryInfo } from '$types/state';
 import Port from '$shared/port.svelte';
@@ -65,7 +65,7 @@ export default new class LibManagerClass {
     }
 
     createLib(script: string, ignoreDuplicates = false, emit = true) {
-        let headers = parseLibHeader(script);
+        let headers = parseScriptHeaders(script);
         
         if(headers.isLibrary === "false") {
             toast.error("That script doesn't appear to be a library! If it should be, please set the isLibrary header, and if not, please import it as a plugin.");
@@ -128,7 +128,7 @@ export default new class LibManagerClass {
         let lib = typeof library === "string" ? this.getLib(library) : library;
         if(!lib) return;
 
-        let headers = parseLibHeader(script);
+        let headers = parseScriptHeaders(script);
         if(emit) Port.send("libraryEdit", { name: lib.headers.name, script, newName: headers.name });
 
         if(lib.headers.name === headers.name) {
@@ -136,7 +136,7 @@ export default new class LibManagerClass {
                 lib.disable();
                 lib.script = script;
 
-                let needsReload = await lib.enable();
+                let needsReload = await lib.start();
                 if(needsReload) {
                     if(confirmLibReload([lib])) location.reload();
                 }

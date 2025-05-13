@@ -1,4 +1,4 @@
-import { parseLibHeader, parsePluginHeader } from "$shared/parseHeader";
+import { parseScriptHeaders } from "$shared/parseHeader";
 import type { ScriptHeaders } from "$types/headers";
 import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { LibraryInfo, PluginInfo, State } from "$types/state";
@@ -42,7 +42,7 @@ export default class Updater {
                         if(!text) return res();
                         
                         // it doesn't matter whether we use parse lib or plugin header here
-                        let newHeaders = parsePluginHeader(text);
+                        let newHeaders = parseScriptHeaders(text);
                         if(!this.shouldUpdate(headers, newHeaders)) return res();
         
                         this.updates.push({
@@ -58,13 +58,13 @@ export default class Updater {
             }
     
             for(let plugin of state.plugins) {
-                let headers = parsePluginHeader(plugin.script);
+                let headers = parseScriptHeaders(plugin.script);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "plugin"));
             }
     
             for(let lib of state.libraries) {
-                let headers = parseLibHeader(lib.script);
+                let headers = parseScriptHeaders(lib.script);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "library"));
             }
@@ -198,13 +198,13 @@ export default class Updater {
         if(message.type === "plugin") script = state.plugins.find(p => p.name === message.name);
         else script = state.libraries.find(l => l.name === message.name);
 
-        let headers = parsePluginHeader(script.script);
+        let headers = parseScriptHeaders(script.script);
         if(!headers.downloadUrl) return respond({ updated: false });
 
         let text = await this.getText(formatDownloadUrl(headers.downloadUrl));
         if(!text) return respond({ updated: false, failed: true });
 
-        let newHeaders = parsePluginHeader(text);
+        let newHeaders = parseScriptHeaders(text);
         if(!this.shouldUpdate(headers, newHeaders)) return respond({ updated: false });
 
         this.applyUpdate(state, {

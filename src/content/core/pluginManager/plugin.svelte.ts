@@ -1,14 +1,14 @@
 import type Lib from "$core/libManager/lib.svelte";
-import { parsePluginHeader } from "$shared/parseHeader";
-import { confirmLibReload, log } from "$content/utils";
+import { parseScriptHeaders } from "$shared/parseHeader";
+import { confirmLibReload, loadLibs, log } from "$content/utils";
 import Net from "$core/net/net";
 import LibManager from "$core/libManager/libManager.svelte";
-import type { PluginHeaders } from "$types/headers";
+import type { ScriptHeaders } from "$types/headers";
 
 export default class Plugin {
     script: string;
     enabled: boolean = $state();
-    headers: PluginHeaders = $state();
+    headers: ScriptHeaders = $state();
     return: any = $state();
     onStop: (() => void)[] = [];
     openSettingsMenu: (() => void)[] = $state([]);
@@ -19,76 +19,27 @@ export default class Plugin {
         this.script = script;
         this.enabled = enabled;
     
-        this.headers = parsePluginHeader(script);
+        this.headers = parseScriptHeaders(script);
     }
 
-    async launch(initial: boolean = false) {
+    async start(initial: boolean = false) {
         if(this.enablePromise) return this.enablePromise;
 
         this.enablePromise = new Promise<void>(async (res, rej) => {
-            let libObjs: Lib[] = [];
-            let optionalLibObjs: Lib[] = [];
-
-            // load required libs
-            for(let lib of this.headers.needsLib) {
-                let libName = lib.split('|')[0].trim();
-                let libObj = LibManager.getLib(libName);
-
-                if(!libObj) {
-                    this.errored = true;
-                    rej(new Error(`Plugin ${this.headers.name} requires library ${libName} which is not installed`));
-                    return;
-                }
-
-                libObjs.push(libObj);
-            }
-
-            // load optional libs
-            for(let lib of this.headers.optionalLib) {
-                let libName = lib.split('|')[0].trim();
-                let libObj = LibManager.getLib(libName);
-
-                if(!libObj) continue;
-                optionalLibObjs.push(libObj);
-            }
-
-            let [results, optionalResults] = await Promise.all([
-                Promise.allSettled(libObjs.map(lib => lib.enable(initial))),
-                Promise.allSettled(optionalLibObjs.map(lib => lib.enable(initial)))
-            ]);
-
-            let needsReload = libObjs.filter((_, i) => results[i].status == "fulfilled" && results[i].value);
-            needsReload = needsReload.concat(optionalLibObjs.filter((_, i) =>
-                optionalResults[i].status == "fulfilled" && optionalResults[i].value));
-
-            if(needsReload.length > 0) {
-                let reload = confirmLibReload(needsReload);
-                if(reload) {
-                    location.reload();
-                }
-            }
-
-            // log errors with optional libs, but don't fail the plugin
-            for(let result of optionalResults) {
-                if(result.status === 'rejected') {
-                    log(`Failed to enable optional library for plugin ${this.headers.name}:`, result.reason);
-                }
-            }
-
-            let failed = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
-            if(failed.length > 0) {
-                let err = new Error(`Failed to enable plugin ${this.headers.name} due to errors while enabling libraries:\n${failed.map(f => f.reason).join('\n')}`);
+            try {
+                await loadLibs(this.headers, initial);
+            } catch(err) {
                 this.errored = true;
                 rej(err);
                 return;
             }
         
             // create a blob from the script and import it
-            let sourceUrl = `\n//# sourceURL=gimloader://plugins/${encodeURIComponent(this.headers.name)}.js`
+            let sourceUrl = `\n//# sourceURL=gimloader://plugins/${encodeURIComponent(this.headers.name)}.js`;
 
             let blob = new Blob([this.script, sourceUrl], { type: 'application/javascript' });
             let url = URL.createObjectURL(blob);
-            
+
             import(url)
                 .then((returnVal) => {
                     this.return = returnVal;
