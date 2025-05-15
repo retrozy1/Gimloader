@@ -30,7 +30,8 @@ export default abstract class BaseScript {
             if(!success) return;
 
             let uri = encodeURIComponent(this.headers.name);
-            let sourceUrl = `\n//# sourceURL=gimloader://${this.type.toLowerCase()}/${uri}.js`;
+            let host = this.type === "Plugin" ? "plugins" : "libraries";
+            let sourceUrl = `\n//# sourceURL=gimloader://${host}/${uri}.js`;
     
             if(this.headers.syncEval !== "false") {
                 try {
