@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type Plugin from "$core/pluginManager/plugin.svelte";
-    import PluginManager from "$core/pluginManager/pluginManager.svelte";
+    import type Plugin from "$core/scripts/plugin.svelte";
+    import PluginManager from "$core/scripts/pluginManager.svelte";
     import { checkPluginUpdate } from "$core/net/checkUpdates";
     import { Toggle, Modal } from "flowbite-svelte";
     import Card from "../components/Card.svelte";

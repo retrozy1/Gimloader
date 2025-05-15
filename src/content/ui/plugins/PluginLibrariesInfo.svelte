@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type Plugin from "$core/pluginManager/plugin.svelte";
-    import LibManager from "$core/libManager/libManager.svelte";
+    import type Plugin from "$core/scripts/plugin.svelte";
+    import LibManager from "$core/scripts/libManager.svelte";
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import Net from "$core/net/net";
     import showErrorMessage from "../showErrorMessage";

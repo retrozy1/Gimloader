@@ -1,4 +1,4 @@
-import LibManager from "$core/libManager/libManager.svelte";
+import LibManager from "$core/scripts/libManager.svelte";
 import { validate } from "$content/utils";
 
 class LibsApi {

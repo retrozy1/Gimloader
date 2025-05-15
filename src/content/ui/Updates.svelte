@@ -1,6 +1,6 @@
 <script lang="ts">
-    import PluginManager from "$core/pluginManager/pluginManager.svelte";
-    import LibManager from "$core/libManager/libManager.svelte";
+    import PluginManager from "$core/scripts/pluginManager.svelte";
+    import LibManager from "$core/scripts/libManager.svelte";
     import { checkLibUpdate, checkPluginUpdate } from "$core/net/checkUpdates";
     import Update from 'svelte-material-icons/Update.svelte';
     import { version } from "../../../package.json";

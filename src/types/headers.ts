@@ -9,6 +9,7 @@ export interface ScriptHeaders {
     webpage: string | null;
     needsLib: string[];
     optionalLib: string[];
+    syncEval: string;
     /** Only available for plugins */
     hasSettings: string;
 }

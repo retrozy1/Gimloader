@@ -5,7 +5,7 @@
     import { readUserFile, showEditor } from "$content/utils";
     import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
     import Search from '../components/Search.svelte';
-    import PluginManager from "$core/pluginManager/pluginManager.svelte";
+    import PluginManager from "$core/scripts/pluginManager.svelte";
     import Storage from "$core/storage.svelte";
     import Port from "$shared/port.svelte";
     import { flipDurationMs } from "$shared/consts";

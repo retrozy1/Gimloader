@@ -1,7 +1,4 @@
-import type Lib from "$core/libManager/lib.svelte";
 import Port from "$shared/port.svelte";
-import type { ScriptHeaders } from "$types/headers";
-import LibManager from "./core/libManager/libManager.svelte";
 
 export function log(...args: any[]) {
     console.log('%c[GL]', 'color:#5030f2', ...args);
@@ -70,17 +67,6 @@ export function splicer(array: any[], obj: any) {
     }
 }
 
-export function confirmLibReload(libs: Lib[]) {
-    let names = libs.map(l => l.headers.name);
-    let msg = names.slice(0, -1).join(', ');
-    if(names.length > 1) msg += ' and ';
-    msg += names.at(-1);
-    msg += names.length > 1 ? ' require' : ' requires';
-    msg += ' a reload to function properly. Reload now?';
-
-    return confirm(msg);
-}
-
 let keydownOverriding = false;
 let keydownCallback: (e: KeyboardEvent) => void;
 
@@ -125,64 +111,14 @@ export function showEditor(type: "plugin" | "library", name?: string) {
     Port.sendAndRecieve("showEditor", { type, name });
 }
 
-export function loadLibs(headers: ScriptHeaders, initial: boolean, alreadyStartedLibs: string[] = []) {
-    return new Promise<void>(async (res, rej) => {
-        let type = headers.isLibrary === "false" ? "Plugin" : "Library";
-
-        let libObjs: Lib[] = [];
-        let optionalLibObjs: Lib[] = [];
-
-        // load required libs
-        for(let lib of headers.needsLib) {
-            let libName = lib.split('|')[0].trim();
-            let libObj = LibManager.getLib(libName);
-
-            if(!libObj) {
-                rej(new Error(`${type} ${headers.name} requires library ${libName} which is not installed`));
-                return;
-            }
-
-            libObjs.push(libObj);
-        }
-
-        // load optional libs
-        for(let lib of headers.optionalLib) {
-            let libName = lib.split('|')[0].trim();
-            let libObj = LibManager.getLib(libName);
-
-            if(!libObj) continue;
-            optionalLibObjs.push(libObj);
-        }
-
-        let [results, optionalResults] = await Promise.all([
-            Promise.allSettled(libObjs.map(lib => lib.start(initial, alreadyStartedLibs))),
-            Promise.allSettled(optionalLibObjs.map(lib => lib.start(initial, alreadyStartedLibs)))
-        ]);
-
-        let needsReload = libObjs.filter((_, i) => results[i].status == "fulfilled" && results[i].value);
-        needsReload = needsReload.concat(optionalLibObjs.filter((_, i) =>
-            optionalResults[i].status == "fulfilled" && optionalResults[i].value));
-
-        if(needsReload.length > 0) {
-            let reload = confirmLibReload(needsReload);
-            if(reload) {
-                location.reload();
-            }
-        }
-
-        // log errors with optional libs, but don't fail the load
-        for(let result of optionalResults) {
-            if(result.status === 'rejected') {
-                log(`Failed to enable optional library for ${type.toLowerCase()} ${headers.name}:`, result.reason);
-            }
-        }
-
-        let failed = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
-        if(failed.length > 0) {
-            let err = new Error(`Failed to enable ${type.toLowerCase()} ${headers.name} due to errors while enabling libraries:\n${failed.map(f => f.reason).join('\n')}`);
-            rej(err);
+export function domLoaded() {
+    return new Promise<void>(async (res) => {
+        if(document.readyState === "complete") {
+            res();
             return;
         }
+
+        await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true })); 
 
         res();
     });

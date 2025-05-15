@@ -1,5 +1,5 @@
-import type Lib from "$core/libManager/lib.svelte";
-import type Plugin from '../pluginManager/plugin.svelte';
+import type Lib from "$core/scripts/lib.svelte";
+import type Plugin from '../scripts/plugin.svelte';
 import toast from "svelte-5-french-toast";
 import Port from "$shared/port.svelte";
 import type { UpdateResponse } from "$types/updater";

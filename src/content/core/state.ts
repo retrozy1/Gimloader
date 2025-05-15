@@ -1,7 +1,7 @@
 import type { State } from "$types/state";
 import Storage from "$core/storage.svelte";
-import LibManager from "$core/libManager/libManager.svelte";
-import PluginManager from "$core/pluginManager/pluginManager.svelte";
+import LibManager from "$core/scripts/libManager.svelte";
+import PluginManager from "$core/scripts/pluginManager.svelte";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import UpdateNotifier from "$core/updateNotifier.svelte";
 import Port from "$shared/port.svelte";

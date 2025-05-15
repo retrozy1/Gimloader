@@ -1,7 +1,7 @@
 import type { ScriptHeaders } from "$types/headers";
 
 export function parseScriptHeaders(code: string): ScriptHeaders {
-    const basePluginHeaders: ScriptHeaders = {
+    const baseHeaders: ScriptHeaders = {
         name: "Unnamed Plugin",
         description: "No description provided",
         author: "Unknown Author",
@@ -12,10 +12,11 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         needsLib: [],
         optionalLib: [],
         hasSettings: "false",
+        syncEval: "false",
         webpage: null
     };
 
-    return parseHeader<ScriptHeaders>(code, basePluginHeaders);
+    return parseHeader<ScriptHeaders>(code, baseHeaders);
 }
 
 export function parseHeader<T>(code: string, headers: T): T {    

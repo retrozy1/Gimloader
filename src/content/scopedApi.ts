@@ -1,5 +1,5 @@
-import PluginManager from "$core/pluginManager/pluginManager.svelte";
-import LibManager from "$core/libManager/libManager.svelte";
+import PluginManager from "$core/scripts/pluginManager.svelte";
+import LibManager from "$core/scripts/libManager.svelte";
 
 const scriptRegex = /gimloader:\/\/(plugins|libraries)\/(.+?)\.js:\d+:\d+\n?$/;
 

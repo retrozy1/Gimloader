@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type Lib from "$core/libManager/lib.svelte";
+    import type Lib from "$core/scripts/lib.svelte";
     import { flip } from "svelte/animate";
     import { dndzone } from "svelte-dnd-action";
     import Library from "./Library.svelte";
     import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
     import { readUserFile, showEditor } from "$content/utils";
-    import LibManager from "$core/libManager/libManager.svelte";
+    import LibManager from "$core/scripts/libManager.svelte";
     import Storage from "$core/storage.svelte";
     import Search from "../components/Search.svelte";
 

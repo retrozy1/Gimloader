@@ -1,4 +1,4 @@
-import PluginManager from "$core/pluginManager/pluginManager.svelte";
+import PluginManager from "$core/scripts/pluginManager.svelte";
 import { validate } from "$content/utils";
 
 class PluginsApi {

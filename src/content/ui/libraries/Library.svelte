@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type Lib from "$core/libManager/lib.svelte";
+    import type Lib from "$core/scripts/lib.svelte";
     import Card from "../components/Card.svelte";
-    import LibManager from "$core/libManager/libManager.svelte";
+    import LibManager from "$core/scripts/libManager.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import Update from "svelte-material-icons/Update.svelte";
