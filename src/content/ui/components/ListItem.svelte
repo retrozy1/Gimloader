@@ -8,6 +8,7 @@
         dragDisabled: boolean;
         loading?: boolean;
         dragAllowed?: boolean;
+        error?: boolean;
         toggle?: Snippet;
         header?: Snippet;
         buttons?: Snippet;
@@ -21,6 +22,7 @@
         dragDisabled,
         loading = false,
         dragAllowed = true,
+        error,
         toggle,
         header,
         buttons,
@@ -36,7 +38,8 @@
     let expanded = $state(false);
 </script>
 
-<div class="{border ?? "border border-gray-500"} p-3 h-full bg-white preflight rounded-xl relative">
+<div class="{error ? 'border-2 border-red-500' : border ?? "border border-gray-500"}
+p-3 h-full bg-white preflight rounded-xl relative">
     <div class="flex items-center">
         {#if loading}
             <div class="absolute bottom-0 left-0 z-0 overflow-hidden w-full rounded-bl-xl rounded-br-xl h-6 animWrap">
