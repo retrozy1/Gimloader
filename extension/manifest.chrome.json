@@ -45,8 +45,7 @@
     "permissions": [
         "storage",
         "unlimitedStorage",
-        "declarativeNetRequest",
-        "tabs"
+        "declarativeNetRequest"
     ],
     "host_permissions": [
         "https://www.gimkit.com/*",

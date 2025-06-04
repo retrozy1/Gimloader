@@ -46,8 +46,7 @@
     "permissions": [
         "storage",
         "unlimitedStorage",
-        "declarativeNetRequest",
-        "tabs"
+        "declarativeNetRequest"
     ],
     "browser_specific_settings": {
         "gecko": {

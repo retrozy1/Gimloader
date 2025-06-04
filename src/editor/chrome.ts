@@ -26,7 +26,8 @@ mount(Editor, {
 			let editor = monaco.editor.create(options.element, {
 				value: options.code,
 				language: "javascript",
-				theme: "vs-dark"
+				theme: "vs-dark",
+				automaticLayout: true
 			});
 	
 			editor.getModel().onDidChangeContent(options.onChange);

@@ -114,7 +114,7 @@
                 Exit
             </button>
         </div>
-        <div style="height: calc(100vh - 41px)" class="w-full grid" bind:this={editorDiv}></div>
+        <div style="height: calc(100vh - 41px)" class="w-full grid overflow-auto" bind:this={editorDiv}></div>
     {/if}
 </div>
 
