@@ -1,7 +1,3 @@
-import type { Matcher } from "$core/parcel";
-import Parcel from "$core/parcel";
-import { validate } from "$content/utils";
-
 class BaseParcelApi {
     /**
      * Gets a module based on a filter, returns null if none are found
@@ -9,11 +5,7 @@ class BaseParcelApi {
      * meaning that if this is run on startup it will likely return nothing.
      * Consider using getLazy instead.
      */
-    query(matcher: Matcher): any {
-        if(!validate("parcel.query", arguments, ['matcher', 'function'])) return;
-
-        return Parcel.query(matcher, false);
-    }
+    query(): any {}
     
     /**
      * Returns an array of all loaded modules matching a filter
@@ -21,11 +13,7 @@ class BaseParcelApi {
      * meaning that if this is run on startup it will likely return nothing.
      * Consider using getLazy instead.
      */
-    queryAll(matcher: Matcher): any[] {
-        if(!validate("parcel.queryAll", arguments, ['matcher', 'function'])) return;
-
-        return Parcel.query(matcher, true);
-    }
+    queryAll(): any[] { return [] }
 }
 
 class ParcelApi extends BaseParcelApi {
@@ -33,20 +21,12 @@ class ParcelApi extends BaseParcelApi {
      * Waits for a module to be loaded, then runs a callback
      * @returns A function to cancel waiting for the module
      */
-    getLazy(id: string, matcher: Matcher, callback: (exports: any) => any, initial = true) {
-        if(!validate("parcel.getLazy", arguments,
-            ['id', 'string'], ['matcher', 'function'],
-            ['callback', 'function'], ['initial', 'boolean?'])) return;
-        
-        return Parcel.getLazy(id, matcher, callback, initial);
+    getLazy() {
+        return () => {};
     }
 
     /** Cancels any calls to getLazy with the same id */
-    stopLazy(id: string) {
-        if(!validate("parcel.stopLazy", arguments, ['id', 'string'])) return;
-
-        Parcel.stopLazy(id);
-    }
+    stopLazy() {}
 
     /**
      * @deprecated Use {@link getLazy} instead
@@ -68,11 +48,8 @@ class ScopedParcelApi extends BaseParcelApi {
      * Waits for a module to be loaded, then runs a callback
      * @returns A function to cancel waiting for the module
      */
-    getLazy(matcher: Matcher, callback: (exports: any) => any, initial = true) {
-        if(!validate("parcel.getLazy", arguments,
-            ['matcher', 'function'], ['callback', 'function'], ['initial', 'boolean?'])) return;
-
-        return Parcel.getLazy(this.id, matcher, callback, initial);
+    getLazy() {
+        return () => {};
     }
 }
 

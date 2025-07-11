@@ -2,7 +2,6 @@ import { parseScriptHeaders } from '$shared/parseHeader';
 import Lib from './lib.svelte';
 import type { LibraryInfo } from '$types/state';
 import Port from '$shared/port.svelte';
-import { confirmLibReload } from '$content/utils';
 import toast from 'svelte-5-french-toast';
 
 export default new class LibManagerClass {

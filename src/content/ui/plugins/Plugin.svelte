@@ -46,9 +46,9 @@
         enabled = plugin?.enabled;
     });
 
-    async function toggleEnabled() {
+    async function setEnabled(enabled: boolean) {
         let loadingTimeout = setTimeout(() => loading = true, 200);
-        await PluginManager.setEnabled(plugin, !enabled);
+        await PluginManager.setEnabled(plugin, enabled);
         
         clearTimeout(loadingTimeout);
         loading = false;
@@ -77,9 +77,10 @@
         </h2>
     {/snippet}
     {#snippet toggle()}
-        <button onclick={toggleEnabled}>
-            <Toggle class="*:me-0" bind:checked={enabled} disabled></Toggle>
-        </button>
+        <Toggle class="*:me-0" bind:checked={
+            () => enabled,
+            (enabled) => setEnabled(enabled)
+        } />
     {/snippet}
     {#snippet author()}
         By {plugin?.headers.author}

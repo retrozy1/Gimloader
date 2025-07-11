@@ -1,6 +1,5 @@
 import type { CustomServer as CustomServerType, CustomServerConfig } from "$types/state";
 import Port from "$shared/port.svelte";
-import Parcel from "$core/parcel";
 import Patcher from "$core/patcher";
 import UI from "./ui/ui";
 import customServerToggle from "$content/ui/server/customServerToggle";
@@ -34,140 +33,140 @@ export default new class CustomServer {
         if(location.pathname === "/host" && params.get("custom") === "true") this.inCustomServer = true;
 
         // listen for cosmetic changes
-        Parcel.getLazy(null, exports => exports?.selectCosmetic, (exports) => {
-            Patcher.after(null, exports, "selectCosmetic", (_, args) => {
-                if(!config.enabled || !Storage.settings.joiningCustomServer) return;
-                Net.send("SELECT_COSMETIC", {
-                    cosmeticId: args[0].cosmeticId,
-                    cosmeticType: args[0].cosmeticType,
-                    editStyles: args[0].editStyles
-                });
-            });
-        });
+        // Parcel.getLazy(null, exports => exports?.selectCosmetic, (exports) => {
+        //     Patcher.after(null, exports, "selectCosmetic", (_, args) => {
+        //         if(!config.enabled || !Storage.settings.joiningCustomServer) return;
+        //         Net.send("SELECT_COSMETIC", {
+        //             cosmeticId: args[0].cosmeticId,
+        //             cosmeticType: args[0].cosmeticType,
+        //             editStyles: args[0].editStyles
+        //         });
+        //     });
+        // });
 
         // requester
-        Parcel.getLazy(null, exports => exports?.request && exports?.generateId, (exports) => {
-            let request = exports.request;
-            delete exports.request;
-            let me = this;
+        // Parcel.getLazy(null, exports => exports?.request && exports?.generateId, (exports) => {
+        //     let request = exports.request;
+        //     delete exports.request;
+        //     let me = this;
 
-            exports.request = async function(req: any) {
-                if(!config.enabled) return request.apply(this, arguments);
+        //     exports.request = async function(req: any) {
+        //         if(!config.enabled) return request.apply(this, arguments);
     
-                // get cosmetics when making games
-                if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
-                    req.url = "/gimloader" + req.url;
+        //         // get cosmetics when making games
+        //         if(req.url === "/api/matchmaker/intent/map/play/create" && req.data?.experienceId?.startsWith("gimloader")) {
+        //             req.url = "/gimloader" + req.url;
                     
-                    if(!me.user) me.user = Parcel.query((exports) => exports?.default?.user?.user)?.default;
-                    if(me.user) req.data.name = me.user.user.user.firstName;
+        //             if(!me.user) me.user = Parcel.query((exports) => exports?.default?.user?.user)?.default;
+        //             if(me.user) req.data.name = me.user.user.user.firstName;
    
-                    me.fetchCosmetics().then((cosmetics) => {
-                        req.data.cosmetics = cosmetics;
-                        request.apply(this, [req]);
-                    });
+        //             me.fetchCosmetics().then((cosmetics) => {
+        //                 req.data.cosmetics = cosmetics;
+        //                 request.apply(this, [req]);
+        //             });
 
-                    return;
-                }
+        //             return;
+        //         }
 
-                // get cosmetics when joining games
-                if(req.url === "/api/matchmaker/join" && Storage.settings.joiningCustomServer) {
-                    req.url = "/gimloader" + req.url;
+        //         // get cosmetics when joining games
+        //         if(req.url === "/api/matchmaker/join" && Storage.settings.joiningCustomServer) {
+        //             req.url = "/gimloader" + req.url;
 
-                    me.fetchCosmetics().then((cosmetics) => {
-                        req.data.cosmetics = cosmetics;
-                        request.apply(this, [req]);
-                    });
+        //             me.fetchCosmetics().then((cosmetics) => {
+        //                 req.data.cosmetics = cosmetics;
+        //                 request.apply(this, [req]);
+        //             });
 
-                    return;
-                }
+        //             return;
+        //         }
 
-                // attempt to use the other server type if a code request fails
-                const codeUrl = "/api/matchmaker/find-info-from-code";
-                if(req.url === codeUrl) {
-                    const returnMissing = () => {
-                        req.error({ message: { text:"Game not found" }, code: 404 });
-                    }
+        //         // attempt to use the other server type if a code request fails
+        //         const codeUrl = "/api/matchmaker/find-info-from-code";
+        //         if(req.url === codeUrl) {
+        //             const returnMissing = () => {
+        //                 req.error({ message: { text:"Game not found" }, code: 404 });
+        //             }
 
-                    const runFetch = async (url: string) => {
-                        try {
-                            let res = await fetch(url, {
-                                method: "POST",
-                                headers: { "content-type": "application/json" },
-                                body: JSON.stringify({ code: req.data.code })
-                            });
-                            if(res.status !== 200) return null;
-                            return await res.json();
-                        } catch {
-                            return null;
-                        }
-                    }
+        //             const runFetch = async (url: string) => {
+        //                 try {
+        //                     let res = await fetch(url, {
+        //                         method: "POST",
+        //                         headers: { "content-type": "application/json" },
+        //                         body: JSON.stringify({ code: req.data.code })
+        //                     });
+        //                     if(res.status !== 200) return null;
+        //                     return await res.json();
+        //                 } catch {
+        //                     return null;
+        //                 }
+        //             }
 
-                    if(Storage.settings.joiningCustomServer) {
-                        let customRes = await runFetch("/gimloader" + codeUrl);
-                        if(customRes) {
-                            me.inCustomServer = true;
-                            return req.success(customRes);
-                        }
+        //             if(Storage.settings.joiningCustomServer) {
+        //                 let customRes = await runFetch("/gimloader" + codeUrl);
+        //                 if(customRes) {
+        //                     me.inCustomServer = true;
+        //                     return req.success(customRes);
+        //                 }
                         
-                        let mainRes = await runFetch(codeUrl);
-                        if(!mainRes) return returnMissing();
+        //                 let mainRes = await runFetch(codeUrl);
+        //                 if(!mainRes) return returnMissing();
 
-                        Storage.updateSetting("joiningCustomServer", false);
-                        toast("Automatically switched to default server");
-                        req.success(mainRes);
-                    } else {
-                        let mainRes = await runFetch(codeUrl);
-                        if(mainRes) return req.success(mainRes);
+        //                 Storage.updateSetting("joiningCustomServer", false);
+        //                 toast("Automatically switched to default server");
+        //                 req.success(mainRes);
+        //             } else {
+        //                 let mainRes = await runFetch(codeUrl);
+        //                 if(mainRes) return req.success(mainRes);
                         
-                        let customRes = await runFetch("/gimloader" + codeUrl);
-                        if(!customRes) return returnMissing();
+        //                 let customRes = await runFetch("/gimloader" + codeUrl);
+        //                 if(!customRes) return returnMissing();
 
-                        me.inCustomServer = true;
-                        Storage.updateSetting("joiningCustomServer", true);
-                        toast("Automatically switched to custom server");
-                        req.success(customRes);
-                    }
+        //                 me.inCustomServer = true;
+        //                 Storage.updateSetting("joiningCustomServer", true);
+        //                 toast("Automatically switched to custom server");
+        //                 req.success(customRes);
+        //             }
 
-                    return;
-                }
+        //             return;
+        //         }
                 
-                // redirect calls to make custom games to the custom server
-                if(
-                    (location.pathname === "/join" && Storage.settings.joiningCustomServer && req.url.startsWith("/api/matchmaker")) ||
-                    (location.pathname === "/host" && params.get("custom") === "true" && req.url.startsWith("/api/matchmaker")) ||
-                    (req.url === "/api/experience/map/hooks" && req.data?.experience?.startsWith("gimloader"))
-                ) {
-                    req.url = "/gimloader" + req.url;
-                    return request.apply(this, arguments);
-                }
+        //         // redirect calls to make custom games to the custom server
+        //         if(
+        //             (location.pathname === "/join" && Storage.settings.joiningCustomServer && req.url.startsWith("/api/matchmaker")) ||
+        //             (location.pathname === "/host" && params.get("custom") === "true" && req.url.startsWith("/api/matchmaker")) ||
+        //             (req.url === "/api/experience/map/hooks" && req.data?.experience?.startsWith("gimloader"))
+        //         ) {
+        //             req.url = "/gimloader" + req.url;
+        //             return request.apply(this, arguments);
+        //         }
     
-                // add the experiences from the custom server
-                if(req.url === "/api/experiences") {
-                    let onSuccess = req.success;
+        //         // add the experiences from the custom server
+        //         if(req.url === "/api/experiences") {
+        //             let onSuccess = req.success;
     
-                    Promise.all<any[]>([
-                        new Promise(async (res) => {
-                            try {
-                                let resp = await fetch("/gimloader/api/experiences");
-                                let json = await resp.json();
-                                res(json);
-                            } catch {
-                                res([]);
-                            }
-                        }),
-                        new Promise((res) => {
-                            Patcher.before(null, req, "success", (_, args) => {
-                                res(args[0]);
-                            });
-                        })
-                    ]).then(([ customExperiences, experiences ]) => {
-                        onSuccess(customExperiences.concat(experiences));
-                    });
-                }
+        //             Promise.all<any[]>([
+        //                 new Promise(async (res) => {
+        //                     try {
+        //                         let resp = await fetch("/gimloader/api/experiences");
+        //                         let json = await resp.json();
+        //                         res(json);
+        //                     } catch {
+        //                         res([]);
+        //                     }
+        //                 }),
+        //                 new Promise((res) => {
+        //                     Patcher.before(null, req, "success", (_, args) => {
+        //                         res(args[0]);
+        //                     });
+        //                 })
+        //             ]).then(([ customExperiences, experiences ]) => {
+        //                 onSuccess(customExperiences.concat(experiences));
+        //             });
+        //         }
 
-                return request.apply(this, arguments);
-            }
-        });
+        //         return request.apply(this, arguments);
+        //     }
+        // });
     }
 
     updateState(config: CustomServerConfig) {
@@ -183,32 +182,32 @@ export default new class CustomServer {
     addJoinToggle() {
         let innerType = null;
 
-        Parcel.getLazy(null, e => e?.default?.toString?.().includes('inputmode:"numeric"'), (exports) => {
-            Patcher.after(null, exports, "default", (_, __, returnVal) => {
-                if(innerType) {
-                    returnVal.type = innerType;
-                    return;
-                }
+        // Parcel.getLazy(null, e => e?.default?.toString?.().includes('inputmode:"numeric"'), (exports) => {
+        //     Patcher.after(null, exports, "default", (_, __, returnVal) => {
+        //         if(innerType) {
+        //             returnVal.type = innerType;
+        //             return;
+        //         }
 
-                let type = returnVal.type;
-                innerType = function() {
-                    let res = type.apply(this, arguments);
+        //         let type = returnVal.type;
+        //         innerType = function() {
+        //             let res = type.apply(this, arguments);
                     
-                    let controls = res.props.children.props.children[1];
-                    let input = controls[0];
+        //             let controls = res.props.children.props.children[1];
+        //             let input = controls[0];
 
-                    controls[0] = UI.React.createElement("div",
-                    { className: "gl-join-input-wrap" }, [
-                        input,
-                        UI.React.createElement(customServerToggle)
-                    ]);
+        //             controls[0] = UI.React.createElement("div",
+        //             { className: "gl-join-input-wrap" }, [
+        //                 input,
+        //                 UI.React.createElement(customServerToggle)
+        //             ]);
                     
-                    return res;
-                }
+        //             return res;
+        //         }
 
-                returnVal.type = innerType;
-            });
-        });
+        //         returnVal.type = innerType;
+        //     });
+        // });
     }
 
     async fetchCosmetics() {

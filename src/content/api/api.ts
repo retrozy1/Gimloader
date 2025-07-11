@@ -11,13 +11,15 @@ import UI from "$core/ui/ui";
 import LibsApi from "./libs";
 import PluginsApi from "./plugins";
 import setupScoped from "$content/scopedApi";
-import Parcel from "$core/parcel";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
 
 class Api {
-    /** Functions used to modify Gimkit's internal modules */
+    /**
+     * @deprecated Gimkit has switched from Parcel to vite, rendering this api useless.
+     * @hidden
+     */
     static parcel = Object.freeze(new ParcelApi());
 
     /** Functions to listen for key combinations */
@@ -126,7 +128,6 @@ class Api {
         const cleanup = () => {
             Net.offAny(netOnAny);
             this.net.removeAllListeners();
-            Parcel.stopLazy(scoped.id);
             Hotkeys.removeHotkeys(scoped.id);
             Hotkeys.removeConfigurableFromPlugin(scoped.id);
             Net.pluginOffLoad(scoped.id);
@@ -138,7 +139,10 @@ class Api {
         this.onStop(cleanup);
     }
 
-    /** Functions used to modify Gimkit's internal modules */
+    /**
+     * @deprecated Gimkit has switched from Parcel to vite, rendering this api useless.
+     * @hidden
+     */
     parcel: Readonly<ScopedParcelApi>;
 
     /** Functions to listen for key combinations */

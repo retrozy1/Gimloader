@@ -1,5 +1,4 @@
 import Internal from "$core/internals";
-import Parcel from "../parcel";
 import EventEmitter from "eventemitter2";
 import { log, splicer } from "$content/utils";
 import Patcher from "../patcher";
@@ -47,77 +46,77 @@ export default new class Net extends EventEmitter {
         let me = this;
 
         // intercept the colyseus room
-        Parcel.getLazy(null, (exports) => exports?.OnJoinedRoom, (exports) => {
-            let nativeOnJoined = exports.OnJoinedRoom;
-            delete exports.OnJoinedRoom;
+        // Parcel.getLazy(null, (exports) => exports?.OnJoinedRoom, (exports) => {
+        //     let nativeOnJoined = exports.OnJoinedRoom;
+        //     delete exports.OnJoinedRoom;
             
-            log('Colyseus room intercepted');
+        //     log('Colyseus room intercepted');
             
-            exports.OnJoinedRoom = function(colyseus: any) {
-                me.type = 'Colyseus';
-                me.room = colyseus.room;
+        //     exports.OnJoinedRoom = function(colyseus: any) {
+        //         me.type = 'Colyseus';
+        //         me.room = colyseus.room;
 
-                me.waitForColyseusLoad();
+        //         me.waitForColyseusLoad();
                 
-                // intercept outgoing messages
-                Patcher.before(null, colyseus.room, "send", (_, args) => {
-                    let [ channel, data ] = args;
-                    me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
+        //         // intercept outgoing messages
+        //         Patcher.before(null, colyseus.room, "send", (_, args) => {
+        //             let [ channel, data ] = args;
+        //             me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
 
-                    if(args[1] === null) return true;
-                });
+        //             if(args[1] === null) return true;
+        //         });
 
-                // intercept incoming messages
-                Patcher.before(null, colyseus.room, "dispatchMessage", (_, args) => {
-                    let [ channel, data ] = args;
-                    me.emit(channel, data, (newData: any) => { args[1] = newData });
+        //         // intercept incoming messages
+        //         Patcher.before(null, colyseus.room, "dispatchMessage", (_, args) => {
+        //             let [ channel, data ] = args;
+        //             me.emit(channel, data, (newData: any) => { args[1] = newData });
 
-                    if(args[1] === null) return true;
-                });
+        //             if(args[1] === null) return true;
+        //         });
 
-                return nativeOnJoined.apply(this, [colyseus]);
-            }
+        //         return nativeOnJoined.apply(this, [colyseus]);
+        //     }
 
-            return exports;
-        })
+        //     return exports;
+        // })
 
         // intercept the room for blueboat
-        Parcel.getLazy(null, (e) => e?.default?.toString?.().includes("this.socketListener()"), (exports) => {
-            let nativeRoom = exports.default;
+        // Parcel.getLazy(null, (e) => e?.default?.toString?.().includes("this.socketListener()"), (exports) => {
+        //     let nativeRoom = exports.default;
             
-            exports.default = function() {
-                let room = new nativeRoom(...arguments);
+        //     exports.default = function() {
+        //         let room = new nativeRoom(...arguments);
 
-                me.room = room;
-                me.type = 'Blueboat';
+        //         me.room = room;
+        //         me.type = 'Blueboat';
 
-                log('Blueboat room intercepted');
-                me.emit('load:blueboat');
-                me.onLoad("Blueboat");
+        //         log('Blueboat room intercepted');
+        //         me.emit('load:blueboat');
+        //         me.onLoad("Blueboat");
 
-                // intercept incoming messages
-                Patcher.before(null, room.onMessage, "call", (_, args) => {
-                    let [ channel, data ] = args;
-                    me.emit(channel, data, (newData: any) => { args[1] = newData });
+        //         // intercept incoming messages
+        //         Patcher.before(null, room.onMessage, "call", (_, args) => {
+        //             let [ channel, data ] = args;
+        //             me.emit(channel, data, (newData: any) => { args[1] = newData });
 
-                    if(args[1] === null) return true;
-                });
+        //             if(args[1] === null) return true;
+        //         });
 
-                // intercept outgoing messages
-                Patcher.before(null, room, "send", (_, args) => {
-                    let [ channel, data ] = args;
-                    me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
+        //         // intercept outgoing messages
+        //         Patcher.before(null, room, "send", (_, args) => {
+        //             let [ channel, data ] = args;
+        //             me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
 
-                    if(args[1] === null) return true;
-                });
+        //             if(args[1] === null) return true;
+        //         });
 
-                return room;
-            }
-        });
+        //         return room;
+        //     }
+        // });
 
-        Parcel.getLazy(null, exports => exports?.default?.toString?.().includes("hasReceivedHostStaticState"), () => {
-            this.is1dHost = true;
-        });
+        // Parcel.getLazy(null, exports => exports?.default?.toString?.().includes("hasReceivedHostStaticState"), () => {
+        //     this.is1dHost = true;
+        // });
     }
 
     waitForColyseusLoad() {

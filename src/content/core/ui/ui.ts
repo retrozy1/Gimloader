@@ -1,6 +1,5 @@
 import type * as React from 'react';
 import type * as ReactDOM from 'react-dom/client';
-import Parcel from "$core/parcel";
 import { addPluginButtons } from './addPluginButtons';
 import styles from "../../css/styles.scss";
 
@@ -10,15 +9,15 @@ export default class UI {
     static styles: Map<string, HTMLStyleElement[]> = new Map();
 
     static init() {
-        Parcel.getLazy(null, exports => exports?.useState, exports => {
-            if (this.React) return;
-            this.React = exports;
-        });
+        // Parcel.getLazy(null, exports => exports?.useState, exports => {
+        //     if (this.React) return;
+        //     this.React = exports;
+        // });
 
-        Parcel.getLazy(null, exports => exports?.createRoot, exports => {
-            if (this.ReactDOM) return;
-            this.ReactDOM = exports;
-        });
+        // Parcel.getLazy(null, exports => exports?.createRoot, exports => {
+        //     if (this.ReactDOM) return;
+        //     this.ReactDOM = exports;
+        // });
 
         addPluginButtons();
         this.addCoreStyles();

@@ -1,6 +1,5 @@
 import Api from "./api/api";
 import Net from "$core/net/net";
-import Parcel from "$core/parcel";
 import UI from "$core/ui/ui";
 import GimkitInternals from "$core/internals";
 import { log } from "./utils";
@@ -16,7 +15,6 @@ Object.defineProperty(window, "GL", {
     configurable: false
 });
 
-Parcel.init();
 UI.init();
 Net.init();
 GimkitInternals.init();
