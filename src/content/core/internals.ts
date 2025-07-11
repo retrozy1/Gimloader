@@ -1,3 +1,5 @@
+import Imports from "./imports";
+
 export default class GimkitInternals {
     static stores: any;
     static notification: any;
@@ -5,10 +7,10 @@ export default class GimkitInternals {
 
     static init() {
         // window.stores
-        // Parcel.getLazy(null, exports => exports?.default?.characters, exports => {
-        //     this.stores = exports.default;
-        //     window.stores = exports.default;
-        // });
+        Imports.getExport("FixSpinePlugin", (val) => val?.characters, (stores) => {
+            this.stores = stores;
+            window.stores = stores;
+        });
 
         // ant-design notifications
         // Parcel.getLazy(null, exports => exports?.default?.useNotification, exports => {

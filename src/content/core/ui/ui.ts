@@ -2,6 +2,7 @@ import type * as React from 'react';
 import type * as ReactDOM from 'react-dom/client';
 import { addPluginButtons } from './addPluginButtons';
 import styles from "../../css/styles.scss";
+import Imports from '../imports';
 
 export default class UI {
     static React: typeof React;
@@ -9,15 +10,15 @@ export default class UI {
     static styles: Map<string, HTMLStyleElement[]> = new Map();
 
     static init() {
-        // Parcel.getLazy(null, exports => exports?.useState, exports => {
-        //     if (this.React) return;
-        //     this.React = exports;
-        // });
+        Imports.getIndexExport((val) => val.lazy && val.useState, (react) => {
+            if (this.React) return;
+            this.React = react;
+        });
 
-        // Parcel.getLazy(null, exports => exports?.createRoot, exports => {
-        //     if (this.ReactDOM) return;
-        //     this.ReactDOM = exports;
-        // });
+        Imports.getIndexExport((val) => val.createRoot && val.hydrate, (reactDOM) => {
+            if (this.ReactDOM) return;
+            this.ReactDOM = reactDOM;
+        });
 
         addPluginButtons();
         this.addCoreStyles();
