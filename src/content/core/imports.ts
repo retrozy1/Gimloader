@@ -23,7 +23,7 @@ export default class Imports {
 					return value;
 				}
 			});
-		}, (fn) => typeof fn === "function");
+		}, (fn) => typeof fn === "function" && fn.name === "__vite__mapDeps");
 	}
 
 	static exportCallbacks: ExportCallback[] = [];

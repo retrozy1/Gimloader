@@ -4,6 +4,7 @@ import MenuUI from "$content/ui/MenuUI.svelte";
 import Patcher from "$core/patcher";
 import UI from "$core/ui/ui";
 import Hotkeys from '$core/hotkeys/hotkeys.svelte';
+import Imports from "../imports";
 
 let open = false;
 function openPluginManager() {
@@ -29,120 +30,24 @@ export function addPluginButtons() {
         key: "KeyP",
         alt: true
     }, () => openPluginManager());
-    
-    // add the button to the creative screen and the host screen
-    // Parcel.getLazy(null, exports => exports?.default?.toString?.().includes('.disable?"none":"all"'), exports => {
-    //     Patcher.after(null, exports, "default", (_, __, res) => {
-    //         if(res?.props?.className?.includes?.('light-shadow flex between')) {
-    //             let nativeType = res.props.children[1].type.type;
-    //             res.props.children[1].type.type = function() {
-    //                 let res = nativeType.apply(this, arguments);
 
-    //                 // make sure we haven't already added the button
-    //                 if(res.props.children.some((c: any) => c?.props?.tooltip === 'Plugins')) return res;
-
-    //                 let btnType = res.props.children[0].type;
-    //                 res.props.children.splice(0, 0, UI.React.createElement(btnType, {
-    //                     tooltip: 'Plugins',
-    //                     children: UI.React.createElement('div', {
-    //                         className: 'gl-wrench',
-    //                         dangerouslySetInnerHTML: { __html: wrench }
-    //                     }),
-    //                     onClick: () => openPluginManager()
-    //                 }))
-
-    //                 return res;
-    //             }
-    //         }
-            
-    //         if(res?.props?.children?.props?.tooltip === 'Options') {
-    //             res.props.className = 'gl-row';
-
-    //             let newBtn = res.props.children.type({
-    //                 tooltip: 'Plugins',
-    //                 children: UI.React.createElement('div', {
-    //                     className: 'gl-wrench',
-    //                     dangerouslySetInnerHTML: { __html: wrench }
-    //                 }),
-    //                 onClick: () => openPluginManager()
-    //             })
-
-    //             res.props.children = [res.props.children, newBtn];
-    //         }
-
-    //         return res;
-    //     })
-    // }, true)
-
-    // add the wrench button to the join screen
-    // Parcel.getLazy(null, exports => exports?.default?.toString?.().includes('type:"secondary"'), exports => {
-    //     Patcher.after(null, exports, 'default', (_, __, res) => {
-    //         let newButton = UI.React.createElement('button', {
-    //             className: 'openPlugins',
-    //             dangerouslySetInnerHTML: { __html: wrench },
-    //             onClick: () => openPluginManager()
-    //         });
-
-    //         return UI.React.createElement('div', { className: 'gl-join' }, [res, newButton])
-    //     });
-    // }, true)
-
-    // add the button to the home screen
-    // Parcel.getLazy(null, exports => exports?.SpaceContext, exports => {
-    //     Patcher.before(null, exports, 'default', (_, args) => {
-    //         let light = location.href.includes("/creative") || location.href.includes("/rewards");
-            
-    //         if(args[0].children?.some?.((c: any) => c?.key === 'creative')) {
-    //             let icon = UI.React.createElement('div', {
-    //                 className: 'icon',
-    //                 dangerouslySetInnerHTML: { __html: wrench }
-    //             })
-    //             let text = UI.React.createElement('div', {
-    //                 className: "text"
-    //             }, "Plugins")
-    //             let newEl = UI.React.createElement('div', {
-    //                 className: `gl-homeWrench ${light ? 'light' : ''}`,
-    //                 onClick: () => openPluginManager()
-    //             }, [icon, text])
-    
-    //             args[0].children.splice(0, 0, newEl);
-    //         }
-    //     })
-    // }, true)
-
-    // add the button to the host screen before the game starts
-    // Parcel.getLazy(null,
-    //     // the } is there for a reason
-    // exports => exports?.default?.toString?.().includes('customHorizontalPadding}'),
-    // exports => {
-    //     let nativeDefault = exports.default;
-
-    //     Patcher.after(null, exports, 'default', (_, __, res) => {
-    //         let btnContents = UI.React.createElement('div', {
-    //             className: "gl-hostWrench"
-    //         }, [
-    //             UI.React.createElement('div', {
-    //                 className: 'gl-wrench',
-    //                 dangerouslySetInnerHTML: { __html: wrench }
-    //             }),
-    //             UI.React.createElement('div', {}, "Plugins")
-    //         ])
-
-    //         let newBtn = nativeDefault.apply(this, [{
-    //             children: btnContents,
-    //             onClick: () => openPluginManager(),
-    //             customColor: "#01579b",
-    //             className: 'gl-hostWrenchBtn'
-    //         }])
-
-    //         let name = res?.props?.children?.props?.children?.[2]?.props?.children?.props?.children?.[1]
-    //         if(name === 'Rewards') {
-    //             res.props.children = [newBtn, res.props.children]
-    //         }
-
-    //         return res;
-    //     })
-    // }, true)
+    // This is definitely very bad- in most apps this would be crazy laggy
+    // But this only gets called a few hundred times since Gimkit has very little UI
+    Imports.getIndexExport((val) => val.jsx && val.jsxs, (jsxRuntime) => {
+        if(location.pathname === "/join") {
+            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
+                return onJoinJsx(args, returnVal);
+            });
+        } else if(location.pathname === "/host") {
+            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
+                return onHostJsx(args, returnVal);
+            });
+        } else {
+            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
+                return onHomeJsx(args, returnVal);
+            });
+        }
+    });
 
     // add the button to 1d host screens
     // Parcel.getLazy(null,
@@ -249,4 +154,113 @@ export function addPluginButtons() {
     //         }
     //     })
     // }, true);
+}
+
+function onJoinJsx(args: IArguments, returnVal: any) {
+    // For some reason the names of components is sometimes not minified
+    if(args[0].name === "JoinPrimaryButton") {
+        let newButton = UI.React.createElement('button', {
+            className: 'openPlugins',
+            dangerouslySetInnerHTML: { __html: wrench },
+            onClick: () => openPluginManager()
+        });
+
+        return UI.React.createElement('div', { className: 'gl-join' }, [returnVal, newButton]);
+    }
+
+    return on2dJsx(args, returnVal);
+}
+
+function onHostJsx(args: IArguments, returnVal: any) {
+    // Add the button to the creative screen
+    if(args[1].tooltip === "Options") {
+        const pluginButton = UI.React.createElement(returnVal.type, {
+            tooltip: "Plugins",
+            children: UI.React.createElement('div', {
+                className: 'gl-wrench',
+                dangerouslySetInnerHTML: { __html: wrench }
+            }),
+            onClick: () => openPluginManager()
+        });
+
+        return UI.React.createElement('div', { className: 'gl-row gap' }, [returnVal, pluginButton]);
+    }
+    
+    // Add the button to the host screen
+    if(args[1].tooltip === "Sound") {
+        const pluginButton = UI.React.createElement(returnVal.type, {
+            tooltip: "Plugins",
+            children: UI.React.createElement('div', {
+                className: 'gl-wrench',
+                dangerouslySetInnerHTML: { __html: wrench }
+            }),
+            onClick: () => openPluginManager()
+        });
+
+        return UI.React.createElement('div', { className: 'gl-row' }, [pluginButton, returnVal]);
+    }
+
+    return on2dJsx(args, returnVal);
+}
+
+function on2dJsx(args: IArguments, returnVal: any) {
+    // Add the button to the host/join screen before the game starts
+    if(args[1].ariaLabel === "Rewards" && args[1].customColor) {
+        const text = UI.React.createElement('div', {}, "Plugins");
+
+        const pluginButton = UI.React.createElement(returnVal.type, {
+            ariaLabel: "Plugins",
+            children: UI.React.createElement('div', { className: "gl-row gap-sm" }, [
+                UI.React.createElement('div', {
+                    className: 'gl-wrench',
+                    dangerouslySetInnerHTML: { __html: wrench }
+                }),
+                text
+            ]),
+            customColor: "#01579b",
+            onClick: () => openPluginManager(),
+            className: "gl-hostWrench"
+        });
+
+        return UI.React.createElement('div', { className: 'gl-row gap' }, [pluginButton, returnVal]);
+    }
+}
+
+let homeType: () => any;
+let light = false;
+function onHomeJsx(args: IArguments, returnVal: any) {
+    // Add the button to the homescreen
+    if(args[1]?.showUpgradeModal) {
+        light = args[1].theme !== "light";
+        
+        if(!homeType) {
+            const type = returnVal.type;
+            homeType = function() {
+                let res = type.apply(this, arguments);
+                let children = res.props.children[0].props.items;
+                if(!children?.some?.((c: any) => c?.key === 'creative')) return res;
+
+                let icon = UI.React.createElement('div', {
+                    className: 'icon',
+                    dangerouslySetInnerHTML: { __html: wrench }
+                });
+
+                let text = UI.React.createElement('div', {
+                    className: "text"
+                }, "Plugins");
+
+                let item = UI.React.createElement('div', {
+                    className: `gl-homeWrench ${light ? 'light' : ''}`,
+                    onClick: () => openPluginManager()
+                }, [icon, text]);
+    
+                children.splice(0, 0, { key: "plugins", item });
+
+                return res;
+            }
+        }
+        returnVal.type = homeType;
+
+        return;
+    }
 }

@@ -1,6 +1,13 @@
 .gl-row {
     display: flex;
-    gap: 8px;
+
+    &.gap {
+        gap: 8px;
+    }
+
+    &.gap-sm {
+        gap: 4px;
+    }
 }
 
 * > .gl-wrench {
@@ -79,14 +86,6 @@
             color: #69b1ff;
         }
     }
-}
-
-div:has(> * > * > .gl-hostWrench) {
-    margin-right: 8px;
-}
-
-.gl-hostWrench {
-    display: flex;
 }
 
 .gl-1dHostPluginBtn {

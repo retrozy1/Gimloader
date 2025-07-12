@@ -45,31 +45,8 @@ export default new class Net extends EventEmitter {
     init() {
         // intercept the colyseus room
         GimkitInternals.events.once("stores", (stores: any) => {
-            const colyseus = stores.network.room;
-            log("Colyseus room intercepted", colyseus);
-
-            this.type = 'Colyseus';
-            this.room = colyseus.room;
-
-            this.waitForColyseusLoad();
-            
-            // intercept outgoing messages
-            Patcher.before(null, colyseus, "send", (_, args) => {
-                let [ channel, data ] = args;
-                this.emit(['send', channel], data, (newData: any) => { args[1] = newData });
-
-                if(args[1] === null) return true;
-            });
-
-            // intercept incoming messages
-            Patcher.before(null, colyseus, "dispatchMessage", (_, args) => {
-                let [ channel, data ] = args;
-                this.emit(channel, data, (newData: any) => { args[1] = newData });
-
-                if(args[1] === null) return true;
-            });
+            this.onStoresLoaded();
         });
-
 
         // intercept the room for blueboat
         // Parcel.getLazy(null, (e) => e?.default?.toString?.().includes("this.socketListener()"), (exports) => {
@@ -108,6 +85,37 @@ export default new class Net extends EventEmitter {
         // Parcel.getLazy(null, exports => exports?.default?.toString?.().includes("hasReceivedHostStaticState"), () => {
         //     this.is1dHost = true;
         // });
+    }
+
+    onStoresLoaded() {
+        const colyseus = GimkitInternals.stores.network.room;
+        if(!colyseus) {
+            setTimeout(() => this.onStoresLoaded(), 100);
+            return;
+        }
+
+        log("Colyseus room intercepted", colyseus);
+
+        this.type = 'Colyseus';
+        this.room = colyseus;
+
+        this.waitForColyseusLoad();
+        
+        // intercept outgoing messages
+        Patcher.before(null, colyseus, "send", (_, args) => {
+            let [ channel, data ] = args;
+            this.emit(['send', channel], data, (newData: any) => { args[1] = newData });
+
+            if(args[1] === null) return true;
+        });
+
+        // intercept incoming messages
+        Patcher.before(null, colyseus, "dispatchMessage", (_, args) => {
+            let [ channel, data ] = args;
+            this.emit(channel, data, (newData: any) => { args[1] = newData });
+
+            if(args[1] === null) return true;
+        });
     }
 
     waitForColyseusLoad() {
