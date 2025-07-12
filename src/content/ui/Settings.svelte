@@ -3,8 +3,6 @@
     import Storage from "$core/storage.svelte";
     import { isFirefox } from "$shared/consts";
     import StateManager from "$core/state";
-    import CustomServer from "$core/customServer.svelte";
-    import KonamiCode from "konami-code-js";
     import { onDestroy, onMount } from "svelte";
 
     function saveAutoUpdate() {
@@ -14,21 +12,6 @@
     function saveAutoDownloadLibs() {
         Storage.updateSetting('autoDownloadMissingLibs', Storage.settings.autoDownloadMissingLibs);
     }
-
-    function saveShowCustomServer() {
-        // disable the server if it's not shown
-        if(!Storage.settings.showCustomServer) {
-            CustomServer.config.enabled = false;
-            CustomServer.save();
-        }
-        Storage.updateSetting('showCustomServer', Storage.settings.showCustomServer);
-    }
-
-    let showCustomServerToggle = $state(Storage.settings.showCustomServer);
-
-    let kc: KonamiCode;
-    onMount(() => kc = new KonamiCode(() => showCustomServerToggle = true));
-    onDestroy(() => kc.disable());
 </script>
 
 <h1 class="text-xl font-bold">General Settings</h1>
@@ -54,12 +37,6 @@
     <Toggle bind:checked={Storage.settings.autoDownloadMissingLibs} on:change={saveAutoDownloadLibs} />
     Attempt to automatically download missing libraries
 </div>
-{#if showCustomServerToggle}
-    <div class="flex items-center">
-        <Toggle bind:checked={Storage.settings.showCustomServer} on:change={saveShowCustomServer} />
-        Show custom server tab
-    </div>
-{/if}
 
 <h1 class="text-xl font-bold mt-3">Developer Settings</h1>
 <div class="flex items-center {isFirefox && "opacity-50 pointer-events-none"}">

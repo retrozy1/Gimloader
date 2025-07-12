@@ -7,7 +7,6 @@ import UpdateNotifier from "$core/updateNotifier.svelte";
 import Port from "$shared/port.svelte";
 import { readUserFile } from "$content/utils";
 import toast from "svelte-5-french-toast";
-import CustomServer from "$core/customServer.svelte";
 
 export default class StateManager {
     static init() {
@@ -23,7 +22,6 @@ export default class StateManager {
         PluginManager.init(state.plugins);
         Hotkeys.init(state.hotkeys);
         UpdateNotifier.init(state.availableUpdates);
-        CustomServer.init(state.customServer);
     }
 
     static syncWithState(state: State) {
@@ -32,7 +30,6 @@ export default class StateManager {
         PluginManager.updateState(state.plugins);
         Hotkeys.updateState(state.hotkeys);
         UpdateNotifier.onUpdate(state.availableUpdates);
-        CustomServer.updateState(state.customServer);
     }
 
     static async downloadState() {
@@ -56,10 +53,10 @@ export default class StateManager {
         readUserFile(".json", (text) => {
             try {
                 let state = JSON.parse(text);
-                let { plugins, libraries, pluginStorage, settings, hotkeys, customServer, ...rest } = state;
+                let { plugins, libraries, pluginStorage, settings, hotkeys, ...rest } = state;
 
                 // confirm that at least one of the keys is present
-                if(!plugins && !libraries && !pluginStorage && !settings && !hotkeys && !customServer) {
+                if(!plugins && !libraries && !pluginStorage && !settings && !hotkeys) {
                     toast.error("That config appears to be invalid!");
                     return;
                 }
@@ -69,7 +66,7 @@ export default class StateManager {
                     toast("That config may be invalid, attempting to load anyways...");
                 }
 
-                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, settings, hotkeys, customServer });
+                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, settings, hotkeys });
             } catch {
                 toast.error("That config appears to be invalid!");
             }

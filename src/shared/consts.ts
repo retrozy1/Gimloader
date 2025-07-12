@@ -1,4 +1,4 @@
-import type { CustomServerConfig, Settings } from "$types/state";
+import type { Settings } from "$types/state";
 
 export const isFirefox = navigator.userAgent.includes("Firefox");
 
@@ -12,15 +12,7 @@ export const defaultSettings: Settings = {
     autoUpdate: true,
     autoDownloadMissingLibs: true,
     menuView: 'grid',
-    showPluginButtons: true,
-    showCustomServer: false,
-    joiningCustomServer: true
-}
-
-export const defaultCustomServerConfig: CustomServerConfig = {
-    enabled: false,
-    selected: null,
-    servers: []
+    showPluginButtons: true
 }
 
 export const flipDurationMs = 300;

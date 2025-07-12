@@ -23,21 +23,6 @@ export interface Settings {
     autoDownloadMissingLibs: boolean;
     menuView: 'grid' | 'list';
     showPluginButtons: boolean;
-    showCustomServer: boolean;
-    joiningCustomServer: boolean;
-}
-
-export interface CustomServer {
-    name: string;
-    address: string;
-    port: number;
-    id: string;
-}
-
-export interface CustomServerConfig {
-    enabled: boolean;
-    selected: number | null;
-    servers: CustomServer[];
 }
 
 export interface SavedState {
@@ -46,7 +31,6 @@ export interface SavedState {
     pluginStorage: PluginStorage;
     settings: Settings;
     hotkeys: ConfigurableHotkeysState;
-    customServer: CustomServerConfig;
 }
 
 export interface State extends SavedState {

@@ -1,5 +1,5 @@
 import type { HotkeyTrigger } from "./hotkeys";
-import type { ConfigurableHotkeysState, CustomServerConfig, SavedState, State } from "./state";
+import type { ConfigurableHotkeysState, SavedState, State } from "./state";
 
 // These go both ways
 export interface StateMessages {
@@ -25,8 +25,6 @@ export interface StateMessages {
     pluginValueUpdate: { id: string, key: string, value: string };
     pluginValueDelete: { id: string, key: string };
     pluginValuesDelete: { id: string };
-
-    customServerUpdate: CustomServerConfig;
 }
 
 // These only go from the background to content
@@ -34,7 +32,6 @@ export interface Messages extends StateMessages {
     setState: SavedState;
     toast: { type: "success" | "error" | "normal", message: string };
     availableUpdates: string[];
-    customServerUpdate: CustomServerConfig;
 }
 
 export interface OnceMessages {

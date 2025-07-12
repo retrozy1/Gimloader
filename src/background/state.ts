@@ -1,6 +1,6 @@
-import type { ConfigurableHotkeysState, CustomServerConfig, LibraryInfo, PluginInfo, PluginStorage,
+import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage,
     SavedState, ScriptInfo, Settings, State } from "$types/state";
-import { defaultCustomServerConfig, defaultSettings } from "$shared/consts";
+import { defaultSettings } from "$shared/consts";
 import debounce from "debounce";
 
 export let statePromise = new Promise<State>(async (res) => {
@@ -9,8 +9,7 @@ export let statePromise = new Promise<State>(async (res) => {
         libraries: [],
         pluginStorage: {},
         settings: defaultSettings,
-        hotkeys: {},
-        customServer: defaultCustomServerConfig
+        hotkeys: {}
     });
 
     res({
@@ -19,7 +18,6 @@ export let statePromise = new Promise<State>(async (res) => {
         pluginStorage: sanitizePluginStorage(savedState.pluginStorage),
         settings: sanitizeSettings(savedState.settings),
         hotkeys: sanitizeHotkeys(savedState.hotkeys),
-        customServer: sanitizeCustomServer(savedState.customServer),
         availableUpdates: []
     });
 });
@@ -153,32 +151,4 @@ export function sanitizeSettings(settings: Settings) {
     }
 
     return newSettings;
-}
-
-export function sanitizeCustomServer(config: CustomServerConfig) {
-    if(typeof config !== "object" || config === null) return defaultCustomServerConfig;
-    
-    if(Array.isArray(config.servers)) {
-        for(let i = 0; i < config.servers.length; i++) {
-            let server = config.servers[i];
-            if(typeof server.address !== "string" || typeof server.id !== "string"
-                || typeof server.name !== "string" || typeof server.port !== "number") {
-                config.servers.splice(i, 1);
-                i--;
-            }
-        }
-    } else {
-        config.servers = [];
-    }
-
-    if(config.servers.length === 0) {
-        config.selected = null;
-    } else if(config.selected !== null) {
-        if(typeof config.selected !== "number" || config.selected < 0 || config.selected >= config.servers.length) {
-            config.selected = 0;
-        }
-    }
-    if(typeof config.enabled !== "boolean") config.enabled = false;
-
-    return config;
 }

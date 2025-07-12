@@ -10,7 +10,6 @@
     import Port from "$shared/port.svelte";
     import { onMount } from "svelte";
     import toast from "svelte-5-french-toast";
-    import CustomServer from "./server/CustomServerConfig.svelte";
     
     import Wrench from 'svelte-material-icons/Wrench.svelte';
     import Book from 'svelte-material-icons/Book.svelte';
@@ -108,15 +107,6 @@
                     </div>
                     <Updates />
                 </TabItem>
-                {#if Storage.settings.showCustomServer}
-                    <TabItem on:click={() => dropCallback = null}>
-                        <div class="flex items-center" slot="title">
-                            <Web size={24} />
-                            <span class="ml-2">Server</span>
-                        </div>
-                        <CustomServer />
-                    </TabItem>
-                {/if}
                 <TabItem on:click={() => dropCallback = null}>
                     <div class="flex items-center" slot="title">
                         <Cog size={24} />

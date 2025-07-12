@@ -157,14 +157,6 @@ export declare class EventEmitter2 {
 export default EventEmitter2;
 
 }
-declare module "content/core/internals" {
-    export default class GimkitInternals {
-        static stores: any;
-        static notification: any;
-        static platformerPhysics: any;
-        static init(): void;
-    }
-}
 declare module "types/hotkeys" {
     /** @inline */
     export interface HotkeyTrigger {
@@ -209,19 +201,6 @@ declare module "types/state" {
         autoDownloadMissingLibs: boolean;
         menuView: 'grid' | 'list';
         showPluginButtons: boolean;
-        showCustomServer: boolean;
-        joiningCustomServer: boolean;
-    }
-    export interface CustomServer {
-        name: string;
-        address: string;
-        port: number;
-        id: string;
-    }
-    export interface CustomServerConfig {
-        enabled: boolean;
-        selected: number | null;
-        servers: CustomServer[];
     }
     export interface SavedState {
         plugins: PluginInfo[];
@@ -229,7 +208,6 @@ declare module "types/state" {
         pluginStorage: PluginStorage;
         settings: Settings;
         hotkeys: ConfigurableHotkeysState;
-        customServer: CustomServerConfig;
     }
     export interface State extends SavedState {
         availableUpdates: string[];
