@@ -7,7 +7,6 @@ interface ExportCallback {
 }
 
 export default class Imports {
-	static lazyImportRegex = /import\("(.+")\),__vite__mapDeps\(\[(.+)\]/g;
 	static seen = new Set<string>();
 
 	static init() {
