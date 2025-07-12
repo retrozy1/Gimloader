@@ -43,42 +43,33 @@ export default new class Net extends EventEmitter {
     }
 
     init() {
-        let me = this;
-
         // intercept the colyseus room
-        // Parcel.getLazy(null, (exports) => exports?.OnJoinedRoom, (exports) => {
-        //     let nativeOnJoined = exports.OnJoinedRoom;
-        //     delete exports.OnJoinedRoom;
+        GimkitInternals.events.once("stores", (stores: any) => {
+            const colyseus = stores.network.room;
+            log("Colyseus room intercepted", colyseus);
+
+            this.type = 'Colyseus';
+            this.room = colyseus.room;
+
+            this.waitForColyseusLoad();
             
-        //     log('Colyseus room intercepted');
-            
-        //     exports.OnJoinedRoom = function(colyseus: any) {
-        //         me.type = 'Colyseus';
-        //         me.room = colyseus.room;
+            // intercept outgoing messages
+            Patcher.before(null, colyseus, "send", (_, args) => {
+                let [ channel, data ] = args;
+                this.emit(['send', channel], data, (newData: any) => { args[1] = newData });
 
-        //         me.waitForColyseusLoad();
-                
-        //         // intercept outgoing messages
-        //         Patcher.before(null, colyseus.room, "send", (_, args) => {
-        //             let [ channel, data ] = args;
-        //             me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
+                if(args[1] === null) return true;
+            });
 
-        //             if(args[1] === null) return true;
-        //         });
+            // intercept incoming messages
+            Patcher.before(null, colyseus, "dispatchMessage", (_, args) => {
+                let [ channel, data ] = args;
+                this.emit(channel, data, (newData: any) => { args[1] = newData });
 
-        //         // intercept incoming messages
-        //         Patcher.before(null, colyseus.room, "dispatchMessage", (_, args) => {
-        //             let [ channel, data ] = args;
-        //             me.emit(channel, data, (newData: any) => { args[1] = newData });
+                if(args[1] === null) return true;
+            });
+        });
 
-        //             if(args[1] === null) return true;
-        //         });
-
-        //         return nativeOnJoined.apply(this, [colyseus]);
-        //     }
-
-        //     return exports;
-        // })
 
         // intercept the room for blueboat
         // Parcel.getLazy(null, (e) => e?.default?.toString?.().includes("this.socketListener()"), (exports) => {

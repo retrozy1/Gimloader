@@ -1,15 +1,19 @@
 import Imports from "./imports";
+import EventEmitter from "eventemitter2";
 
 export default class GimkitInternals {
     static stores: any;
     static notification: any;
     static platformerPhysics: any;
+    static events = new EventEmitter();
 
     static init() {
         // window.stores
         Imports.getExport("FixSpinePlugin", (val) => val?.characters, (stores) => {
             this.stores = stores;
             window.stores = stores;
+
+            this.events.emit("stores", stores);
         });
 
         // ant-design notifications
