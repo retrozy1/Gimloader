@@ -38,6 +38,9 @@ export function addPluginButtons() {
             Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
                 return onJoinJsx(args, returnVal);
             });
+            Patcher.after(null, jsxRuntime, "jsxs", (_, args, returnVal) => {
+                return onJoinJsxs(args, returnVal);
+            });
         } else if(location.pathname === "/host") {
             Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
                 return onHostJsx(args, returnVal);
@@ -48,112 +51,6 @@ export function addPluginButtons() {
             });
         }
     });
-
-    // add the button to 1d host screens
-    // Parcel.getLazy(null,
-    // exports => exports?.default?.displayName?.includes?.('inject-with-gameOptions-gameValues-players-kit-ui'),
-    // exports => {
-    //     Patcher.after(null, exports.default, 'render', (_, __, res) => {
-    //         let nativeType = res.type;
-            
-    //         delete res.type;
-    //         res.type = function() {
-    //             let res = new nativeType(...arguments);
-                
-    //             let nativeRender = res.render;
-    //             delete res.render;
-                
-    //             res.render = function() {
-    //                 let res = nativeRender.apply(this, arguments);
-                    
-    //                 let newBtn = UI.React.createElement('button', {
-    //                     className: 'gl-1dHostPluginBtn',
-    //                     onClick: () => openPluginManager()
-    //                 }, 'Plugins')
-                    
-    //                 res.props.children = [newBtn, res.props.children];
-                    
-    //                 return res;
-    //             }
-                
-    //             return res;
-    //         }
-            
-    //         return res
-    //     })
-    // }, true)
-    
-    // add the button to the 1d host screen while in-game
-    // we need to do this to intercept the stupid mobx wrapper which is a massive pain
-    // Parcel.getLazy(null, exports => exports?.__decorate, exports => {
-    //     Patcher.before(null, exports, '__decorate', (_, args) => {
-    //         if(args[1]?.toString?.()?.includes("Toggle Music")) {
-    //             let nativeRender = args[1].prototype.render;
-    //             args[1].prototype.render = function() {
-    //                 let res = nativeRender.apply(this, args);
-    //                 let children = res.props.children[2].props.children.props.children
-
-    //                 let newEl = UI.React.createElement(children[1].type, {
-    //                     icon: UI.React.createElement('div', {
-    //                         className: 'gl-1dHostGameWrench',
-    //                         dangerouslySetInnerHTML: { __html: wrench }
-    //                     }),
-    //                     onClick: () => openPluginManager(),
-    //                     tooltipMessage: "Plugins"
-    //                 })
-                    
-    //                 children.splice(0, 0, newEl);
-                    
-    //                 return res;
-    //             }
-    //         }
-    //     })
-    // }, true)
-
-    // add the button to the 1d game screen
-    // Parcel.getLazy(null, exports => exports?.observer &&
-    // exports.Provider, exports => {
-    //     // let nativeObserver = exports.observer;
-    //     // delete exports.observer;
-
-    //     // exports.observer = function() {
-    //     Patcher.before(null, exports, 'observer', (_, args) => {
-    //         if(args[0]?.toString?.().includes('"aria-label":"Menu"')) {
-    //             let nativeArgs = args[0];
-    //             args[0] = function() {
-    //                 let res = nativeArgs.apply(this, arguments);
-
-    //                 // for when we're still on the join screen
-    //                 if(res?.props?.children?.props?.children?.props?.src === '/client/img/svgLogoWhite.svg') {
-    //                     let props = res.props.children.props
-
-    //                     props.children = [props.children, UI.React.createElement('div', {
-    //                         className: 'gl-1dGameWrenchJoin',
-    //                         style: { cursor: 'pointer' },
-    //                         dangerouslySetInnerHTML: { __html: wrench },
-    //                         onClick: () => openPluginManager()
-    //                     })];
-
-    //                     return res;
-    //                 }
-                    
-    //                 let children = res?.props?.children?.[0]?.props?.children?.props?.children;
-    //                 if(!children) return res;
-                    
-    //                 let newEl = UI.React.createElement(children[1].type, {
-    //                     onClick: () => openPluginManager(),
-    //                 }, UI.React.createElement('div', {
-    //                     className: 'gl-1dGameWrench',
-    //                     dangerouslySetInnerHTML: { __html: wrench }
-    //                 }))
-                    
-    //                 children.splice(3, 0, newEl)
-                    
-    //                 return res;
-    //             }
-    //         }
-    //     })
-    // }, true);
 }
 
 function onJoinJsx(args: IArguments, returnVal: any) {
@@ -171,6 +68,19 @@ function onJoinJsx(args: IArguments, returnVal: any) {
     return on2dJsx(args, returnVal);
 }
 
+function onJoinJsxs(args: IArguments, returnVal: any) {
+    if(args[1].style?.paddingLeft === 8) {
+        const children = returnVal.props.children;
+        const pluginButton = UI.React.createElement("div", {
+            className: "gl-1dGameWrench",
+            dangerouslySetInnerHTML: { __html: wrench },
+            onClick: () => openPluginManager()
+        });
+
+        children.splice(3, 0, pluginButton)
+    }
+}
+
 function onHostJsx(args: IArguments, returnVal: any) {
     // Add the button to the creative screen
     if(args[1].tooltip === "Options") {
@@ -185,16 +95,25 @@ function onHostJsx(args: IArguments, returnVal: any) {
 
         return UI.React.createElement('div', { className: 'gl-row gap' }, [returnVal, pluginButton]);
     }
-    
-    // Add the button to the host screen
-    if(args[1].tooltip === "Sound") {
+
+    if(args[1].children === "Start Game" && !args[1].type && !args[1].className) {
         const pluginButton = UI.React.createElement(returnVal.type, {
-            tooltip: "Plugins",
-            children: UI.React.createElement('div', {
-                className: 'gl-wrench',
+            children: "Plugins",
+            onClick: () => openPluginManager(),
+            className: "gl-1dLobbyButton"
+        });
+
+        return UI.React.createElement('div', { className: 'gl-row gap' }, [pluginButton, returnVal]);
+    }
+
+    if(args[1].tooltipMessage === "Toggle Music") {
+        const pluginButton = UI.React.createElement(returnVal.type, {
+            tooltipMessage: "Plugins",
+            onClick: () => openPluginManager(),
+            icon: UI.React.createElement('div', {
+                className: 'gl-1dHostGameWrench',
                 dangerouslySetInnerHTML: { __html: wrench }
-            }),
-            onClick: () => openPluginManager()
+            })
         });
 
         return UI.React.createElement('div', { className: 'gl-row' }, [pluginButton, returnVal]);
@@ -212,17 +131,30 @@ function on2dJsx(args: IArguments, returnVal: any) {
             ariaLabel: "Plugins",
             children: UI.React.createElement('div', { className: "gl-row gap-sm" }, [
                 UI.React.createElement('div', {
-                    className: 'gl-wrench',
+                    className: 'gl-wrench lobby',
                     dangerouslySetInnerHTML: { __html: wrench }
                 }),
                 text
             ]),
             customColor: "#01579b",
-            onClick: () => openPluginManager(),
-            className: "gl-hostWrench"
+            onClick: () => openPluginManager()
         });
 
         return UI.React.createElement('div', { className: 'gl-row gap' }, [pluginButton, returnVal]);
+    }
+
+    // Add the button to the host/join screen ingame
+    if(args[1].tooltip === "Sound") {
+        const pluginButton = UI.React.createElement(returnVal.type, {
+            tooltip: "Plugins",
+            children: UI.React.createElement('div', {
+                className: 'gl-wrench',
+                dangerouslySetInnerHTML: { __html: wrench }
+            }),
+            onClick: () => openPluginManager()
+        });
+
+        return UI.React.createElement('div', { className: 'gl-row' }, [pluginButton, returnVal]);
     }
 }
 
