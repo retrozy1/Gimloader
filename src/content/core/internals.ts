@@ -1,4 +1,4 @@
-import Imports from "./imports";
+import Imports, { getObjectByKey } from "./imports";
 import EventEmitter from "eventemitter2";
 
 export default class GimkitInternals {
@@ -17,9 +17,15 @@ export default class GimkitInternals {
         });
 
         // ant-design notifications
-        // Parcel.getLazy(null, exports => exports?.default?.useNotification, exports => {
-        //     this.notification = exports.default;
-        // });
+        getObjectByKey({
+            key: "success",
+            callback: (notification) => {
+                this.notification = notification;
+                this.events.emit("notification", notification);
+            },
+            filter: (val) => val.useNotification,
+            once: true
+        });
 
         // platformer physics
         // Parcel.getLazy(null, exports => exports?.CharacterPhysicsConsts, exports => {

@@ -123,23 +123,3 @@ export function domLoaded() {
         res();
     });
 }
-
-export function getObjectByKey(key: string, callback: (obj: any) => void, filter?: (obj: any) => boolean) {
-
-    Object.defineProperty(Object.prototype, key, {
-        set(val) {
-            // Use the normal value
-            Object.defineProperty(this, key, {
-                value: val,
-                enumerable: true,
-                configurable: true,
-                writable: true
-            });
-
-            if(filter && !filter(this)) return;
-
-            // delete Object.prototype[key];
-            callback(this);
-        }
-    });
-}

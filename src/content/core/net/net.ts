@@ -1,10 +1,11 @@
-import Internal from "$core/internals";
+import Internals from "$core/internals";
 import EventEmitter from "eventemitter2";
 import { log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
 import GimkitInternals from "$core/internals";
 import { formatDownloadUrl } from "$shared/net";
+import { getObjectByDefinedKey, getObjectByKey } from "../imports";
 
 interface BlueboatConnection {
     type: "Blueboat";
@@ -32,7 +33,6 @@ export default new class Net extends EventEmitter {
     type: Connection["type"] = "None";
     room: Connection["room"] = null;
     loaded = false;
-    is1dHost = false;
     loadCallbacks: LoadCallback[] = [];
 
     constructor() {
@@ -44,65 +44,39 @@ export default new class Net extends EventEmitter {
 
     init() {
         // intercept the colyseus room
-        GimkitInternals.events.once("stores", (stores: any) => {
-            this.onStoresLoaded();
+        getObjectByDefinedKey({
+            key: "Auth",
+            callback: (colyseus) => {
+                Patcher.after(null, colyseus.Client.prototype, "create", (_, __, roomPromise) => {
+                    roomPromise.then((room: any) => this.onColyseusRoom(room));
+                });
+            },
+            filter: (val) => val.Client,
+            once: true
         });
 
-        // intercept the room for blueboat
-        // Parcel.getLazy(null, (e) => e?.default?.toString?.().includes("this.socketListener()"), (exports) => {
-        //     let nativeRoom = exports.default;
-            
-        //     exports.default = function() {
-        //         let room = new nativeRoom(...arguments);
+        Internals.events.once("stores", () => {
+            this.waitForColyseusLoad();
+        });
 
-        //         me.room = room;
-        //         me.type = 'Blueboat';
-
-        //         log('Blueboat room intercepted');
-        //         me.emit('load:blueboat');
-        //         me.onLoad("Blueboat");
-
-        //         // intercept incoming messages
-        //         Patcher.before(null, room.onMessage, "call", (_, args) => {
-        //             let [ channel, data ] = args;
-        //             me.emit(channel, data, (newData: any) => { args[1] = newData });
-
-        //             if(args[1] === null) return true;
-        //         });
-
-        //         // intercept outgoing messages
-        //         Patcher.before(null, room, "send", (_, args) => {
-        //             let [ channel, data ] = args;
-        //             me.emit(['send', channel], data, (newData: any) => { args[1] = newData });
-
-        //             if(args[1] === null) return true;
-        //         });
-
-        //         return room;
-        //     }
-        // });
-
-        // Parcel.getLazy(null, exports => exports?.default?.toString?.().includes("hasReceivedHostStaticState"), () => {
-        //     this.is1dHost = true;
-        // });
+        getObjectByKey({
+            key: "Room",
+            callback: (blueboat) => {
+                Patcher.after(null, blueboat.Client.prototype, "createRoom", (_, __, room) => {
+                    this.onBlueboatRoom(room);
+                });
+            }
+        });
     }
 
-    onStoresLoaded() {
-        const colyseus = GimkitInternals.stores.network.room;
-        if(!colyseus) {
-            setTimeout(() => this.onStoresLoaded(), 100);
-            return;
-        }
-
-        log("Colyseus room intercepted", colyseus);
+    onColyseusRoom(room: any) {
+        log("Colyseus room intercepted", room);
 
         this.type = 'Colyseus';
-        this.room = colyseus;
-
-        this.waitForColyseusLoad();
+        this.room = room;
         
         // intercept outgoing messages
-        Patcher.before(null, colyseus, "send", (_, args) => {
+        Patcher.before(null, room, "send", (_, args) => {
             let [ channel, data ] = args;
             this.emit(['send', channel], data, (newData: any) => { args[1] = newData });
 
@@ -110,7 +84,7 @@ export default new class Net extends EventEmitter {
         });
 
         // intercept incoming messages
-        Patcher.before(null, colyseus, "dispatchMessage", (_, args) => {
+        Patcher.before(null, room, "dispatchMessage", (_, args) => {
             let [ channel, data ] = args;
             this.emit(channel, data, (newData: any) => { args[1] = newData });
 
@@ -118,10 +92,35 @@ export default new class Net extends EventEmitter {
         });
     }
 
+    onBlueboatRoom(room: any) {
+        log('Blueboat room intercepted', room);
+
+        this.room = room;
+        this.type = 'Blueboat';
+        this.emit('load:blueboat');
+        this.onLoad("Blueboat");
+
+        // intercept incoming messages
+        Patcher.before(null, room.onMessage, "call", (_, args) => {
+            let [ channel, data ] = args;
+            this.emit(channel, data, (newData: any) => { args[1] = newData });
+
+            if(args[1] === null) return true;
+        });
+
+        // intercept outgoing messages
+        Patcher.before(null, room, "send", (_, args) => {
+            let [ channel, data ] = args;
+            this.emit(['send', channel], data, (newData: any) => { args[1] = newData });
+
+            if(args[1] === null) return true;
+        });
+    }
+
     waitForColyseusLoad() {
-        const message = Internal.stores.me.nonDismissMessage;
-        const loading = Internal.stores.loading;
-        const me = Internal.stores.me;
+        const message = Internals.stores.me.nonDismissMessage;
+        const loading = Internals.stores.loading;
+        const me = Internals.stores.me;
         
         const mobxMsg = message[Object.getOwnPropertySymbols(message)[0]];
         const mobxLoading = loading[Object.getOwnPropertySymbols(loading)[0]];
@@ -215,6 +214,6 @@ export default new class Net extends EventEmitter {
     }
 
     get isHost() {
-        return this.is1dHost || (GimkitInternals.stores?.session?.amIGameOwner ?? false);
+        return location.pathname === "/host";
     }
 }

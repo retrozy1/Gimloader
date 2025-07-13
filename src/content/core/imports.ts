@@ -1,4 +1,47 @@
-import { getObjectByKey, splicer } from "$content/utils";
+import { splicer } from "$content/utils";
+import Patcher from "./patcher";
+
+interface GetObjectByKeyOptions {
+	key: string;
+	callback: (obj: any) => void;
+	filter?: (obj: any) => boolean;
+	once?: boolean;
+}
+
+const defineProperty = Object.defineProperty;
+export function getObjectByKey({ key, callback, filter, once = true }: GetObjectByKeyOptions) {
+    defineProperty(Object.prototype, key, {
+        set(val) {
+            // Use the normal value
+            defineProperty(this, key, {
+                value: val,
+                enumerable: true,
+                configurable: true,
+                writable: true
+            });
+			
+            if(filter && !filter(this)) return;
+
+			if(once) delete Object.prototype[key];
+            callback(this);
+        },
+		configurable: true
+	});
+}
+
+let keyCallbacks = new Map<string, GetObjectByKeyOptions>();
+export function getObjectByDefinedKey(options: GetObjectByKeyOptions) {
+    keyCallbacks.set(options.key, options);
+}
+
+Patcher.after(null, Object, "defineProperty", (_, [obj, key]) => {
+	const options = keyCallbacks.get(key);
+	if(options) {
+		if(options.filter && !options.filter(obj)) return;
+		if(options.once) keyCallbacks.delete(key);
+		options.callback(obj);
+	}
+});
 
 interface ExportCallback {
 	prefix: string;
@@ -7,28 +50,45 @@ interface ExportCallback {
 }
 
 export default class Imports {
-	static seen = new Set<string>();
-
 	static init() {
-		getObjectByKey("f", (mapDeps) => {
-			mapDeps.f = new Proxy(mapDeps.f, {
-				get: (target, prop, receiver) => {
-					const value = Reflect.get(target, prop, receiver);
+		// The first time that mapDeps is called the proxy isn't used
+		// So we get the used deps from the .map call later
+		let nextMapImportsArray: string[] | null = null;
+		Patcher.before(null, Array.prototype, "map", (thisVal) => {
+			if(!nextMapImportsArray) return;
 
-					if(!this.seen.has(value)) {
-						this.seen.add(value);
+			for(let i = 0; i < thisVal.length; i++) {
+				this.triggerImported(nextMapImportsArray[i]);
+			}
+
+			nextMapImportsArray = null;
+		});
+
+		getObjectByKey({
+			key: "f",
+			callback: (mapDeps) => {
+				nextMapImportsArray = mapDeps.f;
+				mapDeps.f = new Proxy(mapDeps.f, {
+					get: (target, prop, receiver) => {
+						const value = Reflect.get(target, prop, receiver);
 						this.triggerImported(value);
-					}
 
-					return value;
-				}
-			});
-		}, (fn) => typeof fn === "function" && fn.name === "__vite__mapDeps");
+						return value;
+					}
+				});
+			},
+			filter: (fn) => typeof fn === "function" && fn.name === "__vite__mapDeps",
+			once: false
+		});
 	}
 
+	static seen = new Set<string>();
 	static exportCallbacks: ExportCallback[] = [];
 	static triggerImported(url: string) {
 		if(!url.endsWith(".js")) return;
+		if(this.seen.has(url)) return;
+		this.seen.add(url);
+
 		url = url.replace("assets/", "");
 
 		if(!this.exportCallbacks.some(obj => url.startsWith(obj.prefix))) return;
