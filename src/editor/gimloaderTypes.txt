@@ -313,16 +313,17 @@ declare module "content/core/net/net" {
         type: Connection["type"];
         room: Connection["room"];
         loaded: boolean;
-        is1dHost: boolean;
         loadCallbacks: LoadCallback[];
         init(): void;
+        onColyseusRoom(room: any): void;
+        onBlueboatRoom(room: any): void;
         waitForColyseusLoad(): void;
         send(channel: string, message: any): void;
         downloadLibrary(url: string): Promise<void>;
         onLoad(type: Connection["type"]): void;
         pluginOnLoad(id: string, callback: (type: Connection["type"]) => void): () => void;
         pluginOffLoad(id: string): void;
-        readonly isHost: any;
+        readonly isHost: boolean;
         emit(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): boolean;
         emitAsync(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): Promise<any[]>;
         addListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): import("eventemitter2").Listener | /*elided*/ any;
@@ -489,7 +490,7 @@ declare module "content/api/net" {
         /** The room that the client is connected to, or null if there is no connection */
         get room(): Connection["room"];
         /** Whether the user is the one hosting the current game */
-        get isHost(): any;
+        get isHost(): boolean;
         /** Sends a message to the server on a specific channel */
         send(channel: string, message: any): void;
     }
@@ -873,11 +874,6 @@ declare module "content/api/api" {
             createReactContextMenu: () => void;
         };
         /**
-         * @deprecated No longer supported
-         * @hidden
-         */
-        static get platformerPhysics(): any;
-        /**
          * @deprecated The api no longer emits events. Use GL.net.loaded to listen to load events
          * @hidden
          */
@@ -946,13 +942,9 @@ declare module "content/api/api" {
 declare const GL: typeof import('content/api/api').default;
 /** @deprecated Use GL.stores */
 declare const stores: any;
-/** @deprecated No longer supported */
-declare const platformerPhysics: any;
 
 interface Window {
     GL: typeof import('content/api/api').default;
     /** @deprecated Use GL.stores */
     stores: any;
-    /** @deprecated No longer supported */
-    platformerPhysics: any;
 }

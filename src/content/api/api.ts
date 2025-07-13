@@ -75,12 +75,6 @@ class Api {
     static get contextMenu() { return { showContextMenu: () => {}, createReactContextMenu: () => {} } }; 
 
     /**
-     * @deprecated No longer supported
-     * @hidden
-     */
-    static get platformerPhysics() { return GimkitInternals.platformerPhysics };
-
-    /**
      * @deprecated The api no longer emits events. Use GL.net.loaded to listen to load events
      * @hidden
      */

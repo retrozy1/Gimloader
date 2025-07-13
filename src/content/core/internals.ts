@@ -4,7 +4,6 @@ import EventEmitter from "eventemitter2";
 export default class GimkitInternals {
     static stores: any;
     static notification: any;
-    static platformerPhysics: any;
     static events = new EventEmitter();
 
     static init() {
@@ -26,11 +25,5 @@ export default class GimkitInternals {
             filter: (val) => val.useNotification,
             once: true
         });
-
-        // platformer physics
-        // Parcel.getLazy(null, exports => exports?.CharacterPhysicsConsts, exports => {
-        //     this.platformerPhysics = exports.CharacterPhysicsConsts;
-        //     window.platformerPhysics = exports.CharacterPhysicsConsts;
-        // });
     }
 }

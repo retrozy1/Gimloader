@@ -65,7 +65,9 @@ export default new class Net extends EventEmitter {
                 Patcher.after(null, blueboat.Client.prototype, "createRoom", (_, __, room) => {
                     this.onBlueboatRoom(room);
                 });
-            }
+            },
+            filter: (val) => val.Client && val.Room?.prototype?.createRoom,
+            once: true
         });
     }
 
