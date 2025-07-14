@@ -1,7 +1,7 @@
-import wrench from "$assets/wrench.svg";
+import blackWrenchSvg from "$assets/wrench.svg";
+import whiteWrenchSvg from "$assets/wrench-light.svg";
 import { mount, unmount } from "svelte";
 import MenuUI from "$content/ui/MenuUI.svelte";
-import Patcher from "$core/patcher";
 import UI from "$core/ui/ui";
 import Hotkeys from '$core/hotkeys/hotkeys.svelte';
 import Rewriter from "../rewriter";
@@ -31,168 +31,181 @@ export function addPluginButtons() {
         alt: true
     }, () => openPluginManager());
 
-    // This is definitely very bad- in most apps this would be crazy laggy
-    // But this only gets called a few hundred times since Gimkit has very little UI
-    Rewriter.exposeObjectByAssignment(true, "jsxRuntime", ".jsxs=", (jsxRuntime) => {
-        if(location.pathname === "/join") {
-            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
-                return onJoinJsx(args, returnVal);
+    const blackWrench = Rewriter.createMemoized("blackWrenchSvg", () => {
+        const wrenchBlob = new Blob([blackWrenchSvg], { type: "image/svg+xml" });
+        return URL.createObjectURL(wrenchBlob);
+    });
+
+    const whiteWrench = Rewriter.createMemoized("whiteWrenchSvg", () => {
+        const wrenchBlob = new Blob([whiteWrenchSvg], { type: "image/svg+xml" });
+        return URL.createObjectURL(wrenchBlob);
+    });
+
+    const openUI = Rewriter.createShared("openPluginManager", openPluginManager);
+    const createElement = `window.GL.React.createElement`;
+
+    // Add the wrench button the homescreen
+    Rewriter.addParseHook("App", (code) => {
+        let index = code.indexOf("/client/img/header/creative.svg");
+        if(index === -1) return;
+
+        const start = code.lastIndexOf(" ", index) + 1;
+        const end = code.indexOf("})}),", index) + 5;
+        let insert = code.slice(start, end);
+        
+        insert = insert.replace("Creative", "Plugins");
+
+        // Change the wrench icon based on the theme
+        let themeStart = insert.indexOf("theme:") + 6;
+        let themeEnd = insert.indexOf(",", themeStart);
+        let theme = insert.slice(themeStart, themeEnd);
+        insert = insert.replace(`"/client/img/header/creative.svg"`, `${theme}==="dark"?${whiteWrench}:${blackWrench}`);
+
+        // Add the custom onClick
+        insert = Rewriter.replaceBetween(insert, "path:", ",", `onClick:()=>${openUI}(),`);
+
+        code = code.slice(0, start) + insert + code.slice(start);
+        return code;
+    });
+
+    // Add the wrench button to the ingame 2d HUD
+    Rewriter.addParseHook("App", (code) => {
+        let index = code.indexOf(`tooltip:"Sound"`);
+        if(index === -1) return;
+
+        const start = code.lastIndexOf("[", index) + 1;
+        const end = code.indexOf("})}),", index) + 5;
+        let insert = code.slice(start, end);
+
+        insert = insert.replace("Sound", "Plugins");
+        insert = insert.replace("fa-waveform", "fa-wrench");
+
+        code = code.slice(0, start) + insert + code.slice(start);
+        return code;
+    });
+
+    // Add the wrench button the pregame 2d HUD
+    Rewriter.addParseHook("App", (code) => {
+        let index = code.indexOf(`"#01579b",onClick:()=>`);
+        if(index === -1) return;
+
+        const start = code.lastIndexOf(",", code.lastIndexOf(".jsx(", index));
+        const end = code.indexOf("})})", index) + 4;
+        let insert = code.slice(start, end);
+
+        insert = Rewriter.replaceBetween(insert, "onClick:", "}", `onClick:()=>${openUI}()`);
+        insert = Rewriter.replaceBetween(insert, "}),", "name]", `}),"Plugins"]`);
+        insert = Rewriter.replaceBetween(insert, "src:", "iconImage,", `src:${whiteWrench},`);
+        
+        code = code.slice(0, start) + insert + code.slice(start);
+        code = code.replace("space-between", "flex-start;\n  gap: 8px;");
+        code = Rewriter.insertAfter(code, "sticker}s`,", "style:{flexGrow:1},")
+
+        return code;
+    });
+
+    // Add the wrench button to the join screen
+    const wrapJoin = Rewriter.createShared("wrapJoinButton", (joinButton: () => any) => {
+        return function() {
+            let element = joinButton.apply(this, arguments);
+            let newButton = UI.React.createElement('button', {
+                className: 'openPlugins',
+                dangerouslySetInnerHTML: { __html: whiteWrenchSvg },
+                onClick: () => openPluginManager()
             });
-            Patcher.after(null, jsxRuntime, "jsxs", (_, args, returnVal) => {
-                return onJoinJsxs(args, returnVal);
-            });
-        } else if(location.pathname === "/host") {
-            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
-                return onHostJsx(args, returnVal);
-            });
-        } else {
-            Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
-                return onHomeJsx(args, returnVal);
-            });
+
+            return UI.React.createElement('div', { className: 'gl-join' }, [element, newButton]);
         }
     });
-}
 
-function onJoinJsx(args: IArguments, returnVal: any) {
-    // For some reason the names of components is sometimes not minified
-    if(args[0].name === "JoinPrimaryButton") {
-        let newButton = UI.React.createElement('button', {
-            className: 'openPlugins',
-            dangerouslySetInnerHTML: { __html: wrench },
-            onClick: () => openPluginManager()
-        });
+    Rewriter.addParseHook("App", (code) => {
+        let index = code.indexOf("JoinPrimaryButton");
+        if(index === -1) return;
 
-        return UI.React.createElement('div', { className: 'gl-join' }, [returnVal, newButton]);
-    }
+        // Just wrap it with a function here, it's easier
+        let start = code.indexOf("=", index) + 1;
+        let end = code.indexOf("onClick})", index) + 9;
+        let component = code.slice(start, end);
+        code = code.slice(0, start) + wrapJoin + "(" + component + ")" + code.slice(end);
+        return code;
+    });
 
-    return on2dJsx(args, returnVal);
-}
+    // Add the wrench button to the creative screem
+    Rewriter.addParseHook("App", (code) => {
+        let index = code.indexOf(`tooltip:"Options"`);
+        if(index === -1) return;
 
-function onJoinJsxs(args: IArguments, returnVal: any) {
-    if(args[1].style?.paddingLeft === 8) {
-        const children = returnVal.props.children;
-        const pluginButton = UI.React.createElement("div", {
-            className: "gl-1dGameWrench",
-            dangerouslySetInnerHTML: { __html: wrench },
-            onClick: () => openPluginManager()
-        });
+        let start = code.lastIndexOf("children:", index) + 9;
+        let end = code.indexOf("})})", index) + 4;
+        let insert = code.slice(start, end);
 
-        children.splice(3, 0, pluginButton)
-    }
-}
+        insert = insert.replace("Options", "Plugins");
+        insert = insert.replace("fa-cog", "fa-wrench");
 
-function onHostJsx(args: IArguments, returnVal: any) {
-    // Add the button to the creative screen
-    if(args[1].tooltip === "Options") {
-        const pluginButton = UI.React.createElement(returnVal.type, {
-            tooltip: "Plugins",
-            children: UI.React.createElement('div', {
-                className: 'gl-wrench',
-                dangerouslySetInnerHTML: { __html: wrench }
-            }),
-            onClick: () => openPluginManager()
-        });
+        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row gap"},[`
+            + insert + "," + code.slice(start, end) + "])" + code.slice(end);
+        return code;
+    });
 
-        return UI.React.createElement('div', { className: 'gl-row gap' }, [returnVal, pluginButton]);
-    }
+    // Add the button to the 1d host lobby
+    Rewriter.addParseHook("index", (code) => {
+        let index = code.indexOf("getButtonInfo()");
+        if(index === -1) return;
 
-    if(args[1].children === "Start Game" && !args[1].type && !args[1].className) {
-        const pluginButton = UI.React.createElement(returnVal.type, {
-            children: "Plugins",
-            onClick: () => openPluginManager(),
-            className: "gl-1dLobbyButton"
-        });
+        let start = code.indexOf("children:", index) + 9;
+        let end = code.indexOf("})", start) + 2;
+        let insert = code.slice(start, end);
+        insert = Rewriter.replaceBetween(insert, "{", "}", `{onClick:()=>${openUI}(),children:"Plugins"}`);
 
-        return UI.React.createElement('div', { className: 'gl-row gap' }, [pluginButton, returnVal]);
-    }
+        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row gap"},[`
+            + insert + "," + code.slice(start, end) + "])" + code.slice(end);
 
-    if(args[1].tooltipMessage === "Toggle Music") {
-        const pluginButton = UI.React.createElement(returnVal.type, {
-            tooltipMessage: "Plugins",
-            onClick: () => openPluginManager(),
-            icon: UI.React.createElement('div', {
-                className: 'gl-1dHostGameWrench',
-                dangerouslySetInnerHTML: { __html: wrench }
-            })
-        });
+        return code;
+    });
 
-        return UI.React.createElement('div', { className: 'gl-row' }, [pluginButton, returnVal]);
-    }
+    // Add the button to the 1d player lobby
+    Rewriter.addParseHook("index", (code) => {
+        let index = code.indexOf("/client/img/svgLogoWhite.svg");
+        if(index === -1) return;
 
-    return on2dJsx(args, returnVal);
-}
+        let start = code.lastIndexOf("children:", index) + 9;
+        let end = code.indexOf("})", index) + 2;
 
-function on2dJsx(args: IArguments, returnVal: any) {
-    // Add the button to the host/join screen before the game starts
-    if(args[1].ariaLabel === "Rewards" && args[1].customColor) {
-        const text = UI.React.createElement('div', {}, "Plugins");
+        code = code.slice(0, start) + "[" + code.slice(start, end) +
+            `,${createElement}("img",{src:${whiteWrench},style:{height:"30px",marginLeft:"8px",cursor:"pointer"},` + 
+            `onClick:()=>${openUI}()})]` + code.slice(end);
 
-        const pluginButton = UI.React.createElement(returnVal.type, {
-            ariaLabel: "Plugins",
-            children: UI.React.createElement('div', { className: "gl-row gap-sm" }, [
-                UI.React.createElement('div', {
-                    className: 'gl-wrench lobby',
-                    dangerouslySetInnerHTML: { __html: wrench }
-                }),
-                text
-            ]),
-            customColor: "#01579b",
-            onClick: () => openPluginManager()
-        });
+        return code;
+    });
 
-        return UI.React.createElement('div', { className: 'gl-row gap' }, [pluginButton, returnVal]);
-    }
+    // Add the button to the 1d host game screen
+    Rewriter.addParseHook("index", (code) => {
+        let index = code.indexOf("this.toggleMusic,");
+        if(index === -1) return;
 
-    // Add the button to the host/join screen ingame
-    if(args[1].tooltip === "Sound") {
-        const pluginButton = UI.React.createElement(returnVal.type, {
-            tooltip: "Plugins",
-            children: UI.React.createElement('div', {
-                className: 'gl-wrench',
-                dangerouslySetInnerHTML: { __html: wrench }
-            }),
-            onClick: () => openPluginManager()
-        });
+        let start = code.lastIndexOf(".jsx(", index) - 1;
+        let end = code.indexOf(`"})`, index) + 3;
+        let insert = code.slice(start, end);
 
-        return UI.React.createElement('div', { className: 'gl-row' }, [pluginButton, returnVal]);
-    }
-}
+        insert = Rewriter.replaceBetween(insert, "{", `"})`,
+            `{onClick:()=>${openUI}(),icon:${createElement}("img",{src:${whiteWrench},` +
+            `style:{width:"20px",marginTop:"-3px"}}),tooltipMessage:"Plugins"})`);
 
-let homeType: () => any;
-let light = false;
-function onHomeJsx(args: IArguments, returnVal: any) {
-    // Add the button to the homescreen
-    if(args[1]?.showUpgradeModal) {
-        light = args[1].theme !== "light";
-        
-        if(!homeType) {
-            const type = returnVal.type;
-            homeType = function() {
-                let res = type.apply(this, arguments);
-                let children = res.props.children[0].props.items;
-                if(!children?.some?.((c: any) => c?.key === 'creative')) return res;
+        let insertIndex = code.lastIndexOf("[", start) + 1;
+        code = code.slice(0, insertIndex) + insert + "," + code.slice(insertIndex);
+        return code;
+    });
 
-                let icon = UI.React.createElement('div', {
-                    className: 'icon',
-                    dangerouslySetInnerHTML: { __html: wrench }
-                });
+    // Add the button to the 1d player game screen
+    Rewriter.addParseHook("index", (code) => {
+        let index = code.indexOf(`label":"Menu"`);
+        if(index === -1) return;
 
-                let text = UI.React.createElement('div', {
-                    className: "text"
-                }, "Plugins");
+        let insertIndex = code.indexOf("{}),", index) + 4;
+        code = code.slice(0, insertIndex)
+            + `${createElement}("img",{src:${whiteWrench},style:{height:"22px",marginLeft:"10px",cursor:"pointer"},`
+            + `onClick:()=>${openUI}()}),` + code.slice(insertIndex);
 
-                let item = UI.React.createElement('div', {
-                    className: `gl-homeWrench ${light ? 'light' : ''}`,
-                    onClick: () => openPluginManager()
-                }, [icon, text]);
-    
-                children.splice(0, 0, { key: "plugins", item });
-
-                return res;
-            }
-        }
-        returnVal.type = homeType;
-
-        return;
-    }
+        return code;
+    });
 }

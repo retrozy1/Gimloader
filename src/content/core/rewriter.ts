@@ -23,16 +23,22 @@ export default class Rewriter {
     static cleared = false;
     static callbacks: Record<string, (val: any) => void> = {};
     static async init() {
-        Object.defineProperty(window, "GLImport", {
-            value: this.import.bind(this),
-            writable: false,
-            configurable: false
-        });
-
-        Object.defineProperty(window, "GLCallback", {
-            value: this.callbacks,
-            writable: false,
-            configurable: false
+        Object.defineProperties(window, {
+            "GLImport": {
+                value: this.import.bind(this),
+                writable: false,
+                configurable: false
+            },
+            "GLCallback": {
+                value: this.callbacks,
+                writable: false,
+                configurable: false
+            },
+            "GLShared": {
+                value: {},
+                writable: false,
+                configurable: false
+            }
         });
 
         await domLoaded();
@@ -155,6 +161,28 @@ export default class Rewriter {
         return `GLCallback["${id}"]`;
     }
 
+    static createShared(id: string, value: any) {
+        Object.defineProperty((window as any).GLShared, id, {
+            value,
+            writable: false,
+            configurable: false
+        });
+
+        return `GLShared["${id}"]`;
+    }
+
+    static createMemoized(id: string, getter: () => any) {
+        let stored: any;
+        let shared = this.createShared(id, () => {
+            if(stored) return stored;
+
+            stored = getter();
+            return stored;
+        });
+
+        return `${shared}()`;
+    }
+
     static exposeObject(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
         const cb = this.createCallback(id, callback);
 
@@ -194,5 +222,17 @@ export default class Rewriter {
 
             return code + `${cb}(${name});`;
         });
+    }
+
+    static replaceBetween(text: string, start: string, end: string, withText: string) {
+        let startIndex = text.indexOf(start);
+        let endIndex = text.indexOf(end, startIndex) + end.length;
+
+        return text.slice(0, startIndex) + withText + text.slice(endIndex);
+    }
+
+    static insertAfter(text: string, after: string, withText: string) {
+        let index = text.indexOf(after) + after.length;
+        return text.slice(0, index) + withText + text.slice(index);
     }
 }

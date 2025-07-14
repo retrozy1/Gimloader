@@ -71,6 +71,7 @@ export default new class Net extends EventEmitter {
     }
 
     onColyseusRoom(room: any) {
+        if(this.room) return;
         log("Colyseus room intercepted", room);
 
         this.type = 'Colyseus';
@@ -94,6 +95,7 @@ export default new class Net extends EventEmitter {
     }
 
     onBlueboatRoom(room: any) {
+        if(this.room) return;
         log('Blueboat room intercepted', room);
 
         this.room = room;
