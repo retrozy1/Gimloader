@@ -8,7 +8,7 @@ import { version } from "../../package.json";
 import { fixRDT } from "$core/rdt";
 import StateManager from "$core/state";
 import ReloadConfirm from "$core/reloadConfirm.svelte";
-import Imports from "./core/imports";
+import Rewriter from "./core/rewriter";
 
 Object.defineProperty(window, "GL", {
     value: Api,
@@ -16,7 +16,7 @@ Object.defineProperty(window, "GL", {
     configurable: false
 });
 
-Imports.init();
+Rewriter.init();
 UI.init();
 Net.init();
 GimkitInternals.init();

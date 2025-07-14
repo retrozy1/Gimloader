@@ -4,7 +4,7 @@ import MenuUI from "$content/ui/MenuUI.svelte";
 import Patcher from "$core/patcher";
 import UI from "$core/ui/ui";
 import Hotkeys from '$core/hotkeys/hotkeys.svelte';
-import Imports from "../imports";
+import Rewriter from "../rewriter";
 
 let open = false;
 function openPluginManager() {
@@ -33,7 +33,7 @@ export function addPluginButtons() {
 
     // This is definitely very bad- in most apps this would be crazy laggy
     // But this only gets called a few hundred times since Gimkit has very little UI
-    Imports.getIndexExport((val) => val.jsx && val.jsxs, (jsxRuntime) => {
+    Rewriter.exposeObjectByAssignment(true, "jsxRuntime", ".jsxs=", (jsxRuntime) => {
         if(location.pathname === "/join") {
             Patcher.after(null, jsxRuntime, "jsx", (_, args, returnVal) => {
                 return onJoinJsx(args, returnVal);

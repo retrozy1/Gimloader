@@ -1,0 +1,26 @@
+[
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "regexSubstitution": "https://www.gimkit.com\\1"
+            }
+        },
+        "condition": {
+            "regexFilter": "^https:\\/\\/www\\.gimkit\\.com\\/gimloader(\\/.*)$"
+        }
+    },
+    {
+        "id": 3,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "||gimkit.com/*",
+            "resourceTypes": ["script"]
+        }
+    }
+]

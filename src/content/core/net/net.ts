@@ -3,9 +3,8 @@ import EventEmitter from "eventemitter2";
 import { log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
-import GimkitInternals from "$core/internals";
 import { formatDownloadUrl } from "$shared/net";
-import { getObjectByDefinedKey, getObjectByKey } from "../imports";
+import Rewriter from "../rewriter";
 
 interface BlueboatConnection {
     type: "Blueboat";
@@ -43,31 +42,31 @@ export default new class Net extends EventEmitter {
     }
 
     init() {
-        // intercept the colyseus room
-        getObjectByDefinedKey({
-            key: "Auth",
-            callback: (colyseus) => {
-                Patcher.after(null, colyseus.Client.prototype, "create", (_, __, roomPromise) => {
+        Rewriter.exposeObjectByAssignment("index", "netClient", ".Client=", (mod) => {
+            const proto = mod.Client.prototype;
+            if(proto.joinById) {
+                // Colyseus
+                Patcher.after(null, proto, "create", (_, __, roomPromise) => {
                     roomPromise.then((room: any) => this.onColyseusRoom(room));
                 });
-            },
-            filter: (val) => val.Client,
-            once: true
+    
+                Patcher.after(null, proto, "joinById", (_, __, roomPromise) => {
+                    roomPromise.then((room: any) => this.onColyseusRoom(room));
+                });
+            } else {
+                // Blueboat
+                Patcher.after(null, proto, "createRoom", (_, __, room) => {
+                    this.onBlueboatRoom(room);
+                });
+
+                Patcher.after(null, proto, "joinRoom", (_, __, room) => {
+                    this.onBlueboatRoom(room);
+                });
+            }
         });
 
         Internals.events.once("stores", () => {
             this.waitForColyseusLoad();
-        });
-
-        getObjectByKey({
-            key: "Room",
-            callback: (blueboat) => {
-                Patcher.after(null, blueboat.Client.prototype, "createRoom", (_, __, room) => {
-                    this.onBlueboatRoom(room);
-                });
-            },
-            filter: (val) => val.Client && val.Room?.prototype?.createRoom,
-            once: true
         });
     }
 

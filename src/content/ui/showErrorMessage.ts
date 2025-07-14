@@ -1,3 +1,4 @@
+import { domLoaded } from "$content/utils";
 import ErrorModal from "./components/ErrorModal.svelte";
 import { mount, unmount } from "svelte";
 
@@ -13,6 +14,5 @@ export default function showErrorMessage(msg: string, title: string = "Error") {
         });
     }
 
-    if(document.readyState == "complete") showError();
-    else document.addEventListener("DOMContentLoaded", showError, { once: true });
+    domLoaded().then(showError);
 }

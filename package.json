@@ -64,6 +64,7 @@
     "eventemitter2": "^6.4.9",
     "flowbite": "^2.5.1",
     "flowbite-svelte": "^0.46.15",
+    "idb-keyval": "^6.2.2",
     "monaco-editor": "^0.52.2",
     "svelte": "^5.16.0",
     "svelte-5-french-toast": "^2.0.4",

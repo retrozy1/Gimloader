@@ -23,7 +23,7 @@ export default abstract class BaseScript {
         return `${this.type}-${this.headers.name}`;
     }
 
-    runScript(initial: boolean, alreadyStartedLibs: string[] = []) {``
+    runScript(initial: boolean, alreadyStartedLibs: string[] = []) {
         return new Promise<any>(async (res, rej) => {
             let success = await this.loadLibs(initial, alreadyStartedLibs)
                 .catch(rej);

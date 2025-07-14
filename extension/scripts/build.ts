@@ -11,6 +11,7 @@ if(!fs.existsSync("./build/images")) {
     fs.cpSync('./images', './build/images', { recursive: true });
 }
 fs.copyFileSync('./edit_csp.json', './build/edit_csp.json');
+fs.copyFileSync('./block_scripts.json', './build/block_scripts.json');
 fs.copyFileSync('./pages/popup.html', './build/popup.html');
 
 if(isFirefox) {

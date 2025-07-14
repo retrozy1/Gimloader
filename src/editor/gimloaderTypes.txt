@@ -874,6 +874,11 @@ declare module "content/api/api" {
             createReactContextMenu: () => void;
         };
         /**
+         * @deprecated No longer supported
+         * @hidden
+         */
+        static get platformerPhysics(): any;
+        /**
          * @deprecated The api no longer emits events. Use GL.net.loaded to listen to load events
          * @hidden
          */
@@ -942,9 +947,13 @@ declare module "content/api/api" {
 declare const GL: typeof import('content/api/api').default;
 /** @deprecated Use GL.stores */
 declare const stores: any;
+/** @deprecated No longer supported */
+declare const platformerPhysics: any;
 
 interface Window {
     GL: typeof import('content/api/api').default;
     /** @deprecated Use GL.stores */
     stores: any;
+    /** @deprecated No longer supported */
+    platformerPhysics: any;
 }

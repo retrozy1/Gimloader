@@ -2,7 +2,8 @@ import type * as React from 'react';
 import type * as ReactDOM from 'react-dom/client';
 import { addPluginButtons } from './addPluginButtons';
 import styles from "../../css/styles.scss";
-import Imports from '../imports';
+import { domLoaded } from '$content/utils';
+import Rewriter from '../rewriter';
 
 export default class UI {
     static React: typeof React;
@@ -10,13 +11,11 @@ export default class UI {
     static styles: Map<string, HTMLStyleElement[]> = new Map();
 
     static init() {
-        Imports.getIndexExport((val) => val.lazy && val.useState, (react) => {
-            if (this.React) return;
+        Rewriter.exposeObjectByAssignment(true, "React", ".useDebugValue=", (react) => {
             this.React = react;
         });
 
-        Imports.getIndexExport((val) => val.createRoot && val.hydrate, (reactDOM) => {
-            if (this.ReactDOM) return;
+        Rewriter.exposeObjectByAssignment(true, "ReactDOM", ".findDOMNode=", (reactDOM) => {
             this.ReactDOM = reactDOM;
         });
 
@@ -31,8 +30,7 @@ export default class UI {
         const add = () => document.head.appendChild(style);
 
         // wait for document to be ready
-        if(!document.head) document.addEventListener('DOMContentLoaded', add, { once: true });
-        else add();
+        domLoaded().then(add);
 
         if(id === null) return () => {};
 
