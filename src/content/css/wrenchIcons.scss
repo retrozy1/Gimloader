@@ -1,13 +1,6 @@
 .gl-row {
     display: flex;
-
-    &.gap {
-        gap: 8px;
-    }
-
-    &.gap-sm {
-        gap: 4px;
-    }
+    gap: 8px;
 }
 
 .gl-join {
@@ -35,13 +28,22 @@
     }
 }
 
-// .noPluginButtons {
-//     .gl-1dGameWrench, .gl-1dLobbyButton,
-//     .gl-homeWrench, .gl-wrench, .openPlugins,
-//     .ant-space-item:has(.gl-homeWrench) + .ant-space-item-split,
-//     div:has(> * > * > * > .gl-wrench.lobby),
-//     button:has(> * > .gl-1dHostGameWrench),
-//     div:has(> * > * > .gl-wrench) {
-//         display: none;
-//     }
-// }
+.noPluginButtons {
+    .gl-button,
+    *:has(> * > .gl-button2),
+    div:has(> * > * > .gl-button3),
+    div:has(> * > * > * > * > .gl-button5),
+    .gl-join .openPlugins,
+    .ant-space-item:has(.gl-listButton),
+    .ant-space-item:has(.gl-listButton) + .ant-space-item-split {
+        display: none;
+    }
+    // .gl-1dGameWrench, .gl-1dLobbyButton,
+    // .gl-homeWrench, .gl-wrench, .openPlugins,
+    // .ant-space-item:has(.gl-homeWrench) + .ant-space-item-split,
+    // div:has(> * > * > * > .gl-wrench.lobby),
+    // button:has(> * > .gl-1dHostGameWrench),
+    // div:has(> * > * > .gl-wrench) {
+    //     display: none;
+    // }
+}

@@ -61,6 +61,11 @@ export function addPluginButtons() {
         let theme = insert.slice(themeStart, themeEnd);
         insert = insert.replace(`"/client/img/header/creative.svg"`, `${theme}==="dark"?${whiteWrench}:${blackWrench}`);
 
+        let iconStart = insert.indexOf("icon:") + 5;
+        let iconEnd = insert.indexOf("}),", iconStart) + 2;
+        insert = insert.slice(0, iconStart) + `${createElement}("div",{className:"gl-listButton",display:"contents"},`
+            + insert.slice(iconStart, iconEnd) + ")" + insert.slice(iconEnd);
+
         // Add the custom onClick
         insert = Rewriter.replaceBetween(insert, "path:", ",", `onClick:()=>${openUI}(),`);
 
@@ -78,8 +83,8 @@ export function addPluginButtons() {
         let insert = code.slice(start, end);
 
         insert = insert.replace("Sound", "Plugins");
-        insert = insert.replace("fa-waveform", "fa-wrench");
-
+        insert = insert.replace("fa-waveform", "fa-wrench gl-button5");
+        
         code = code.slice(0, start) + insert + code.slice(start);
         return code;
     });
@@ -93,13 +98,14 @@ export function addPluginButtons() {
         const end = code.indexOf("})})", index) + 4;
         let insert = code.slice(start, end);
 
+        insert = insert.replace("flex vc", "flex vc gl-button3");
         insert = Rewriter.replaceBetween(insert, "onClick:", "}", `onClick:()=>${openUI}()`);
         insert = Rewriter.replaceBetween(insert, "}),", "name]", `}),"Plugins"]`);
         insert = Rewriter.replaceBetween(insert, "src:", "iconImage,", `src:${whiteWrench},`);
         
         code = code.slice(0, start) + insert + code.slice(start);
         code = code.replace("space-between", "flex-start;\n  gap: 8px;");
-        code = Rewriter.insertAfter(code, "sticker}s`,", "style:{flexGrow:1},")
+        code = Rewriter.insertAfter(code, "sticker}s`,", "style:{flexGrow:1},");
 
         return code;
     });
@@ -140,10 +146,10 @@ export function addPluginButtons() {
         let insert = code.slice(start, end);
 
         insert = insert.replace("Options", "Plugins");
-        insert = insert.replace("fa-cog", "fa-wrench");
+        insert = insert.replace("fa-cog", "fa-wrench gl-button5");
 
-        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row gap"},[`
-            + insert + "," + code.slice(start, end) + "])" + code.slice(end);
+        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row"},[`
+            + code.slice(start, end) + "," + insert + "])" + code.slice(end);
         return code;
     });
 
@@ -155,9 +161,10 @@ export function addPluginButtons() {
         let start = code.indexOf("children:", index) + 9;
         let end = code.indexOf("})", start) + 2;
         let insert = code.slice(start, end);
-        insert = Rewriter.replaceBetween(insert, "{", "}", `{onClick:()=>${openUI}(),children:"Plugins"}`);
+        insert = Rewriter.replaceBetween(insert, "{", "}",
+            `{onClick:()=>${openUI}(),children:"Plugins",className:"gl-button"}`);
 
-        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row gap"},[`
+        code = code.slice(0, start) + `${createElement}("div",{className:"gl-row"},[`
             + insert + "," + code.slice(start, end) + "])" + code.slice(end);
 
         return code;
@@ -173,7 +180,7 @@ export function addPluginButtons() {
 
         code = code.slice(0, start) + "[" + code.slice(start, end) +
             `,${createElement}("img",{src:${whiteWrench},style:{height:"30px",marginLeft:"8px",cursor:"pointer"},` + 
-            `onClick:()=>${openUI}()})]` + code.slice(end);
+            `onClick:()=>${openUI}(),className:"gl-button"})]` + code.slice(end);
 
         return code;
     });
@@ -189,7 +196,7 @@ export function addPluginButtons() {
 
         insert = Rewriter.replaceBetween(insert, "{", `"})`,
             `{onClick:()=>${openUI}(),icon:${createElement}("img",{src:${whiteWrench},` +
-            `style:{width:"20px",marginTop:"-3px"}}),tooltipMessage:"Plugins"})`);
+            `style:{width:"20px",marginTop:"-3px"},className:"gl-button2"}),tooltipMessage:"Plugins"})`);
 
         let insertIndex = code.lastIndexOf("[", start) + 1;
         code = code.slice(0, insertIndex) + insert + "," + code.slice(insertIndex);
@@ -204,7 +211,7 @@ export function addPluginButtons() {
         let insertIndex = code.indexOf("{}),", index) + 4;
         code = code.slice(0, insertIndex)
             + `${createElement}("img",{src:${whiteWrench},style:{height:"22px",marginLeft:"10px",cursor:"pointer"},`
-            + `onClick:()=>${openUI}()}),` + code.slice(insertIndex);
+            + `onClick:()=>${openUI}(),className:"gl-button"}),` + code.slice(insertIndex);
 
         return code;
     });
