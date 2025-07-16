@@ -42,7 +42,7 @@ export default new class Net extends EventEmitter {
     }
 
     init() {
-        Rewriter.exposeObjectByAssignment("index", "netClient", ".Client=", (mod) => {
+        Rewriter.exposeObjectBefore("index", "netClient", ".Client=", (mod) => {
             const proto = mod.Client.prototype;
             if(proto.joinById) {
                 // Colyseus

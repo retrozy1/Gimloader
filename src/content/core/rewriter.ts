@@ -11,7 +11,8 @@ interface ParsedJs {
     code: string;
 }
 
-type Prefix = string | true;
+// true = index only, false = anything
+type Prefix = string | boolean;
 
 interface ParseHook {
     prefix: Prefix;
@@ -21,16 +22,10 @@ interface ParseHook {
 export default class Rewriter {
     static base: URL;
     static cleared = false;
-    static callbacks: Record<string, (val: any) => void> = {};
     static async init() {
         Object.defineProperties(window, {
             "GLImport": {
                 value: this.import.bind(this),
-                writable: false,
-                configurable: false
-            },
-            "GLCallback": {
-                value: this.callbacks,
                 writable: false,
                 configurable: false
             },
@@ -124,8 +119,10 @@ export default class Rewriter {
         // Run parse hooks
         for(let hook of this.parseHooks) {
             try {
-                if(hook.prefix === true && !root) continue;
-                if(hook.prefix !== true && !name.startsWith(hook.prefix)) continue;
+                if(hook.prefix !== false) {
+                    if(hook.prefix === true && !root) continue;
+                    if(hook.prefix !== true && !name.startsWith(hook.prefix)) continue;
+                }
                 
                 let edited = hook.callback(js);
                 if(edited) js = edited;
@@ -156,11 +153,6 @@ export default class Rewriter {
         this.parseHooks.push({ prefix, callback });
     }
 
-    static createCallback(id: string, callback: (val: any) => void) {
-        this.callbacks[id] = callback;
-        return `GLCallback["${id}"]`;
-    }
-
     static createShared(id: string, value: any) {
         Object.defineProperty((window as any).GLShared, id, {
             value,
@@ -184,7 +176,7 @@ export default class Rewriter {
     }
 
     static exposeObject(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
-        const cb = this.createCallback(id, callback);
+        const cb = this.createShared(id, callback);
 
         this.addParseHook(prefix, (code) => {
             let index = code.indexOf(substring);
@@ -208,8 +200,8 @@ export default class Rewriter {
         });
     }
 
-    static exposeObjectByAssignment(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
-        const cb = this.createCallback(id, callback);
+    static exposeObjectBefore(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
+        const cb = this.createShared(id, callback);
 
         this.addParseHook(prefix, (code) => {
             let index = code.indexOf(substring);

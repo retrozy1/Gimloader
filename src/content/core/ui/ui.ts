@@ -11,11 +11,11 @@ export default class UI {
     static styles: Map<string, HTMLStyleElement[]> = new Map();
 
     static init() {
-        Rewriter.exposeObjectByAssignment(true, "React", ".useDebugValue=", (react) => {
+        Rewriter.exposeObjectBefore(true, "React", ".useDebugValue=", (react) => {
             this.React = react;
         });
 
-        Rewriter.exposeObjectByAssignment(true, "ReactDOM", ".findDOMNode=", (reactDOM) => {
+        Rewriter.exposeObjectBefore(true, "ReactDOM", ".findDOMNode=", (reactDOM) => {
             this.ReactDOM = reactDOM;
         });
 

@@ -14,6 +14,7 @@ import setupScoped from "$content/scopedApi";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
+import { RewriterApi } from "./rewriter";
 
 class Api {
     /**
@@ -21,6 +22,9 @@ class Api {
      * @hidden
      */
     static parcel = Object.freeze(new ParcelApi());
+
+    /** Functions to edit Gimkit's code */
+    static rewriter = Object.freeze(new RewriterApi());
 
     /** Functions to listen for key combinations */
     static hotkeys = Object.freeze(new HotkeysApi());
@@ -145,6 +149,9 @@ class Api {
      * @hidden
      */
     parcel: Readonly<ScopedParcelApi>;
+
+    /** Functions to edit Gimkit's code */
+    rewriter = Api.rewriter;
 
     /** Functions to listen for key combinations */
     hotkeys: Readonly<ScopedHotkeysApi>;
