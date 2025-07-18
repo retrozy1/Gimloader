@@ -66,7 +66,7 @@ let base: BuildOptions = {
     conditions: ["svelte", "browser", "production"],
     bundle: true,
     outbase: "src",
-    minify: true
+    minify: false
 }
 
 let config: BuildOptions = {
@@ -85,8 +85,7 @@ let config: BuildOptions = {
     loader: {
         ".svg": "text",
         ".css": "empty"
-    },
-    minify: true
+    }
 }
 
 let editorConfig: BuildOptions = {

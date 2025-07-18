@@ -1,5 +1,6 @@
-import { domLoaded } from "$content/utils";
+import { domLoaded, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
+import PluginManager from "./scripts/pluginManager.svelte";
 
 interface Import {
     text: string;
@@ -15,6 +16,7 @@ interface ParsedJs {
 type Prefix = string | boolean;
 
 interface ParseHook {
+    pluginName?: string;
     prefix: Prefix;
     callback: (code: string) => string;
 }
@@ -22,6 +24,9 @@ interface ParseHook {
 export default class Rewriter {
     static base: URL;
     static cleared = false;
+    static shared: Record<string, any> = {};
+    static sharedPluginNames: Record<string, string[]> = {};
+
     static async init() {
         Object.defineProperties(window, {
             "GLImport": {
@@ -30,7 +35,7 @@ export default class Rewriter {
                 configurable: false
             },
             "GLShared": {
-                value: {},
+                value: this.shared,
                 writable: false,
                 configurable: false
             }
@@ -91,6 +96,9 @@ export default class Rewriter {
             const name = this.getName(url.pathname);
             const blobUrl = await this.getBlobUrl(name, root);
 
+            // Negligible impact on load time
+            await PluginManager.loaded;
+
             import(blobUrl)
                 .then(res, rej);
         });
@@ -149,36 +157,68 @@ export default class Rewriter {
         return imports.join("") + parsed.code;
     }
 
-    static async addParseHook(prefix: Prefix, callback: (code: string) => string) {
-        this.parseHooks.push({ prefix, callback });
+    static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
+        let object: ParseHook = { prefix, callback };
+        
+        if(pluginName) object.pluginName = pluginName;
+        this.parseHooks.push(object);
+
+        return splicer(this.parseHooks, object);
     }
 
-    static createShared(id: string, value: any) {
-        Object.defineProperty((window as any).GLShared, id, {
-            value,
-            writable: false,
-            configurable: false
-        });
+    static removeParseHooks(pluginName: string) {
+        for(let i = 0; i < this.parseHooks.length; i++) {
+            let hook = this.parseHooks[i];
+            if(hook.pluginName === pluginName) {
+                this.parseHooks.splice(i, 1);
+                i--;
+            }
+        }
+    }
 
-        return `GLShared["${id}"]`;
+    static createShared(pluginName: string | null, id: string, value: any) {
+        let sharedId = id;
+
+        if(pluginName !== null) {
+            sharedId = `${pluginName}-${id}`;
+            this.sharedPluginNames[pluginName] ??= [];
+            this.sharedPluginNames[pluginName].push(sharedId);
+        }
+
+        this.shared[sharedId] = value;
+        return `GLShared["${sharedId}"]`;
+    }
+
+    static removeShared(pluginName: string) {
+        if(!this.sharedPluginNames[pluginName]) return;
+
+        for(let id of this.sharedPluginNames[pluginName]) {
+            delete this.shared[id];
+        }
+
+        delete this.sharedPluginNames[pluginName];
+    }
+
+    static removeSharedById(pluginName: string, id: string) {
+        delete this.shared[`${pluginName}-${id}`];
     }
 
     static createMemoized(id: string, getter: () => any) {
         let stored: any;
-        let shared = this.createShared(id, () => {
+        let shared = this.createShared(null, id, () => {
             if(stored) return stored;
 
             stored = getter();
             return stored;
         });
 
-        return `${shared}()`;
+        return `${shared}?.()`;
     }
 
     static exposeObject(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
-        const cb = this.createShared(id, callback);
+        const cb = this.createShared(null, id, callback);
 
-        this.addParseHook(prefix, (code) => {
+        this.addParseHook(null, prefix, (code) => {
             let index = code.indexOf(substring);
             if(index === -1) return code;
 
@@ -201,9 +241,9 @@ export default class Rewriter {
     }
 
     static exposeObjectBefore(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
-        const cb = this.createShared(id, callback);
+        const cb = this.createShared(null, id, callback);
 
-        this.addParseHook(prefix, (code) => {
+        this.addParseHook(null, prefix, (code) => {
             let index = code.indexOf(substring);
             if(index === -1) return code;
 
@@ -212,7 +252,7 @@ export default class Rewriter {
             const start = Math.max(lastComma, lastSemicolon);
             const name = code.slice(start + 1, index);
 
-            return code + `${cb}(${name});`;
+            return code + `${cb}?.(${name});`;
         });
     }
 

@@ -1,5 +1,5 @@
 import { parseScriptHeaders } from '$shared/parseHeader';
-import Lib from './lib.svelte';
+import { Lib } from './scripts.svelte';
 import type { LibraryInfo } from '$types/state';
 import Port from '$shared/port.svelte';
 import toast from 'svelte-5-french-toast';

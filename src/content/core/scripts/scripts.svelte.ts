@@ -2,11 +2,12 @@ import { log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import type { ScriptHeaders } from "$types/headers";
 import Net from "$core/net/net";
-import type Lib from "./lib.svelte";
 import LibManager from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";
 
-export default abstract class BaseScript {
+// Unfortunately everything needs to be in one file for esbuild to not explode
+// because of some circular dependencies
+abstract class BaseScript {
     abstract type: string;
     script: string;
     headers: ScriptHeaders = $state();
@@ -140,5 +141,123 @@ export default abstract class BaseScript {
         for(let lib of this.usedLibs) {
             lib.removeUsed(this.id);
         }
+    }
+}
+
+export class Plugin extends BaseScript {
+    type = "Plugin";
+    enabled: boolean = $state();
+    exported: any;
+    onStop: (() => void)[] = [];
+    openSettingsMenu: (() => void)[] = $state([]);
+    enablePromise: Promise<void> | null = null;
+    errored = $state(false);
+
+    constructor(script: string, enabled = true) {
+        super(script);
+
+        this.enabled = enabled;
+    }
+
+    start(initial = false) {
+        if(this.enablePromise) return this.enablePromise;
+
+        this.enablePromise = new Promise<void>(async (res, rej) => {
+            this.runScript(initial)
+                .then((returnVal) => {
+                    this.exported = returnVal;
+
+                    if(returnVal.onStop && typeof returnVal.onStop === "function") {
+                        this.onStop.push(returnVal.onStop);
+                    }
+                    if(returnVal.openSettingsMenu && typeof returnVal.openSettingsMenu === "function") {
+                        this.openSettingsMenu.push(returnVal.openSettingsMenu);
+                    }
+            
+                    log(`Loaded plugin: ${this.headers.name}`);
+
+                    res();
+                })
+                .catch((e) => {
+                    console.error(e);
+                    this.errored = true;
+                    rej(e);
+                })
+        });
+
+        return this.enablePromise;
+    }
+
+    stop() {
+        if(!this.enabled) return;
+
+        try {
+            for(let stop of this.onStop) stop?.();
+        } catch (e) {
+            console.error(`Error stopping plugin ${this.headers.name}:`, e);
+        }
+
+        this.onStop = [];
+        this.openSettingsMenu = [];
+        this.enablePromise = null;
+        this.exported = null;
+        this.errored = false;
+        this.unloadLibs();
+    }
+}
+
+export class Lib extends BaseScript {
+    type = "Library";
+    library: any;
+    usedBy = new Set<string>();
+    onStop: (() => void)[] = [];
+    enablePromise: Promise<void> | null = null;
+
+    start(starter?: string, initial: boolean = false, alreadyStartedLibs: string[] = []) {
+        if(this.enablePromise) return this.enablePromise;
+
+        this.enablePromise = new Promise<void>((res, rej) => {
+            if(starter) this.usedBy.add(starter);
+
+            this.runScript(initial, alreadyStartedLibs)
+                .then((returnVal) => {
+                    if(returnVal.onStop && typeof returnVal.onStop === "function") {
+                        this.onStop.push(returnVal.onStop);
+                    }
+    
+                    if(returnVal.default) {
+                        returnVal = returnVal.default;
+                    }
+            
+                    this.library = returnVal;
+                    res();
+                })
+                .catch(rej)
+        });
+
+        return this.enablePromise;
+    }
+
+    removeUsed(id: string) {
+        this.usedBy.delete(id);
+    
+        if(this.usedBy.size === 0) {
+            this.stop();
+        }
+    }
+
+    stop() {
+        // call onStop if it exists
+        try {
+            for(let stop of this.onStop) stop();
+        } catch(e) {
+            log(`Error stopping library ${this.headers.name}:`, e);
+        }
+
+        // reset the library
+        this.onStop = [];
+        this.library = null;
+        this.enablePromise = null;
+        this.unloadLibs();
     }
 }

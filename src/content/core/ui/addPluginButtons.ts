@@ -41,11 +41,11 @@ export function addPluginButtons() {
         return URL.createObjectURL(wrenchBlob);
     });
 
-    const openUI = Rewriter.createShared("openPluginManager", openPluginManager);
+    const openUI = Rewriter.createShared(null, "openPluginManager", openPluginManager);
     const createElement = `window.GL.React.createElement`;
 
     // Add the wrench button the homescreen
-    Rewriter.addParseHook("App", (code) => {
+    Rewriter.addParseHook(null, "App", (code) => {
         let index = code.indexOf("/client/img/header/creative.svg");
         if(index === -1) return;
 
@@ -74,7 +74,7 @@ export function addPluginButtons() {
     });
 
     // Add the wrench button to the ingame 2d HUD
-    Rewriter.addParseHook("App", (code) => {
+    Rewriter.addParseHook(null, "App", (code) => {
         let index = code.indexOf(`tooltip:"Sound"`);
         if(index === -1) return;
 
@@ -90,7 +90,7 @@ export function addPluginButtons() {
     });
 
     // Add the wrench button the pregame 2d HUD
-    Rewriter.addParseHook("App", (code) => {
+    Rewriter.addParseHook(null, "App", (code) => {
         let index = code.indexOf(`"#01579b",onClick:()=>`);
         if(index === -1) return;
 
@@ -111,7 +111,7 @@ export function addPluginButtons() {
     });
 
     // Add the wrench button to the join screen
-    const wrapJoin = Rewriter.createShared("wrapJoinButton", (joinButton: () => any) => {
+    const wrapJoin = Rewriter.createShared(null, "wrapJoinButton", (joinButton: () => any) => {
         return function() {
             let element = joinButton.apply(this, arguments);
             let newButton = UI.React.createElement('button', {
@@ -124,7 +124,7 @@ export function addPluginButtons() {
         }
     });
 
-    Rewriter.addParseHook("App", (code) => {
+    Rewriter.addParseHook(null, "App", (code) => {
         let index = code.indexOf("JoinPrimaryButton");
         if(index === -1) return;
 
@@ -137,7 +137,7 @@ export function addPluginButtons() {
     });
 
     // Add the wrench button to the creative screem
-    Rewriter.addParseHook("App", (code) => {
+    Rewriter.addParseHook(null, "App", (code) => {
         let index = code.indexOf(`tooltip:"Options"`);
         if(index === -1) return;
 
@@ -154,7 +154,7 @@ export function addPluginButtons() {
     });
 
     // Add the button to the 1d host lobby
-    Rewriter.addParseHook("index", (code) => {
+    Rewriter.addParseHook(null, "index", (code) => {
         let index = code.indexOf("getButtonInfo()");
         if(index === -1) return;
 
@@ -171,7 +171,7 @@ export function addPluginButtons() {
     });
 
     // Add the button to the 1d player lobby
-    Rewriter.addParseHook("index", (code) => {
+    Rewriter.addParseHook(null, "index", (code) => {
         let index = code.indexOf("/client/img/svgLogoWhite.svg");
         if(index === -1) return;
 
@@ -186,7 +186,7 @@ export function addPluginButtons() {
     });
 
     // Add the button to the 1d host game screen
-    Rewriter.addParseHook("index", (code) => {
+    Rewriter.addParseHook(null, "index", (code) => {
         let index = code.indexOf("this.toggleMusic,");
         if(index === -1) return;
 
@@ -204,7 +204,7 @@ export function addPluginButtons() {
     });
 
     // Add the button to the 1d player game screen
-    Rewriter.addParseHook("index", (code) => {
+    Rewriter.addParseHook(null, "index", (code) => {
         let index = code.indexOf(`label":"Menu"`);
         if(index === -1) return;
 

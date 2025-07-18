@@ -1,7 +1,7 @@
 import showErrorMessage from "$content/ui/showErrorMessage";
-import { log } from "$content/utils";
+import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
-import Plugin from "./plugin.svelte";
+import { Plugin } from "./scripts.svelte";
 import Storage from "$core/storage.svelte";
 import type { PluginInfo } from "$types/state";
 import Port from "$shared/port.svelte";
@@ -9,9 +9,10 @@ import toast from "svelte-5-french-toast";
 
 export default new class PluginManager {
     plugins: Plugin[] = $state([]);
+    loaded = Deferred.create();
     destroyed = false;
     
-    async init(pluginInfo: PluginInfo[]) {    
+    async init(pluginInfo: PluginInfo[]) {
         // load plugins from storage
         for(let info of pluginInfo) {
             let pluginObj = new Plugin(info.script, info.enabled);
@@ -34,6 +35,7 @@ export default new class PluginManager {
             showErrorMessage(msg, `Failed to enable ${fails.length} plugins`);
         }
 
+        this.loaded.resolve();
         log('All plugins loaded');
     }
 

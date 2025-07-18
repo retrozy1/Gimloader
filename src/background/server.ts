@@ -59,6 +59,8 @@ export default new class Server {
     async onPortMessage(port: Port, msg: Message) {
         let { type, message, returnId } = msg;
 
+        // const cacheInvalid = 
+
         if(returnId) {
             // message with a response (not done with .sendMessage to avoid race conditions)
             let callback = this.messageListeners.get(type);

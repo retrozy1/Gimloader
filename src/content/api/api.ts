@@ -5,6 +5,7 @@ import { NetApi, ScopedNetApi } from "./net";
 import { UIApi, ScopedUIApi } from "./ui";
 import { StorageApi, ScopedStorageApi } from "./storage";
 import { PatcherApi, ScopedPatcherApi } from "./patcher";
+import { RewriterApi, ScopedRewriterApi } from "./rewriter";
 import GimkitInternals from "$core/internals";
 import Net from "$core/net/net";
 import UI from "$core/ui/ui";
@@ -14,7 +15,7 @@ import setupScoped from "$content/scopedApi";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
-import { RewriterApi } from "./rewriter";
+import Rewriter from "$content/core/rewriter";
 
 class Api {
     /**
@@ -116,6 +117,7 @@ class Api {
         this.onStop = scoped.onStop;
         this.openSettingsMenu = scoped.openSettingsMenu;
 
+        this.rewriter = Object.freeze(new ScopedRewriterApi(scoped.id));
         this.parcel = Object.freeze(new ScopedParcelApi(scoped.id));
         this.hotkeys = Object.freeze(new ScopedHotkeysApi(scoped.id));
         this.net = Object.freeze(new ScopedNetApi(scoped.id) as ScopedNetApi & Connection);
@@ -131,6 +133,8 @@ class Api {
         Net.onAny(netOnAny);
         
         const cleanup = () => {
+            Rewriter.removeParseHooks(scoped.id);
+            Rewriter.removeShared(scoped.id);
             Net.offAny(netOnAny);
             this.net.removeAllListeners();
             Hotkeys.removeHotkeys(scoped.id);
@@ -151,7 +155,7 @@ class Api {
     parcel: Readonly<ScopedParcelApi>;
 
     /** Functions to edit Gimkit's code */
-    rewriter = Api.rewriter;
+    rewriter: Readonly<ScopedRewriterApi>;
 
     /** Functions to listen for key combinations */
     hotkeys: Readonly<ScopedHotkeysApi>;
