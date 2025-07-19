@@ -820,7 +820,6 @@ declare module "content/api/libs" {
             needsLib: string[];
             optionalLib: string[];
             syncEval: string;
-            usesRewriter: string;
             hasSettings: string;
         };
         /** Gets the exported values of a library */
@@ -847,7 +846,6 @@ declare module "content/api/plugins" {
             needsLib: string[];
             optionalLib: string[];
             syncEval: string;
-            usesRewriter: string;
             hasSettings: string;
         };
         /** Gets the exported values of a plugin, if it has been enabled */

@@ -13,8 +13,7 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         optionalLib: [],
         hasSettings: "false",
         syncEval: "false",
-        webpage: null,
-        usesRewriter: "false"
+        webpage: null
     };
 
     return parseHeader<ScriptHeaders>(code, baseHeaders);

@@ -10,7 +10,6 @@ export interface ScriptHeaders {
     needsLib: string[];
     optionalLib: string[];
     syncEval: string;
-    usesRewriter: string;
     /** Only available for plugins */
     hasSettings: string;
 }
