@@ -9,7 +9,8 @@ export let statePromise = new Promise<State>(async (res) => {
         libraries: [],
         pluginStorage: {},
         settings: defaultSettings,
-        hotkeys: {}
+        hotkeys: {},
+        cacheInvalid: false
     });
 
     res({
@@ -18,6 +19,7 @@ export let statePromise = new Promise<State>(async (res) => {
         pluginStorage: sanitizePluginStorage(savedState.pluginStorage),
         settings: sanitizeSettings(savedState.settings),
         hotkeys: sanitizeHotkeys(savedState.hotkeys),
+        cacheInvalid: sanitizeCacheInvalid(savedState.cacheInvalid),
         availableUpdates: []
     });
 });
@@ -151,4 +153,8 @@ export function sanitizeSettings(settings: Settings) {
     }
 
     return newSettings;
+}
+
+export function sanitizeCacheInvalid(cacheInvalid: boolean) {
+    return typeof cacheInvalid === "boolean" ? cacheInvalid : false;
 }

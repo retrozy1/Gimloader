@@ -31,6 +31,7 @@ export interface SavedState {
     pluginStorage: PluginStorage;
     settings: Settings;
     hotkeys: ConfigurableHotkeysState;
+    cacheInvalid: boolean;
 }
 
 export interface State extends SavedState {

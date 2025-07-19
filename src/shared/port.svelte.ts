@@ -17,10 +17,12 @@ export default new class Port extends EventEmitter {
     runtime: typeof chrome.runtime;
     signKeyRes: (key: CryptoKey) => void;
     signKey = new Promise<CryptoKey>((res) => this.signKeyRes = res);
+    name?: string;
 
-    init(callback: StateCallback, subsequentCallback?: StateCallback) {
+    init(callback: StateCallback, subsequentCallback?: StateCallback, name?: string) {
         this.firstCallback = callback;
         this.subsequentCallback = subsequentCallback;
+        this.name = name;
 
         if(typeof chrome === "undefined") {
             window.addEventListener("message", (e) => {
@@ -36,14 +38,7 @@ export default new class Port extends EventEmitter {
 
             window.postMessage({ source: "gimloader-out", json: '{"type": "ready"}' });
         } else {
-            if(isFirefox) {
-                this.port = chrome.runtime.connect();
-            } else if(chrome.runtime) {
-                this.port = chrome.runtime.connect(extensionId);
-            } else {
-                return;
-            }
-    
+            if(!isFirefox && !chrome.runtime) return;
             this.runtime = chrome.runtime;
 
             if(location.hostname === "www.gimkit.com") {
@@ -60,9 +55,9 @@ export default new class Port extends EventEmitter {
         this.firstMessage = true;
 
         if(isFirefox) {
-            this.port = this.runtime.connect();
+            this.port = this.runtime.connect({ name: this.name });
         } else {
-            this.port = this.runtime.connect(extensionId);
+            this.port = this.runtime.connect(extensionId, { name: this.name });
         }
         
         this.port.onMessage.addListener(this.onMessage.bind(this));

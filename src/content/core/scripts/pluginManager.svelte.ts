@@ -6,6 +6,7 @@ import Storage from "$core/storage.svelte";
 import type { PluginInfo } from "$types/state";
 import Port from "$shared/port.svelte";
 import toast from "svelte-5-french-toast";
+import Rewriter from "../rewriter";
 
 export default new class PluginManager {
     plugins: Plugin[] = $state([]);
@@ -130,6 +131,8 @@ export default new class PluginManager {
             } else {
                 Port.send("pluginCreate", { name: headers.name, script });
             }
+
+            Rewriter.invalidate();
         }
 
         plugin.start()
@@ -145,10 +148,12 @@ export default new class PluginManager {
         plugin.stop();
         this.plugins = this.plugins.filter(p => p !== plugin);
 
-        if(emit) Port.send("pluginDelete", { name: plugin.headers.name });
+        if(emit) {
+            Port.send("pluginDelete", { name: plugin.headers.name });
+            Rewriter.invalidate();
+        }
         
         Storage.deletePluginValues(plugin.headers.name);
-        
         log(`Deleted plugin: ${plugin.headers.name}`);
     }
 
@@ -156,7 +161,10 @@ export default new class PluginManager {
         for(let plugin of this.plugins) this.deletePlugin(plugin, false);
         this.plugins = [];
 
-        if(emit) Port.send("pluginsDeleteAll");
+        if(emit) {
+            Port.send("pluginsDeleteAll");
+            Rewriter.invalidate();
+        }
     }
 
     setAll(enabled: boolean, emit = true) {
@@ -177,6 +185,8 @@ export default new class PluginManager {
                 if(plugin.enabled) plugin.stop();
             }
         }
+
+        if(emit) Rewriter.invalidate();
     }
 
     getExports(pluginName: string) {
@@ -226,6 +236,8 @@ export default new class PluginManager {
                     showErrorMessage(e.message, `Failed to enable plugin ${plugin.headers.name}`);
                 });
         }
+
+        if(emit) Rewriter.invalidate();
     }
 
     arrangePlugins(order: string[], emit = true) {
@@ -257,5 +269,7 @@ export default new class PluginManager {
             plugin.enabled = false;
             if(emit) Port.send("pluginToggled", { name: plugin.headers.name, enabled: false });
         }
+
+        if(emit) Rewriter.invalidate();
     }
 }

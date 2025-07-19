@@ -1,6 +1,7 @@
 import { domLoaded, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
+import Port from "$shared/port.svelte";
 
 interface Import {
     text: string;
@@ -27,7 +28,13 @@ export default class Rewriter {
     static shared: Record<string, any> = {};
     static sharedPluginNames: Record<string, string[]> = {};
 
-    static async init() {
+    static async init(cacheInvalid: boolean) {
+        if(cacheInvalid) this.invalidate(true);
+
+        Port.on("cacheInvalid", ({ invalid }) => {
+            if(invalid) this.invalidate(true);
+        });
+
         Object.defineProperties(window, {
             "GLImport": {
                 value: this.import.bind(this),
@@ -55,13 +62,22 @@ export default class Rewriter {
         this.import(index.src, true);
     }
 
+    static updateState(cacheInvalid: boolean) {
+        if(cacheInvalid) this.invalidate(true);
+    }
+
     static getName(src: string) {
         return src.split("/").pop();
     }
 
-    static invalidate() {
+    static invalidate(broadcast = false) {
+        console.log("Cache invalidated");
         this.cleared = true;
         clear();
+
+        if(broadcast) {
+            Port.send("cacheInvalid", { invalid: false });
+        }
     }
 
     static loadingSrcs = new Map<string, Promise<string>>();

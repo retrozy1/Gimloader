@@ -38,12 +38,4 @@
     .ant-space-item:has(.gl-listButton) + .ant-space-item-split {
         display: none;
     }
-    // .gl-1dGameWrench, .gl-1dLobbyButton,
-    // .gl-homeWrench, .gl-wrench, .openPlugins,
-    // .ant-space-item:has(.gl-homeWrench) + .ant-space-item-split,
-    // div:has(> * > * > * > .gl-wrench.lobby),
-    // button:has(> * > .gl-1dHostGameWrench),
-    // div:has(> * > * > .gl-wrench) {
-    //     display: none;
-    // }
 }

@@ -25,6 +25,8 @@ export interface StateMessages {
     pluginValueUpdate: { id: string, key: string, value: string };
     pluginValueDelete: { id: string, key: string };
     pluginValuesDelete: { id: string };
+
+    cacheInvalid: { invalid: boolean };
 }
 
 // These only go from the background to content

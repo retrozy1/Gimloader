@@ -3,6 +3,7 @@ import { Lib } from './scripts.svelte';
 import type { LibraryInfo } from '$types/state';
 import Port from '$shared/port.svelte';
 import toast from 'svelte-5-french-toast';
+import Rewriter from '../rewriter';
 
 export default new class LibManagerClass {
     libs: Lib[] = $state([]);
@@ -84,7 +85,10 @@ export default new class LibManagerClass {
         let lib = new Lib(script, headers);
         this.libs.unshift(lib);
 
-        if(emit) Port.send("libraryCreate", { script, name: headers.name });
+        if(emit) {
+            Port.send("libraryCreate", { script, name: headers.name });
+            Rewriter.invalidate();
+        }
 
         return lib;
     }
@@ -94,7 +98,10 @@ export default new class LibManagerClass {
         lib.stop();
         this.libs.splice(this.libs.indexOf(lib), 1);
 
-        if(emit) Port.send("libraryDelete", { name: lib.headers.name });
+        if(emit) {
+            Port.send("libraryDelete", { name: lib.headers.name });
+            Rewriter.invalidate();
+        }
     }
 
     deleteAll(emit = true) {
@@ -104,7 +111,10 @@ export default new class LibManagerClass {
 
         this.libs = [];
 
-        if(emit) Port.send("librariesDeleteAll");
+        if(emit) {
+            Port.send("librariesDeleteAll");
+            Rewriter.invalidate();
+        }
     }
 
     getLibHeaders(name: string) {
@@ -128,7 +138,10 @@ export default new class LibManagerClass {
         if(!lib) return;
 
         let headers = parseScriptHeaders(script);
-        if(emit) Port.send("libraryEdit", { name: lib.headers.name, script, newName: headers.name });
+        if(emit) {
+            Port.send("libraryEdit", { name: lib.headers.name, script, newName: headers.name });
+            Rewriter.invalidate();
+        }
 
         if(lib.headers.name === headers.name) {
             if(lib.usedBy.size > 0) {

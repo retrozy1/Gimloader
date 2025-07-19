@@ -7,6 +7,7 @@ import UpdateNotifier from "$core/updateNotifier.svelte";
 import Port from "$shared/port.svelte";
 import { readUserFile } from "$content/utils";
 import toast from "svelte-5-french-toast";
+import Rewriter from "./rewriter";
 
 export default class StateManager {
     static init() {
@@ -22,6 +23,7 @@ export default class StateManager {
         PluginManager.init(state.plugins);
         Hotkeys.init(state.hotkeys);
         UpdateNotifier.init(state.availableUpdates);
+        Rewriter.init(state.cacheInvalid);
     }
 
     static syncWithState(state: State) {
@@ -30,6 +32,7 @@ export default class StateManager {
         PluginManager.updateState(state.plugins);
         Hotkeys.updateState(state.hotkeys);
         UpdateNotifier.onUpdate(state.availableUpdates);
+        Rewriter.updateState(state.cacheInvalid);
     }
 
     static async downloadState() {
@@ -66,7 +69,7 @@ export default class StateManager {
                     toast("That config may be invalid, attempting to load anyways...");
                 }
 
-                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, settings, hotkeys });
+                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, settings, hotkeys, cacheInvalid: true });
             } catch {
                 toast.error("That config appears to be invalid!");
             }

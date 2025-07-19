@@ -1,12 +1,13 @@
 import type { Messages, OnceMessages, OnceResponses, StateMessages } from "$types/messages";
 import type { State } from "$types/state";
 import HotkeysHandler from "./messageHandlers/hotkeys";
+import JsCacheHandler from "./messageHandlers/jsCache";
 import LibrariesHandler from "./messageHandlers/library";
 import PluginsHandler from "./messageHandlers/plugin";
 import SettingsHandler from "./messageHandlers/settings";
 import StateHandler from "./messageHandlers/state";
 import StorageHandler from "./messageHandlers/storage";
-import { statePromise } from "./state";
+import { saveDebounced, statePromise } from "./state";
 
 type Port = chrome.runtime.Port;
 
@@ -39,6 +40,7 @@ export default new class Server {
         PluginsHandler.init();
         StorageHandler.init();
         SettingsHandler.init();
+        JsCacheHandler.init();
         StateHandler.init();
     }
 
@@ -59,7 +61,16 @@ export default new class Server {
     async onPortMessage(port: Port, msg: Message) {
         let { type, message, returnId } = msg;
 
-        // const cacheInvalid = 
+        const invalidateMessages: (keyof StateMessages)[] =
+            ["pluginCreate", "pluginDelete", "pluginEdit", "pluginToggled", "pluginsDeleteAll", "pluginsSetAll",
+            "libraryCreate", "libraryDelete", "libraryEdit", "librariesDeleteAll"];
+
+        // If it comes from a game port the cache has been invalidated already
+        const invalidated = port.name !== "game" && invalidateMessages.includes(type);
+
+        if(invalidated) {
+            this.executeAndSend("cacheInvalid", { invalid: true });
+        }
 
         if(returnId) {
             // message with a response (not done with .sendMessage to avoid race conditions)

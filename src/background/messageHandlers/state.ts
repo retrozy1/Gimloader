@@ -23,6 +23,7 @@ export default class StateHandler {
         if(pluginStorage) state.pluginStorage = sanitizePluginStorage(pluginStorage);
         if(settings) state.settings = sanitizeSettings(settings);
         if(hotkeys) state.hotkeys = sanitizeHotkeys(hotkeys);
+        state.cacheInvalid = true;
 
         Server.send("setState", state);
 
@@ -31,6 +32,7 @@ export default class StateHandler {
         saveDebounced('libraries');
         saveDebounced('hotkeys');
         saveDebounced('settings');
+        saveDebounced('cacheInvalid');
 
         if(state.settings.autoUpdate) Updater.checkUpdates();
         respond();

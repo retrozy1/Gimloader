@@ -16,7 +16,6 @@ Object.defineProperty(window, "GL", {
     configurable: false
 });
 
-Rewriter.init();
 UI.init();
 Net.init();
 GimkitInternals.init();
@@ -28,7 +27,7 @@ Port.init((state) => {
 }, (state) => {
     log("Resynchronizing with state", state);
     StateManager.syncWithState(state);
-});
+}, "game");
 
 fixRDT();
 
