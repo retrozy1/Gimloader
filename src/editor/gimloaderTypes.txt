@@ -208,10 +208,66 @@ declare module "types/state" {
         pluginStorage: PluginStorage;
         settings: Settings;
         hotkeys: ConfigurableHotkeysState;
+        cacheInvalid: boolean;
     }
     export interface State extends SavedState {
         availableUpdates: string[];
     }
+}
+declare module "content/core/storage.svelte" {
+    import type { PluginStorage, Settings } from "types/state";
+    /** @inline */
+    export type ValueChangeCallback = (value: any, remote: boolean) => void;
+    interface ValueChangeListener {
+        id: string;
+        key: string;
+        callback: ValueChangeCallback;
+    }
+    const _default_3: {
+        settings: Settings;
+        values: PluginStorage;
+        updateListeners: ValueChangeListener[];
+        init(values: PluginStorage, settings: Settings): void;
+        updateState(values: PluginStorage, settings: Settings): void;
+        updateSetting(key: string, value: any, emit?: boolean): void;
+        getPluginValue(id: string, key: string, defaultVal?: any): any;
+        setPluginValue(id: string, key: string, value: any, emit?: boolean): void;
+        deletePluginValue(id: string, key: string, emit?: boolean): void;
+        deletePluginValues(id: string, emit?: boolean): void;
+        onPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback): () => void;
+        offPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback): void;
+        removeUpdateListeners(id: string): void;
+        emit(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): boolean;
+        emitAsync(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): Promise<any[]>;
+        addListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): import("eventemitter2").Listener | /*elided*/ any;
+        on(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        prependListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        once(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: true | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        prependOnceListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        many(event: import("eventemitter2").event | import("eventemitter2").eventNS, timesToListen: number, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        prependMany(event: import("eventemitter2").event | import("eventemitter2").eventNS, timesToListen: number, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
+        onAny(listener: import("eventemitter2").EventAndListener): /*elided*/ any;
+        prependAny(listener: import("eventemitter2").EventAndListener): /*elided*/ any;
+        offAny(listener: import("eventemitter2").ListenerFn): /*elided*/ any;
+        removeListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): /*elided*/ any;
+        off(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): /*elided*/ any;
+        removeAllListeners(event?: import("eventemitter2").event | import("eventemitter2").eventNS): /*elided*/ any;
+        setMaxListeners(n: number): void;
+        getMaxListeners(): number;
+        eventNames(nsAsArray?: boolean): (import("eventemitter2").event | import("eventemitter2").eventNS)[];
+        listenerCount(event?: import("eventemitter2").event | import("eventemitter2").eventNS): number;
+        listeners(event?: import("eventemitter2").event | import("eventemitter2").eventNS): import("eventemitter2").ListenerFn[];
+        listenersAny(): import("eventemitter2").ListenerFn[];
+        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, timeout?: number): import("eventemitter2").CancelablePromise<any[]>;
+        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, filter?: import("eventemitter2").WaitForFilter): import("eventemitter2").CancelablePromise<any[]>;
+        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, options?: import("eventemitter2").WaitForOptions): import("eventemitter2").CancelablePromise<any[]>;
+        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: import("eventemitter2").event | import("eventemitter2").eventNS, options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
+        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: import("eventemitter2").event[], options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
+        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: Object, options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
+        stopListeningTo(target?: import("eventemitter2").GeneralEventEmitter, event?: import("eventemitter2").event | import("eventemitter2").eventNS): Boolean;
+        hasListeners(event?: String): Boolean;
+    };
+    export default _default_3;
 }
 declare module "content/core/patcher" {
     /** @inline */
@@ -245,52 +301,6 @@ declare module "content/core/patcher" {
         static unpatchAll(id: string): void;
     }
 }
-declare module "types/headers" {
-    export interface ScriptHeaders {
-        name: string;
-        description: string;
-        author: string;
-        version: string | null;
-        reloadRequired: string;
-        isLibrary: string;
-        downloadUrl: string | null;
-        webpage: string | null;
-        needsLib: string[];
-        optionalLib: string[];
-        syncEval: string;
-        /** Only available for plugins */
-        hasSettings: string;
-    }
-}
-declare module "content/core/scripts/baseScript.svelte" {
-    import type { ScriptHeaders } from "types/headers";
-    import type Lib from "content/core/scripts/lib.svelte";
-    export default abstract class BaseScript {
-        abstract type: string;
-        script: string;
-        headers: ScriptHeaders;
-        usedLibs: Lib[];
-        constructor(script: string, headers?: ScriptHeaders);
-        get id(): string;
-        runScript(initial: boolean, alreadyStartedLibs?: string[]): Promise<any>;
-        checkReloadNeeded(): void;
-        loadLibs(initial: boolean, alreadyStartedLibs: string[]): Promise<boolean>;
-        unloadLibs(): void;
-    }
-}
-declare module "content/core/scripts/lib.svelte" {
-    import BaseScript from "content/core/scripts/baseScript.svelte";
-    export default class Lib extends BaseScript {
-        type: string;
-        library: any;
-        usedBy: Set<string>;
-        onStop: (() => void)[];
-        enablePromise: Promise<void> | null;
-        start(starter?: string, initial?: boolean, alreadyStartedLibs?: string[]): Promise<void>;
-        removeUsed(id: string): void;
-        stop(): void;
-    }
-}
 declare module "content/core/net/net" {
     interface BlueboatConnection {
         type: "Blueboat";
@@ -309,7 +319,7 @@ declare module "content/core/net/net" {
         callback: (type: Connection["type"]) => void;
         id: string;
     }
-    const _default_3: {
+    const _default_5: {
         type: Connection["type"];
         room: Connection["room"];
         loaded: boolean;
@@ -354,7 +364,7 @@ declare module "content/core/net/net" {
         stopListeningTo(target?: import("eventemitter2").GeneralEventEmitter, event?: import("eventemitter2").event | import("eventemitter2").eventNS): Boolean;
         hasListeners(event?: String): Boolean;
     };
-    export default _default_3;
+    export default _default_5;
 }
 declare module "content/api/hotkeys" {
     import type { HotkeyOptions, ConfigurableHotkeyOptions } from "types/hotkeys";
@@ -623,61 +633,6 @@ declare module "content/api/ui" {
     }
     export { UIApi, ScopedUIApi };
 }
-declare module "content/core/storage.svelte" {
-    import type { PluginStorage, Settings } from "types/state";
-    /** @inline */
-    export type ValueChangeCallback = (value: any, remote: boolean) => void;
-    interface ValueChangeListener {
-        id: string;
-        key: string;
-        callback: ValueChangeCallback;
-    }
-    const _default_5: {
-        settings: Settings;
-        values: PluginStorage;
-        updateListeners: ValueChangeListener[];
-        init(values: PluginStorage, settings: Settings): void;
-        updateState(values: PluginStorage, settings: Settings): void;
-        updateSetting(key: string, value: any, emit?: boolean): void;
-        getPluginValue(id: string, key: string, defaultVal?: any): any;
-        setPluginValue(id: string, key: string, value: any, emit?: boolean): void;
-        deletePluginValue(id: string, key: string, emit?: boolean): void;
-        deletePluginValues(id: string, emit?: boolean): void;
-        onPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback): () => void;
-        offPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback): void;
-        removeUpdateListeners(id: string): void;
-        emit(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): boolean;
-        emitAsync(event: import("eventemitter2").event | import("eventemitter2").eventNS, ...values: any[]): Promise<any[]>;
-        addListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): import("eventemitter2").Listener | /*elided*/ any;
-        on(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        prependListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        once(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: true | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        prependOnceListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        many(event: import("eventemitter2").event | import("eventemitter2").eventNS, timesToListen: number, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        prependMany(event: import("eventemitter2").event | import("eventemitter2").eventNS, timesToListen: number, listener: import("eventemitter2").ListenerFn, options?: boolean | import("eventemitter2").OnOptions): import("eventemitter2").Listener | /*elided*/ any;
-        onAny(listener: import("eventemitter2").EventAndListener): /*elided*/ any;
-        prependAny(listener: import("eventemitter2").EventAndListener): /*elided*/ any;
-        offAny(listener: import("eventemitter2").ListenerFn): /*elided*/ any;
-        removeListener(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): /*elided*/ any;
-        off(event: import("eventemitter2").event | import("eventemitter2").eventNS, listener: import("eventemitter2").ListenerFn): /*elided*/ any;
-        removeAllListeners(event?: import("eventemitter2").event | import("eventemitter2").eventNS): /*elided*/ any;
-        setMaxListeners(n: number): void;
-        getMaxListeners(): number;
-        eventNames(nsAsArray?: boolean): (import("eventemitter2").event | import("eventemitter2").eventNS)[];
-        listenerCount(event?: import("eventemitter2").event | import("eventemitter2").eventNS): number;
-        listeners(event?: import("eventemitter2").event | import("eventemitter2").eventNS): import("eventemitter2").ListenerFn[];
-        listenersAny(): import("eventemitter2").ListenerFn[];
-        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, timeout?: number): import("eventemitter2").CancelablePromise<any[]>;
-        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, filter?: import("eventemitter2").WaitForFilter): import("eventemitter2").CancelablePromise<any[]>;
-        waitFor(event: import("eventemitter2").event | import("eventemitter2").eventNS, options?: import("eventemitter2").WaitForOptions): import("eventemitter2").CancelablePromise<any[]>;
-        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: import("eventemitter2").event | import("eventemitter2").eventNS, options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
-        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: import("eventemitter2").event[], options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
-        listenTo(target: import("eventemitter2").GeneralEventEmitter, events: Object, options?: import("eventemitter2").ListenToOptions): /*elided*/ any;
-        stopListeningTo(target?: import("eventemitter2").GeneralEventEmitter, event?: import("eventemitter2").event | import("eventemitter2").eventNS): Boolean;
-        hasListeners(event?: String): Boolean;
-    };
-    export default _default_5;
-}
 declare module "content/api/storage" {
     import { type ValueChangeCallback } from "content/core/storage.svelte";
     class StorageApi {
@@ -757,6 +712,95 @@ declare module "content/api/patcher" {
     }
     export { PatcherApi, ScopedPatcherApi };
 }
+declare module "content/api/rewriter" {
+    /**
+     * The rewriter API allows you to modify the bundled code of Gimkit in order to expose values
+     * or change certain behaviors. Due to the unpredictable nature of bundling, you cannot assume that variable names
+     * will remain the same beteen updates.
+     * @example
+     * ```js
+     * const callback = GL.Rewriter.createShared("MyPlugin", "uniqueId", (val) => {
+     *  console.log(val);
+     * });
+     *
+     * GL.Rewriter.addParseHook("MyPlugin", "index", (code) => {
+     *  let index = code.indexOf("something");
+     *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
+     *  code += `${callback}(someVar)`;
+     *  return code;
+     * });
+     * ```
+     */
+    class RewriterApi {
+        /**
+         * Creates a hook that will modify the code of a script before it is run.
+         * This value is cached, so this hook may not run on subsequent page loads.
+         * addParseHook should always be called in the top level of a script.
+         * @param pluginName The name of the plugin creating the hook.
+         * @param prefix Limits the hook to only running on scripts beginning with this prefix.
+         * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
+         * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
+         */
+        addParseHook(pluginName: string, prefix: string | boolean, callback: (code: string) => string): () => void;
+        /** Removes all hooks created by a certain plugin */
+        removeParseHooks(pluginName: string): void;
+        /**
+         * Creates a shared value that can be accessed from any script.
+         * @param pluginName The name of the plugin creating the shared value.
+         * @param id A unique identifier for the shared value.
+         * @param value The value to be shared.
+         * @returns A string representing the code to access the shared value.
+         */
+        createShared(pluginName: string, id: string, value: any): string;
+        /** Removes all values created by {@link createShared} by a certain plugin */
+        removeShared(pluginName: string): void;
+        /** Removes the shared value with a certain id created by {@link createShared} */
+        removeSharedById(pluginName: string, id: string): void;
+    }
+    /**
+     * The rewriter API allows you to modify the bundled code of Gimkit in order to expose values
+     * or change certain behaviors. Due to the unpredictable nature of bundling, you cannot assume that variable names
+     * will remain the same beteen updates.
+     * @example
+     * ```js
+     * const api = new GL();
+     *
+     * const callback = api.Rewriter.createShared("uniqueId", (val) => {
+     *  console.log(val);
+     * });
+     *
+     * api.Rewriter.addParseHook("index", (code) => {
+     *  let index = code.indexOf("something");
+     *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
+     *  code += `${callback}(someVar)`;
+     *  return code;
+     * });
+     * ```
+     */
+    class ScopedRewriterApi {
+        private readonly id;
+        constructor(id: string);
+        /**
+         * Creates a hook that will modify the code of a script before it is run.
+         * This value is cached, so this hook may not run on subsequent page loads.
+         * addParseHook should always be called in the top level of a script.
+         * @param prefix Limits the hook to only running on scripts beginning with this prefix.
+         * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
+         * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
+         */
+        addParseHook(prefix: string | boolean, callback: (code: string) => string): () => void;
+        /**
+         * Creates a shared value that can be accessed from any script.
+         * @param id A unique identifier for the shared value.
+         * @param value The value to be shared.
+         * @returns A string representing the code to access the shared value.
+         */
+        createShared(id: string, value: any): string;
+        /** Removes the shared value with a certain id created by {@link createShared} */
+        removeSharedById(id: string): void;
+    }
+    export { RewriterApi, ScopedRewriterApi };
+}
 declare module "content/api/libs" {
     class LibsApi {
         /** A list of all the libraries installed */
@@ -776,6 +820,7 @@ declare module "content/api/libs" {
             needsLib: string[];
             optionalLib: string[];
             syncEval: string;
+            usesRewriter: string;
             hasSettings: string;
         };
         /** Gets the exported values of a library */
@@ -802,6 +847,7 @@ declare module "content/api/plugins" {
             needsLib: string[];
             optionalLib: string[];
             syncEval: string;
+            usesRewriter: string;
             hasSettings: string;
         };
         /** Gets the exported values of a plugin, if it has been enabled */
@@ -824,6 +870,7 @@ declare module "content/api/api" {
     import { UIApi, ScopedUIApi } from "content/api/ui";
     import { StorageApi, ScopedStorageApi } from "content/api/storage";
     import { PatcherApi, ScopedPatcherApi } from "content/api/patcher";
+    import { RewriterApi, ScopedRewriterApi } from "content/api/rewriter";
     import LibsApi from "content/api/libs";
     import PluginsApi from "content/api/plugins";
     class Api {
@@ -832,6 +879,8 @@ declare module "content/api/api" {
          * @hidden
          */
         static parcel: Readonly<ParcelApi>;
+        /** Functions to edit Gimkit's code */
+        static rewriter: Readonly<RewriterApi>;
         /** Functions to listen for key combinations */
         static hotkeys: Readonly<HotkeysApi>;
         /**
@@ -899,6 +948,8 @@ declare module "content/api/api" {
          * @hidden
          */
         parcel: Readonly<ScopedParcelApi>;
+        /** Functions to edit Gimkit's code */
+        rewriter: Readonly<ScopedRewriterApi>;
         /** Functions to listen for key combinations */
         hotkeys: Readonly<ScopedHotkeysApi>;
         /**

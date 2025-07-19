@@ -7,11 +7,11 @@ import { validate } from "$content/utils";
  * will remain the same beteen updates.
  * @example
  * ```js
- * const callback = GL.Rewriter.createShared("uniqueId", (val) => {
+ * const callback = GL.Rewriter.createShared("MyPlugin", "uniqueId", (val) => {
  *  console.log(val);
  * });
  * 
- * GL.Rewriter.addParseHook("index", (code) => {
+ * GL.Rewriter.addParseHook("MyPlugin", "index", (code) => {
  *  let index = code.indexOf("something");
  *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
  *  code += `${callback}(someVar)`;
@@ -79,11 +79,13 @@ class RewriterApi {
  * will remain the same beteen updates.
  * @example
  * ```js
- * const callback = GL.Rewriter.createShared("uniqueId", (val) => {
+ * const api = new GL();
+ * 
+ * const callback = api.Rewriter.createShared("uniqueId", (val) => {
  *  console.log(val);
  * });
  * 
- * GL.Rewriter.addParseHook("index", (code) => {
+ * api.Rewriter.addParseHook("index", (code) => {
  *  let index = code.indexOf("something");
  *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
  *  code += `${callback}(someVar)`;
@@ -98,36 +100,33 @@ class ScopedRewriterApi {
      * Creates a hook that will modify the code of a script before it is run.
      * This value is cached, so this hook may not run on subsequent page loads.
      * addParseHook should always be called in the top level of a script.
-     * @param pluginName The name of the plugin creating the hook.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(prefix: string | boolean, callback: (code: string) => string) {
         if(!validate("rewriter.addParseHook", arguments,
-            ['pluginName', 'string'], ['prefix', 'string|boolean'], ['callback', 'function'])) return;
+            ['prefix', 'string|boolean'], ['callback', 'function'])) return;
 
         return Rewriter.addParseHook(this.id, prefix, callback);
     }
 
     /**
      * Creates a shared value that can be accessed from any script.
-     * @param pluginName The name of the plugin creating the shared value.
      * @param id A unique identifier for the shared value.
      * @param value The value to be shared.
      * @returns A string representing the code to access the shared value.
      */
     createShared(id: string, value: any) {
         if(!validate("rewriter.createShared", arguments,
-            ['pluginName', 'string'], ['id', 'string'], ['value', 'any'])) return;
+            ['id', 'string'], ['value', 'any'])) return;
 
         return Rewriter.createShared(this.id, id, value);
     }
 
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(id: string) {
-        if(!validate("rewriter.removeSharedById", arguments,
-            ['pluginName', 'string'], ['id', 'string'])) return;
+        if(!validate("rewriter.removeSharedById", arguments, ['id', 'string'])) return;
 
         Rewriter.removeSharedById(this.id, id);
     }

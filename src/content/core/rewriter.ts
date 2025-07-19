@@ -71,7 +71,6 @@ export default class Rewriter {
     }
 
     static invalidate(broadcast = false) {
-        console.log("Cache invalidated");
         this.cleared = true;
         clear();
 
