@@ -1,4 +1,4 @@
-import Rewriter from "$content/core/rewriter";
+import Rewriter from "$core/rewriter";
 import { validate } from "$content/utils";
 
 /**

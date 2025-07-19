@@ -1,6 +1,7 @@
 import Port from "$shared/port.svelte";
 import toast from "svelte-5-french-toast";
 import { confirmToast, toasterReady } from "./toaster";
+import Rewriter from "./rewriter";
 
 export default class UpdateNotifier {
     static toastId: string | null = null;
@@ -33,6 +34,7 @@ export default class UpdateNotifier {
 
         confirmToast(message, (apply) => {
             Port.sendAndRecieve("applyUpdates", { apply });
+            Rewriter.invalidate();
         });
     }
 }

@@ -6,9 +6,11 @@
     import { version } from "../../../package.json";
     import toast from "svelte-5-french-toast";
     import Port from "$shared/port.svelte";
+    import Rewriter from "$core/rewriter";
 
     async function checkAll() {
         if(!confirm("Do you want to try to update all plugins and all libraries?")) return;
+        Rewriter.invalidate();
         let names: string[] = await Port.sendAndRecieve("updateAll");
         
         let namesFmt: string;

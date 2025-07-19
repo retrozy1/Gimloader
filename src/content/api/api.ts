@@ -15,7 +15,7 @@ import setupScoped from "$content/scopedApi";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
-import Rewriter from "$content/core/rewriter";
+import Rewriter from "$core/rewriter";
 
 class Api {
     /**

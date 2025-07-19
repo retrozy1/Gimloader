@@ -1,10 +1,11 @@
-import type Lib from "$core/scripts/lib.svelte";
-import type Plugin from '../scripts/plugin.svelte';
+import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
 import toast from "svelte-5-french-toast";
 import Port from "$shared/port.svelte";
 import type { UpdateResponse } from "$types/updater";
+import Rewriter from "../rewriter";
 
 export async function checkPluginUpdate(plugin: Plugin) {
+    Rewriter.invalidate();
     let updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
         type: "plugin",
         name: plugin.headers.name
@@ -14,6 +15,7 @@ export async function checkPluginUpdate(plugin: Plugin) {
 }
 
 export async function checkLibUpdate(lib: Lib) {
+    Rewriter.invalidate();
     let updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
         type: "library",
         name: lib.headers.name

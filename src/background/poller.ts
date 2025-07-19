@@ -37,11 +37,13 @@ export default class Poller {
         if(res.status !== 200) return tryAgain();
         let text = await res.text();
         let state = await statePromise;
+        
         if(!this.enabled) return;
+        Server.executeAndSend("cacheInvalid", { invalid: true });
 
         this.sendRequest();
-
         let headers = parseScriptHeaders(text);
+
         if(res.headers.get('is-library') === 'true') {
             let lib = state.libraries.find(l => l.name === headers.name);
             if(lib) {

@@ -18,7 +18,7 @@
     import Cog from 'svelte-material-icons/Cog.svelte';
     import Web from 'svelte-material-icons/Web.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
-    import Storage from "$content/core/storage.svelte";
+    import Storage from "$core/storage.svelte";
 
     interface Props {
         onClose: () => void;
