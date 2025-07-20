@@ -27,10 +27,8 @@ export default class UI {
         let style = document.createElement('style');
         style.innerHTML = styleString;
 
-        const add = () => document.head.appendChild(style);
-
         // wait for document to be ready
-        domLoaded().then(add);
+        domLoaded.then(() => document.head.appendChild(style));
 
         if(id === null) return () => {};
 

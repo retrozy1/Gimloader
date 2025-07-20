@@ -111,18 +111,14 @@ export function showEditor(type: "plugin" | "library", name?: string) {
     Port.sendAndRecieve("showEditor", { type, name });
 }
 
-export function domLoaded() {
-    return new Promise<void>(async (res) => {
-        if(document.readyState === "complete") {
-            res();
-            return;
-        }
-
-        await new Promise((res) => document.addEventListener("DOMContentLoaded", res, { once: true })); 
-
+export const domLoaded = new Promise<void>((res) => {
+    if(document.readyState !== "loading") {
         res();
-    });
-}
+        return;
+    }
+
+    document.addEventListener("readystatechange", () => res(), { once: true });
+});
 
 // Because of some nonsense with the spec subclassing promises is wonky
 export class Deferred<T = void> extends Promise<T> {

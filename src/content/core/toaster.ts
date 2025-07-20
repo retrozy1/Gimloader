@@ -5,7 +5,7 @@ import { mount } from "svelte";
 import toast, { Toaster } from "svelte-5-french-toast";
 
 export const toasterReady = new Promise<void>(async (res) => {
-    await domLoaded();
+    await domLoaded;
 
     mount(Toaster, {
         target: document.body,

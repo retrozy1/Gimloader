@@ -8,7 +8,7 @@ export default new class ReloadConfirm {
     names = $derived(Array.from(this.needed));
     
     async init() {
-        await domLoaded();
+        await domLoaded;
 
         mount(ReloadConfirmComponent, {
             target: document.body

@@ -48,7 +48,7 @@ export default class Rewriter {
             }
         });
 
-        await domLoaded();
+        await domLoaded;
         let index = document.querySelector<HTMLScriptElement>("script[src]");
 
         // Invalidate the database if the index script has changed
