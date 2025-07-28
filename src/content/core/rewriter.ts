@@ -2,6 +2,7 @@ import { domLoaded, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/port.svelte";
+import { version } from "../../../package.json";
 
 interface Import {
     text: string;
@@ -56,6 +57,11 @@ export default class Rewriter {
         if(name !== localStorage.getItem("gl-lastindex")) {
             this.invalidate();
             localStorage.setItem("gl-lastindex", name);
+        }
+
+        if(version !== localStorage.getItem("gl-version")) {
+            this.invalidate();
+            localStorage.setItem("gl-version", version);
         }
         
         this.base = new URL(index.src);

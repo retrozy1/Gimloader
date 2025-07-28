@@ -34,8 +34,7 @@
     div:has(> * > * > .gl-button3),
     div:has(> * > * > * > * > .gl-button5),
     .gl-join .openPlugins,
-    .ant-space-item:has(.gl-listButton),
-    .ant-space-item:has(.gl-listButton) + .ant-space-item-split {
+    .ant-space-item:has(.gl-listButton) {
         display: none;
     }
 }

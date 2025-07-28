@@ -83,7 +83,6 @@ class Api {
      * @deprecated No longer supported
      * @hidden
      */
-
     static get platformerPhysics() { return GimkitInternals.platformerPhysics };
 
     /**

@@ -1,4 +1,3 @@
-import blackWrenchSvg from "$assets/wrench.svg";
 import whiteWrenchSvg from "$assets/wrench-light.svg";
 import { mount, unmount } from "svelte";
 import MenuUI from "$content/ui/MenuUI.svelte";
@@ -31,11 +30,6 @@ export function addPluginButtons() {
         alt: true
     }, () => openPluginManager());
 
-    const blackWrench = Rewriter.createMemoized("blackWrenchSvg", () => {
-        const wrenchBlob = new Blob([blackWrenchSvg], { type: "image/svg+xml" });
-        return URL.createObjectURL(wrenchBlob);
-    });
-
     const whiteWrench = Rewriter.createMemoized("whiteWrenchSvg", () => {
         const wrenchBlob = new Blob([whiteWrenchSvg], { type: "image/svg+xml" });
         return URL.createObjectURL(wrenchBlob);
@@ -46,30 +40,19 @@ export function addPluginButtons() {
 
     // Add the wrench button the homescreen
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf("/client/img/header/creative.svg");
+        let index = code.indexOf(`name:"far fa-search"`);
         if(index === -1) return;
 
-        const start = code.lastIndexOf(" ", index) + 1;
-        const end = code.indexOf("})}),", index) + 5;
+        const start = code.lastIndexOf("push(", index) + 5;
+        const end = code.indexOf("})})", index) + 3;
         let insert = code.slice(start, end);
-        
-        insert = insert.replace("Creative", "Plugins");
 
-        // Change the wrench icon based on the theme
-        let themeStart = insert.indexOf("theme:") + 6;
-        let themeEnd = insert.indexOf(",", themeStart);
-        let theme = insert.slice(themeStart, themeEnd);
-        insert = insert.replace(`"/client/img/header/creative.svg"`, `${theme}==="dark"?${whiteWrench}:${blackWrench}`);
-
-        let iconStart = insert.indexOf("icon:") + 5;
-        let iconEnd = insert.indexOf("}),", iconStart) + 2;
-        insert = insert.slice(0, iconStart) + `${createElement}("div",{className:"gl-listButton",display:"contents"},`
-            + insert.slice(iconStart, iconEnd) + ")" + insert.slice(iconEnd);
-
-        // Add the custom onClick
+        insert = insert.replace("Discovery", "Plugins");
+        insert = insert.replace("fa-search", "fa-wrench gl-listButton");
         insert = Rewriter.replaceBetween(insert, "path:", ",", `onClick:()=>${openUI}(),`);
 
-        code = code.slice(0, start) + insert + code.slice(start);
+        code = code.slice(0, start) + insert + "," + code.slice(start);
+
         return code;
     });
 
@@ -84,6 +67,7 @@ export function addPluginButtons() {
 
         insert = insert.replace("Sound", "Plugins");
         insert = insert.replace("fa-waveform", "fa-wrench gl-button5");
+        insert = Rewriter.replaceBetween(insert, "onClick:", ",", `onClick:()=>${openUI}(),`);
         
         code = code.slice(0, start) + insert + code.slice(start);
         return code;
@@ -147,6 +131,7 @@ export function addPluginButtons() {
 
         insert = insert.replace("Options", "Plugins");
         insert = insert.replace("fa-cog", "fa-wrench gl-button5");
+        insert = Rewriter.replaceBetween(insert, "onClick:", ",", `onClick:()=>${openUI}(),`);
 
         code = code.slice(0, start) + `${createElement}("div",{className:"gl-row"},[`
             + code.slice(start, end) + "," + insert + "])" + code.slice(end);
