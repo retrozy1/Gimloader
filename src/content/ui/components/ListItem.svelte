@@ -4,7 +4,7 @@
     import type { Snippet } from "svelte";
 
     interface Props {
-        startDrag: () => void;
+        startDrag?: () => void;
         dragDisabled: boolean;
         loading?: boolean;
         dragAllowed?: boolean;
@@ -15,6 +15,7 @@
         author?: Snippet;
         description?: Snippet;
         border?: string;
+        hasDrag?: boolean;
     }
 
     let {
@@ -28,11 +29,12 @@
         buttons,
         author,
         description,
-        border
+        border,
+        hasDrag = true
     }: Props = $props();
 
     function checkDrag() {
-        if(dragAllowed) startDrag();
+        if(dragAllowed) startDrag?.();
     }
 
     let expanded = $state(false);
@@ -58,11 +60,13 @@ p-3 h-full bg-white preflight rounded-xl relative">
         <div class="flex flex-row-reverse items-end">
             {@render buttons?.()}
         </div>
-        <div style='cursor: {dragAllowed ? dragDisabled ? 'grab' : 'grabbing' : 'not-allowed'}'
-        title={dragAllowed ? '' : 'Cannot rearrange while searching'}
-        class:opacity-50={!dragAllowed} onpointerdown={checkDrag}>
-            <DotsGrid size={28} />
-        </div>
+        {#if hasDrag}
+            <div style='cursor: {dragAllowed ? dragDisabled ? 'grab' : 'grabbing' : 'not-allowed'}'
+            title={dragAllowed ? '' : 'Cannot rearrange while searching'}
+            class:opacity-50={!dragAllowed} onpointerdown={checkDrag}>
+                <DotsGrid size={28} />
+            </div>
+        {/if}
     </div>
     {#if expanded}
         <div class="ml-7">

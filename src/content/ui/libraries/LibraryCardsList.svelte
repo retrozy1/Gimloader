@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type Lib from "$core/scripts/lib.svelte";
+    import type { Lib } from "$content/core/scripts/scripts.svelte";
     import { flip } from "svelte/animate";
     import { dndzone } from "svelte-dnd-action";
     import Library from "./Library.svelte";
@@ -71,7 +71,7 @@
     setTimeout(() => flipDurationMs = 300);
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
         <button onclick={() => showEditor("library")}>
             <PlusBoxOutline size={32} />
@@ -89,7 +89,7 @@
     {#if LibManager.libs.length === 0}
         <h2 class="text-xl">No libraries installed!</h2>
     {/if}
-    <div class="max-h-full overflow-y-auto grid gap-4 view-{Storage.settings.menuView} pb-1 flex-grow"
+    <div class="overflow-y-auto grid gap-4 view-{Storage.settings.menuView} pb-1 flex-grow"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}

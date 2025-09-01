@@ -3,7 +3,7 @@
     import DotsGrid from "svelte-material-icons/DotsGrid.svelte";
 
     interface Props {
-        startDrag: () => void;
+        startDrag?: () => void;
         dragDisabled: boolean;
         loading?: boolean;
         dragAllowed?: boolean;
@@ -14,6 +14,7 @@
         description?: Snippet;
         buttons?: Snippet;
         border?: string;
+        hasDrag?: boolean;
     }
 
     let {
@@ -27,11 +28,12 @@
         author,
         description,
         buttons,
-        border
+        border,
+        hasDrag = true
     }: Props = $props();
 
     function checkDrag() {
-        if(dragAllowed) startDrag();
+        if(dragAllowed) startDrag?.();
     }
 </script>
 
@@ -55,12 +57,14 @@ h-full relative bg-white min-h-[150px] rounded-xl preflight flex flex-col p-3">
     <div class="flex flex-row-reverse items-end">
         {@render buttons?.()}
     </div>
-    <div class="absolute right-3 top-1/2 transform -translate-y-1/2"
-    style='cursor: {dragAllowed ? dragDisabled ? 'grab' : 'grabbing' : 'not-allowed'}'
-    title={dragAllowed ? '' : 'Cannot rearrange while searching'}
-    class:opacity-50={!dragAllowed} onpointerdown={checkDrag}>
-        <DotsGrid size={28} />
-    </div>
+    {#if hasDrag}
+        <div class="absolute right-3 top-1/2 transform -translate-y-1/2"
+        style='cursor: {dragAllowed ? dragDisabled ? 'grab' : 'grabbing' : 'not-allowed'}'
+        title={dragAllowed ? '' : 'Cannot rearrange while searching'}
+        class:opacity-50={!dragAllowed} onpointerdown={checkDrag}>
+            <DotsGrid size={28} />
+        </div>
+    {/if}
 </div>
 
 <style src="./loadAnim.css"></style>

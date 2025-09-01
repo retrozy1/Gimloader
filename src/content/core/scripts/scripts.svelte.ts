@@ -1,6 +1,6 @@
 import { log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
-import type { ScriptHeaders } from "$types/headers";
+import type { ScriptHeaders } from "$types/scripts";
 import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";

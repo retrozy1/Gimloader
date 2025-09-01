@@ -3,10 +3,11 @@
     import PluginCardsList from "./plugins/PluginCardsList.svelte";
     import { Tabs, TabItem } from "flowbite-svelte";
     import Modal from './flowbite/Modal.svelte';
-    import { focusTrapEnabled } from "./stores";
+    import { focusTrapEnabled, officialPluginsOpen } from "./stores";
     import Updates from "./Updates.svelte";
     import Settings from "./Settings.svelte";
     import Hotkeys from "./Hotkeys.svelte";
+    import OfficialPlugins from "./plugins/OfficialPlugins.svelte";
     import Port from "$shared/port.svelte";
     import { onMount } from "svelte";
     import toast from "svelte-5-french-toast";
@@ -16,9 +17,7 @@
     import KeyboardOutline from 'svelte-material-icons/KeyboardOutline.svelte';
     import Update from 'svelte-material-icons/Update.svelte';
     import Cog from 'svelte-material-icons/Cog.svelte';
-    import Web from 'svelte-material-icons/Web.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
-    import Storage from "$core/storage.svelte";
 
     interface Props {
         onClose: () => void;
@@ -84,7 +83,11 @@
                         <Wrench size={24} />
                         <span class="ml-2">Plugins</span>
                     </div>
-                    <PluginCardsList {onDrop} />
+                    {#if $officialPluginsOpen}
+                        <OfficialPlugins />
+                    {:else}
+                        <PluginCardsList {onDrop} />
+                    {/if}
                 </TabItem>
                 <TabItem>
                     <div class="flex items-center" slot="title">

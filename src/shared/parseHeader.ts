@@ -1,4 +1,4 @@
-import type { ScriptHeaders } from "$types/headers";
+import type { ScriptHeaders } from "$types/scripts";
 
 export function parseScriptHeaders(code: string): ScriptHeaders {
     const baseHeaders: ScriptHeaders = {

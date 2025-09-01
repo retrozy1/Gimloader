@@ -1,5 +1,5 @@
 import { parseScriptHeaders } from "$shared/parseHeader";
-import type { ScriptHeaders } from "$types/headers";
+import type { ScriptHeaders } from "$types/scripts";
 import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { LibraryInfo, PluginInfo, State } from "$types/state";
 import type { Update } from "$types/updater";

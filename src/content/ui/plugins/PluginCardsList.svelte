@@ -9,11 +9,12 @@
     import Storage from "$core/storage.svelte";
     import Port from "$shared/port.svelte";
     import { flipDurationMs } from "$shared/consts";
-
+    import ViewControl from "../components/ViewControl.svelte";
+    import { officialPluginsOpen } from "../stores";
+    
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-    import ViewControl from "../components/ViewControl.svelte";
 
     let { onDrop }: { onDrop: (callback: (text: string) => void) => void } = $props();
 
@@ -86,15 +87,18 @@
     }
 </script>
 
-<div class="flex flex-col">
+<div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
+        <Button class="h-7" onclick={() => officialPluginsOpen.set(true)}>
+            Official Plugins
+        </Button>
         <button onclick={() => showEditor("plugin")}>
             <PlusBoxOutline size={32} />
         </button>
         <button onclick={importPlugin}>
             <Import size={32} />
         </button>
-        <Button class="h-7 mr-2">Bulk actions<ChevronDown class="ml-1" size={20} /></Button>
+        <Button class="h-7 mr-1">Bulk actions<ChevronDown class="ml-1" size={20} /></Button>
         <Dropdown bind:open={bulkOpen}>
             <DropdownItem on:click={deleteAll}>Delete all</DropdownItem>
             <DropdownItem on:click={() => PluginManager.setAll(true)}>Enable all</DropdownItem>
@@ -109,9 +113,15 @@
         <Search bind:value={searchValue} />
     </div>
     {#if PluginManager.plugins.length === 0}
-        <h2 class="text-xl">No plugins installed! Import or create one to get started.</h2>
+        <h2 class="text-xl w-full text-center">
+            No plugins installed! Check out the
+            <button class="underline" onclick={() => officialPluginsOpen.set(true)}>
+                Official Plugins
+            </button>
+            or import or create your own.
+        </h2>
     {/if}
-    <div class="max-h-full overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
+    <div class="overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}
