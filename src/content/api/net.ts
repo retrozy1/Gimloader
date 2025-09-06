@@ -1,9 +1,9 @@
 import type { Connection } from "$core/net/net";
 import Net from "$core/net/net";
 import { validate } from "$content/utils";
-import EventEmitter from "eventemitter2";
+import EventEmitter2 from "eventemitter2";
 
-class BaseNetApi extends EventEmitter {
+class BaseNetApi extends EventEmitter2 {
     constructor() {
         super({
             wildcard: true,
@@ -153,8 +153,8 @@ class ScopedNetApi extends BaseNetApi {
     }
 }
 
-Object.freeze(EventEmitter);
-Object.freeze(EventEmitter.prototype);
+Object.freeze(EventEmitter2);
+Object.freeze(EventEmitter2.prototype);
 Object.freeze(BaseNetApi);
 Object.freeze(BaseNetApi.prototype);
 Object.freeze(NetApi);

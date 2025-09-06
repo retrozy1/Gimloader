@@ -1,11 +1,11 @@
-import EventEmitter from "eventemitter2";
+import EventEmitter2 from "eventemitter2";
 import Rewriter from "./rewriter";
 
 export default class GimkitInternals {
     static stores: any;
     static notification: any;
     static platformerPhysics: any;
-    static events = new EventEmitter();
+    static events = new EventEmitter2();
 
     static init() {
         // window.stores

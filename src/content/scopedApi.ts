@@ -9,16 +9,18 @@ interface ScopedInfo {
     openSettingsMenu?: (cb: () => void) => void;
 }
 
-export default function setupScoped(): ScopedInfo {
-    let stack = new Error().stack;
-
-    // get the uuid of the blob that called this function
-    let match: RegExpExecArray, exec: RegExpExecArray;
-    while(exec = scriptRegex.exec(stack)) match = exec;
-    if(!match) throw new Error("new GL() needs to be called by a plugin or library");
-
-    let type = match[1];
-    let name = decodeURIComponent(match[2]);
+export default function setupScoped(type?: string, name?: string): ScopedInfo {
+    if(!type || !name) {
+        let stack = new Error().stack;
+    
+        // get the uuid of the blob that called this function
+        let match: RegExpExecArray, exec: RegExpExecArray;
+        while(exec = scriptRegex.exec(stack)) match = exec;
+        if(!match) throw new Error("new GL() needs to be called by a plugin or library");
+    
+        type = match[1];
+        name = decodeURIComponent(match[2]);
+    }
 
     if(type === "plugins") {
         let plugin = PluginManager.getPlugin(name);

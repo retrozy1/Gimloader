@@ -3,9 +3,9 @@ import type { State } from "$types/state";
 import Server from "$bg/server";
 import { saveDebounced } from "$bg/state";
 import Updater from "$bg/updater";
-import EventEmitter from "eventemitter2";
+import EventEmitter2 from "eventemitter2";
 
-export default new class SettingsHandler extends EventEmitter {
+export default new class SettingsHandler extends EventEmitter2 {
     init() {
         Server.on("settingUpdate", this.onSettingUpdate.bind(this));   
     }

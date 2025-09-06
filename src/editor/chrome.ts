@@ -14,6 +14,7 @@ self.MonacoEnvironment = {
 	}
 };
 
+console.log(types);
 monaco.languages.typescript.javascriptDefaults.addExtraLib(types, "@types/gimloader/gimloader.d.ts");
 
 let style = document.createElement("style");

@@ -1,5 +1,5 @@
 import Internals from "$core/internals";
-import EventEmitter from "eventemitter2";
+import EventEmitter2 from "eventemitter2";
 import { log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
@@ -28,7 +28,7 @@ interface LoadCallback {
     id: string;
 }
 
-export default new class Net extends EventEmitter {
+export default new class Net extends EventEmitter2 {
     type: Connection["type"] = "None";
     room: Connection["room"] = null;
     loaded = false;

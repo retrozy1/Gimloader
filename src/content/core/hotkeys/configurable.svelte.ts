@@ -1,19 +1,17 @@
-import type { ConfigurableHotkeyOptions, HotkeyTrigger } from "$types/hotkeys";
+import type { ConfigurableHotkeyOptions, HotkeyCallback, HotkeyTrigger } from "$types/hotkeys";
 import Hotkeys from './hotkeys.svelte';
-
-type Callback = (e: KeyboardEvent) => void;
 
 export default class ConfigurableHotkey {
     id: string;
     category: string;
     title: string;
     preventDefault: boolean;
-    callback: Callback;
+    callback: HotkeyCallback;
     trigger: HotkeyTrigger | null = $state(null);
     default?: HotkeyTrigger;
     pluginName?: string;
 
-    constructor(id: string, callback: Callback, options: ConfigurableHotkeyOptions, pluginName?: string) {
+    constructor(id: string, callback: HotkeyCallback, options: ConfigurableHotkeyOptions, pluginName?: string) {
         this.id = id;
         this.category = options.category;
         this.title = options.title;

@@ -5,6 +5,8 @@ import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";
 
+const apiCreatedRegex = /new\s+GL\s*\(/;
+
 // Unfortunately everything needs to be in one file for esbuild to not explode
 // because of some circular dependencies
 abstract class BaseScript {
@@ -30,14 +32,17 @@ abstract class BaseScript {
                 .catch(rej);
             if(!success) return;
 
-            let uri = encodeURIComponent(this.headers.name);
-            let host = this.type === "Plugin" ? "plugins" : "libraries";
-            let sourceUrl = `\n//# sourceURL=gimloader://${host}/${uri}.js`;
+            const uri = encodeURIComponent(this.headers.name);
+            const host = this.type === "Plugin" ? "plugins" : "libraries";
+            const sourceUrl = `\n//# sourceURL=gimloader://${host}/${uri}.js`;
+            
+            // Only create the api automatically if the plugin doesn't call new GL() itself for backwards compatibility
+            const apiDeclaration = this.script.match(apiCreatedRegex) ? "" : `const api = new GL("${host}", "${this.headers.name}");\n`;
     
             if(this.headers.syncEval !== "false") {
                 try {
                     // append code for module.exports syntax
-                    let code = "const module = { exports: {} };\n" + this.script + "\nmodule" + sourceUrl;
+                    let code = "const module = { exports: {} };\n" + apiDeclaration + this.script + "\nmodule" + sourceUrl;
                     let returned = eval.apply(window, [code]);
                     returned = returned?.exports;
                     if(!returned) returned = {};
@@ -50,7 +55,7 @@ abstract class BaseScript {
                 return;
             }
     
-            const blob = new Blob([this.script, sourceUrl], { type: "application/javascript" });
+            const blob = new Blob([apiDeclaration, this.script, sourceUrl], { type: "application/javascript" });
             const url = URL.createObjectURL(blob);
     
             import(url)

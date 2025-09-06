@@ -2,7 +2,7 @@ import { splicer } from "$content/utils";
 import { defaultSettings } from "$shared/consts";
 import Port from "$shared/port.svelte";
 import type { PluginStorage, Settings } from "$types/state";
-import EventEmitter from "eventemitter2";
+import EventEmitter2 from "eventemitter2";
 
 /** @inline */
 export type ValueChangeCallback = (value: any, remote: boolean) => void;
@@ -13,7 +13,7 @@ interface ValueChangeListener {
     callback: ValueChangeCallback;
 }
 
-export default new class Storage extends EventEmitter {
+export default new class Storage extends EventEmitter2 {
     settings: Settings = $state(defaultSettings);
     values: PluginStorage;
     updateListeners: ValueChangeListener[] = [];

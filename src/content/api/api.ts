@@ -111,8 +111,8 @@ class Api {
      */
     static get pluginManager() { return this.plugins };
 
-    constructor() {
-        const scoped = setupScoped();
+    constructor(type?: string, name?: string) {
+        const scoped = setupScoped(type, name);
         this.onStop = scoped.onStop;
         this.openSettingsMenu = scoped.openSettingsMenu;
 
