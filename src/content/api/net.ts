@@ -1,5 +1,4 @@
-import type { Connection } from "$core/net/net";
-import Net from "$core/net/net";
+import Net, { type ConnectionType } from "$core/net/net";
 import { validate } from "$content/utils";
 import EventEmitter2 from "eventemitter2";
 
@@ -15,10 +14,10 @@ class BaseNetApi extends EventEmitter2 {
     }
 
     /** Which type of server the client is currently connected to */
-    get type(): Connection["type"] { return Net.type };
+    get type() { return Net.type };
 
     /** The room that the client is connected to, or null if there is no connection */
-    get room(): Connection["room"] { return Net.room };
+    get room() { return Net.room };
 
     /** Whether the user is the one hosting the current game */
     get isHost() { return Net.isHost };
@@ -64,7 +63,7 @@ class NetApi extends BaseNetApi {
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
      * @returns A function to cancel waiting for load
      */
-    onLoad(id: string, callback: (type: Connection["type"]) => void) {
+    onLoad(id: string, callback: (type: ConnectionType) => void) {
         if(!validate('Net.onLoad', arguments, ['id', 'string'], ['callback', 'function'])) return;
 
         return Net.pluginOnLoad(id, callback);
@@ -146,7 +145,7 @@ class ScopedNetApi extends BaseNetApi {
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
      * @returns A function to cancel waiting for load
      */
-    onLoad(callback: (type: Connection["type"]) => void) {
+    onLoad(callback: (type: ConnectionType) => void) {
         if(!validate('Net.onLoad', arguments, ['callback', 'function'])) return;
 
         return Net.pluginOnLoad(this.id, callback);

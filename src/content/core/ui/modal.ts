@@ -5,7 +5,7 @@ import UI from "$core/ui/ui";
 interface ModalButton {
     text: string;
     style?: "primary" | "danger" | "close";
-    onClick?: (event: MouseEvent) => boolean | void;
+    onClick?: (event: MouseEvent) => boolean | undefined;
 }
 
 /** @inline */

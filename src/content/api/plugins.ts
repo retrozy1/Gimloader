@@ -20,7 +20,7 @@ class PluginsApi {
     }
 
     /** Gets the exported values of a plugin, if it has been enabled */
-    get<T = any>(name: string): T {
+    get(name: string) {
         return PluginManager.getExports(name);
     }
 

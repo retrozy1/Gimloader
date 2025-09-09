@@ -2,7 +2,7 @@
 export type PatcherAfterCallback = (thisVal: any, args: IArguments, returnVal: any) => any;
 
 /** @inline */
-export type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | void;
+export type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | undefined;
 
 /** @inline */
 export type PatcherInsteadCallback = (thisVal: any, args: IArguments) => void;

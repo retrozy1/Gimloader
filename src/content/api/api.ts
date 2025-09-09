@@ -1,4 +1,3 @@
-import type { Connection } from "$core/net/net";
 import { HotkeysApi, ScopedHotkeysApi } from "./hotkeys";
 import { ParcelApi, ScopedParcelApi } from "./parcel";
 import { NetApi, ScopedNetApi } from "./net";
@@ -34,7 +33,7 @@ class Api {
      * Ways to interact with the current connection to the server,
      * and functions to send general requests
      */
-    static net = Object.freeze(new NetApi() as NetApi & Connection);
+    static net = Object.freeze(new NetApi());
 
     /** Functions for interacting with the DOM */
     static UI = Object.freeze(new UIApi());
@@ -119,7 +118,7 @@ class Api {
         this.rewriter = Object.freeze(new ScopedRewriterApi(scoped.id));
         this.parcel = Object.freeze(new ScopedParcelApi(scoped.id));
         this.hotkeys = Object.freeze(new ScopedHotkeysApi(scoped.id));
-        this.net = Object.freeze(new ScopedNetApi(scoped.id) as ScopedNetApi & Connection);
+        this.net = Object.freeze(new ScopedNetApi(scoped.id) as ScopedNetApi);
         this.UI = Object.freeze(new ScopedUIApi(scoped.id));
         this.storage = Object.freeze(new ScopedStorageApi(scoped.id));
         this.patcher = Object.freeze(new ScopedPatcherApi(scoped.id));
@@ -163,7 +162,7 @@ class Api {
      * Ways to interact with the current connection to the server,
      * and functions to send general requests
      */
-    net: Readonly<ScopedNetApi & Connection>;
+    net: Readonly<ScopedNetApi>;
 
     /** Functions for interacting with the DOM */
     UI: Readonly<ScopedUIApi>;

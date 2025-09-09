@@ -6,31 +6,16 @@ import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net";
 import Rewriter from "../rewriter";
 
-interface BlueboatConnection {
-    type: "Blueboat";
-    room: any;
-}
-
-interface ColyseusConnection {
-    type: "Colyseus";
-    room: any;
-}
-
-interface NoConnection {
-    type: "None";
-    room: null;
-}
-
-export type Connection = BlueboatConnection | ColyseusConnection | NoConnection;
+export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
 interface LoadCallback {
-    callback: (type: Connection["type"]) => void;
+    callback: (type: ConnectionType) => void;
     id: string;
 }
 
 export default new class Net extends EventEmitter2 {
-    type: Connection["type"] = "None";
-    room: Connection["room"] = null;
+    type: ConnectionType = "None";
+    room: any = null;
     loaded = false;
     loadCallbacks: LoadCallback[] = [];
 
@@ -180,7 +165,7 @@ export default new class Net extends EventEmitter2 {
         })
     }
 
-    onLoad(type: Connection["type"]) {
+    onLoad(type: ConnectionType) {
         this.loaded = true;
 
         for(let { callback } of this.loadCallbacks) {
@@ -192,7 +177,7 @@ export default new class Net extends EventEmitter2 {
         }
     }
 
-    pluginOnLoad(id: string, callback: (type: Connection["type"]) => void) {
+    pluginOnLoad(id: string, callback: (type: ConnectionType) => void) {
         if(this.loaded) {
             callback(this.type);
             return () => {};
