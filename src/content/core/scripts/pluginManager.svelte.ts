@@ -28,8 +28,7 @@ export default new class PluginManager {
         Port.on("pluginsSetAll", ({ enabled }) => this.setAll(enabled, false));
         Port.on("pluginsDeleteAll", () => this.deleteAll(false));
 
-        // Start all plugins that don't have a gamemode specified
-        let shouldStart = this.plugins.filter(p => p.enabled && p.headers.gamemode.length === 0);
+        let shouldStart = this.plugins.filter(p => p.enabled);
         let results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
         let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
 
@@ -40,18 +39,6 @@ export default new class PluginManager {
 
         this.loaded.resolve();
         log('All plugins loaded');
-    }
-
-    // onGamemode will only be called once
-    async onGamemode(triggers: string[]) {
-        let shouldStart = this.plugins.filter(p => p.enabled && p.shouldStart(triggers));
-        let results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
-        let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
-
-        if(fails.length > 0) {
-            let msg = fails.map(f => f.reason).join('\n');
-            showErrorMessage(msg, `Failed to enable ${fails.length} plugins`);
-        }
     }
 
     updateState(pluginInfo: PluginInfo[]) {

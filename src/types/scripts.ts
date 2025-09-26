@@ -10,9 +10,9 @@ export interface ScriptHeaders {
     needsLib: string[];
     optionalLib: string[];
     syncEval: string;
+    gamemode: string[];
     /** Only available for plugins */
     hasSettings: string;
-    gamemode: string[];
 }
 
 export interface OfficialScriptInfo {

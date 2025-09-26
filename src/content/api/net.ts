@@ -66,10 +66,10 @@ class NetApi extends BaseNetApi {
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
      * @returns A function to cancel waiting for load
      */
-    onLoad(id: string, callback: (type: ConnectionType) => void) {
-        if(!validate('Net.onLoad', arguments, ['id', 'string'], ['callback', 'function'])) return;
+    onLoad(id: string, callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
+        if(!validate('Net.onLoad', arguments, ['id', 'string'], ['callback', 'function'], ['gamemode', 'string|object?'])) return;
 
-        return Net.pluginOnLoad(id, callback);
+        return Net.pluginOnLoad(id, callback, gamemode);
     }
     
     /** Cancels any calls to {@link onLoad} with the same id */
@@ -142,16 +142,18 @@ class NetApi extends BaseNetApi {
  * ```
  */
 class ScopedNetApi extends BaseNetApi {
-    constructor(private readonly id: string) { super() };
+    constructor(private readonly id: string, private readonly defaultGamemode: string[]) { super() };
     
     /**
-     * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
+     * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded.
+     * If the \@gamemode header is set the callback will only fire if the gamemode matches one of the provided gamemodes.
      * @returns A function to cancel waiting for load
      */
-    onLoad(callback: (type: ConnectionType) => void) {
-        if(!validate('Net.onLoad', arguments, ['callback', 'function'])) return;
+    onLoad(callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
+        if(!validate('Net.onLoad', arguments, ['callback', 'function'], ['gamemode', 'string|object?'])) return;
+        if(gamemode === undefined) gamemode = this.defaultGamemode;
 
-        return Net.pluginOnLoad(this.id, callback);
+        return Net.pluginOnLoad(this.id, callback, gamemode);
     }
 }
 

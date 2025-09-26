@@ -164,10 +164,6 @@ export class Plugin extends BaseScript {
         this.enabled = enabled;
     }
 
-    shouldStart(triggers: string[]) {
-        return this.headers.gamemode.some(g => triggers.includes(g.toLowerCase()));
-    }
-
     start(initial = false) {
         if(this.enablePromise) return this.enablePromise;
 

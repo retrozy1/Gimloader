@@ -1,10 +1,12 @@
 import PluginManager from "$core/scripts/pluginManager.svelte";
 import LibManager from "$core/scripts/libManager.svelte";
+import type { Lib, Plugin } from "./core/scripts/scripts.svelte";
 
 const scriptRegex = /gimloader:\/\/(plugins|libraries)\/(.+?)\.js:\d+:\d+/g;
 
 interface ScopedInfo {
     id: string;
+    script: Plugin | Lib;
     onStop: (cb: () => void) => void;
     openSettingsMenu?: (cb: () => void) => void;
 }
@@ -28,6 +30,7 @@ export default function setupScoped(type?: string, name?: string): ScopedInfo {
 
         return {
             id: plugin.headers.name,
+            script: plugin,
             onStop: (cb: () => void) => plugin.onStop.push(cb),
             openSettingsMenu: (cb: () => void) => plugin.openSettingsMenu.push(cb)
         }
@@ -37,6 +40,7 @@ export default function setupScoped(type?: string, name?: string): ScopedInfo {
 
         return {
             id: library.headers.name,
+            script: library,
             onStop: (cb: () => void) => library.onStop.push(cb)
         }
     }

@@ -6,13 +6,13 @@ import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net";
 import Rewriter from "../rewriter";
 import GimkitInternals from "$core/internals";
-import PluginManager from "../scripts/pluginManager.svelte";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
 interface LoadCallback {
-    callback: (type: ConnectionType) => void;
+    callback: (type: ConnectionType, gamemode: string) => void;
     id: string;
+    gamemodes: string[];
 }
 
 export default new class Net extends EventEmitter2 {
@@ -88,8 +88,6 @@ export default new class Net extends EventEmitter2 {
 
         this.room = room;
         this.type = 'Blueboat';
-        this.emit('load:blueboat');
-        this.onLoad("Blueboat");
 
         // intercept incoming messages
         Patcher.before(null, room.onMessage, "call", (_, args) => {
@@ -97,12 +95,13 @@ export default new class Net extends EventEmitter2 {
             this.emit(channel, data, (newData: any) => { args[1] = newData });
 
             // Check if the message is the message with the gamemode type
-            if(channel === "HOST_STATIC_STATE") {
-                const gamemode = data?.options?.specialGameType?.[0];
-                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "1d");
-            } else if(channel === "PLAYER_JOINS_STATIC_STATE") {
-                const gamemode = data?.gameOptions?.specialGameType?.[0];
-                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "1d");
+            if(channel === "HOST_STATIC_STATE" || channel === "PLAYER_JOINS_STATIC_STATE") {
+                let gamemodeId = "unknown";
+                if(channel === "HOST_STATIC_STATE") gamemodeId = data?.options?.specialGameType?.[0];
+                else gamemodeId = data?.gameOptions?.specialGameType?.[0];
+
+                this.emit('load:blueboat');
+                this.onLoad("Blueboat", gamemodeId ?? "unknown", "1d", "official");
             }
 
             if(args[1] === null) return true;
@@ -138,22 +137,27 @@ export default new class Net extends EventEmitter2 {
             if(title || description || !initial || !terrain || !devices || !placement) return;
             for(let stop of stopObservers) stop();
 
-            // Emit load events
-            this.emit('load:colyseus');
-            this.onLoad("Colyseus");
-
             // Get the current gamemode
+            let gamemodeId = "unknown";
+            let officialGamemode = false;
             try {
                 const options = JSON.parse(GimkitInternals.stores.world.mapOptionsJSON);
                 const parts = options.musicUrl.split("/");
                 const gamemode = parts[parts.length - 2];
                 
-                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "2d");
-                else if(GimkitInternals.stores.session.version === "saved") this.onGamemode("creative", "2d");
-                else error("Failed to determine gamemode from map options (no music)");
+                if(gamemode) {
+                    gamemodeId = gamemode.toLowerCase();
+                    officialGamemode = true;
+                } else if(GimkitInternals.stores.session.version === "saved") {
+                    gamemodeId = "creative";
+                }
             } catch(e) {
                 error("Failed to determine gamemode from map options", e);
             }
+
+            // Emit load events
+            this.emit('load:colyseus');
+            this.onLoad("Colyseus", gamemodeId, "2d", ...(officialGamemode ? ["official", "official-2d"] : []));
         }
 
         // observe the values and re-check if they change
@@ -167,14 +171,6 @@ export default new class Net extends EventEmitter2 {
         );
 
         check();
-    }
-
-    onGamemode(gamemode: string, type: string) {
-        if(this.gamemode) return;
-        this.gamemode = gamemode;
-
-        log("Gamemode detected:", gamemode);
-        PluginManager.onGamemode([ gamemode, type, "*" ]);
     }
 
     send(channel: string, message: any) {
@@ -200,27 +196,35 @@ export default new class Net extends EventEmitter2 {
         })
     }
 
-    onLoad(type: ConnectionType) {
+    onLoad(type: ConnectionType, gamemode: string, ...otherTriggers: string[]) {
         this.loaded = true;
+        this.gamemode = gamemode;
 
-        for(let { callback } of this.loadCallbacks) {
+        const triggers = [gamemode, ...otherTriggers, "*"];
+        for(let { callback, gamemodes } of this.loadCallbacks) {
+            // Check if the callback isn't for this gamemode
+            if(gamemodes.length > 0 && !gamemodes.some(g => triggers.includes(g))) continue;
+
             try {
-                callback(type);
+                callback(type, gamemode);
             } catch(e) {
                 console.error(e);
             }
         }
     }
 
-    pluginOnLoad(id: string, callback: (type: ConnectionType) => void) {
+    pluginOnLoad(id: string, callback: (type: ConnectionType, gamemode: string) => void, gamemode: string | string[] = []) {
+        if(!Array.isArray(gamemode)) gamemode = [gamemode];
+        
         if(this.loaded) {
-            callback(this.type);
+            callback(this.type, this.gamemode);
             return () => {};
         }
 
         let obj = {
             callback,
-            id
+            id,
+            gamemodes: gamemode.map(g => g.toLowerCase())
         };
         
         this.loadCallbacks.push(obj);

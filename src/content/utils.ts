@@ -9,8 +9,12 @@ export function error(...args: any[]) {
 }
 
 function typeMatches(val: any, type: string) {
-    if(!type.endsWith('?')) return type.split("|").includes(typeof val);
-    return typeof val === type.slice(0, -1);
+    if(type.endsWith("?")) {
+        type = type.slice(0, -1);
+        if(val === undefined) return true;
+    }
+
+    return type.split("|").includes(typeof val);
 }
 
 export function validate(fnName: string, args: IArguments, ...schema: [string, string | object][]) {
