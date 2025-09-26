@@ -16,6 +16,9 @@ class BaseNetApi extends EventEmitter2 {
     /** Which type of server the client is currently connected to */
     get type() { return Net.type };
 
+    /** The id of the gamemode the player is currently playing */
+    get gamemode() { return Net.gamemode };
+
     /** The room that the client is connected to, or null if there is no connection */
     get room() { return Net.room };
 

@@ -12,6 +12,7 @@ export interface ScriptHeaders {
     syncEval: string;
     /** Only available for plugins */
     hasSettings: string;
+    gamemode: string[];
 }
 
 export interface OfficialScriptInfo {

@@ -118,7 +118,7 @@ class Api {
         this.rewriter = Object.freeze(new ScopedRewriterApi(scoped.id));
         this.parcel = Object.freeze(new ScopedParcelApi(scoped.id));
         this.hotkeys = Object.freeze(new ScopedHotkeysApi(scoped.id));
-        this.net = Object.freeze(new ScopedNetApi(scoped.id) as ScopedNetApi);
+        this.net = Object.freeze(new ScopedNetApi(scoped.id));
         this.UI = Object.freeze(new ScopedUIApi(scoped.id));
         this.storage = Object.freeze(new ScopedStorageApi(scoped.id));
         this.patcher = Object.freeze(new ScopedPatcherApi(scoped.id));

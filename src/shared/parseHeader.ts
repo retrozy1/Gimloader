@@ -13,7 +13,8 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         optionalLib: [],
         hasSettings: "false",
         syncEval: "false",
-        webpage: null
+        webpage: null,
+        gamemode: []
     };
 
     return parseHeader<ScriptHeaders>(code, baseHeaders);

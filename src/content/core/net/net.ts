@@ -1,10 +1,12 @@
 import Internals from "$core/internals";
 import EventEmitter2 from "eventemitter2";
-import { log, splicer } from "$content/utils";
+import { error, log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net";
 import Rewriter from "../rewriter";
+import GimkitInternals from "$core/internals";
+import PluginManager from "../scripts/pluginManager.svelte";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
@@ -18,6 +20,7 @@ export default new class Net extends EventEmitter2 {
     room: any = null;
     loaded = false;
     loadCallbacks: LoadCallback[] = [];
+    gamemode: string | null = null;
 
     constructor() {
         super({
@@ -93,6 +96,15 @@ export default new class Net extends EventEmitter2 {
             let [ channel, data ] = args;
             this.emit(channel, data, (newData: any) => { args[1] = newData });
 
+            // Check if the message is the message with the gamemode type
+            if(channel === "HOST_STATIC_STATE") {
+                const gamemode = data?.options?.specialGameType?.[0];
+                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "1d");
+            } else if(channel === "PLAYER_JOINS_STATIC_STATE") {
+                const gamemode = data?.gameOptions?.specialGameType?.[0];
+                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "1d");
+            }
+
             if(args[1] === null) return true;
         });
 
@@ -114,7 +126,8 @@ export default new class Net extends EventEmitter2 {
         const mobxLoading = loading[Object.getOwnPropertySymbols(loading)[0]];
         const mobxMe = me[Object.getOwnPropertySymbols(me)[0]];
 
-        let title: string = message.title, description: string = message.description,
+        let title: string = message.title,
+            description: string = message.description,
             initial: boolean = loading.completedInitialLoad,
             terrain: boolean = loading.loadedInitialTerrain,
             devices: boolean = loading.loadedInitialDevices,
@@ -125,8 +138,22 @@ export default new class Net extends EventEmitter2 {
             if(title || description || !initial || !terrain || !devices || !placement) return;
             for(let stop of stopObservers) stop();
 
+            // Emit load events
             this.emit('load:colyseus');
             this.onLoad("Colyseus");
+
+            // Get the current gamemode
+            try {
+                const options = JSON.parse(GimkitInternals.stores.world.mapOptionsJSON);
+                const parts = options.musicUrl.split("/");
+                const gamemode = parts[parts.length - 2];
+                
+                if(gamemode) this.onGamemode(gamemode.toLowerCase(), "2d");
+                else if(GimkitInternals.stores.session.version === "saved") this.onGamemode("creative", "2d");
+                else error("Failed to determine gamemode from map options (no music)");
+            } catch(e) {
+                error("Failed to determine gamemode from map options", e);
+            }
         }
 
         // observe the values and re-check if they change
@@ -140,6 +167,14 @@ export default new class Net extends EventEmitter2 {
         );
 
         check();
+    }
+
+    onGamemode(gamemode: string, type: string) {
+        if(this.gamemode) return;
+        this.gamemode = gamemode;
+
+        log("Gamemode detected:", gamemode);
+        PluginManager.onGamemode([ gamemode, type, "*" ]);
     }
 
     send(channel: string, message: any) {

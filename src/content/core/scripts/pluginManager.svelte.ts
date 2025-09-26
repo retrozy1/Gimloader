@@ -1,9 +1,9 @@
+import type { PluginInfo } from "$types/state";
 import showErrorMessage from "$content/ui/showErrorMessage";
 import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import { Plugin } from "./scripts.svelte";
 import Storage from "$core/storage.svelte";
-import type { PluginInfo } from "$types/state";
 import Port from "$shared/port.svelte";
 import toast from "svelte-5-french-toast";
 import Rewriter from "../rewriter";
@@ -28,7 +28,9 @@ export default new class PluginManager {
         Port.on("pluginsSetAll", ({ enabled }) => this.setAll(enabled, false));
         Port.on("pluginsDeleteAll", () => this.deleteAll(false));
 
-        let results = await Promise.allSettled(this.plugins.filter(p => p.enabled).map(p => p.start(true)));
+        // Start all plugins that don't have a gamemode specified
+        let shouldStart = this.plugins.filter(p => p.enabled && p.headers.gamemode.length === 0);
+        let results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
         let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
 
         if(fails.length > 0) {
@@ -38,6 +40,18 @@ export default new class PluginManager {
 
         this.loaded.resolve();
         log('All plugins loaded');
+    }
+
+    // onGamemode will only be called once
+    async onGamemode(triggers: string[]) {
+        let shouldStart = this.plugins.filter(p => p.enabled && p.shouldStart(triggers));
+        let results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
+        let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
+
+        if(fails.length > 0) {
+            let msg = fails.map(f => f.reason).join('\n');
+            showErrorMessage(msg, `Failed to enable ${fails.length} plugins`);
+        }
     }
 
     updateState(pluginInfo: PluginInfo[]) {
