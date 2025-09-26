@@ -119,7 +119,7 @@ export interface Listener {
     off(): this;
 }
 
-export class EventEmitter2 {
+class EventEmitter2 {
     constructor(options?: ConstructorOptions)
     emit(event: event | eventNS, ...values: any[]): boolean;
     emitAsync(event: event | eventNS, ...values: any[]): Promise<any[]>;
@@ -154,7 +154,7 @@ export class EventEmitter2 {
     static defaultMaxListeners: number;
 }
 
-export class PluginsApi {
+class PluginsApi {
     /** A list of all the plugins installed */
     get list(): string[];
     /** Whether a plugin exists and is enabled */
@@ -173,9 +173,10 @@ export class PluginsApi {
         optionalLib: string[];
         syncEval: string;
         hasSettings: string;
+        gamemode: string[];
     };
     /** Gets the exported values of a plugin, if it has been enabled */
-    get<T = any>(name: string): T;
+    get(name: string): any;
     /**
      * @deprecated Use {@link get} instead
      * @hidden
@@ -185,7 +186,7 @@ export class PluginsApi {
     };
 }
 
-export class LibsApi {
+class LibsApi {
     /** A list of all the libraries installed */
     get list(): string[];
     /** Gets whether or not a plugin is installed and enabled */
@@ -204,12 +205,13 @@ export class LibsApi {
         optionalLib: string[];
         syncEval: string;
         hasSettings: string;
+        gamemode: string[];
     };
     /** Gets the exported values of a library */
-    get<T = any>(name: string): T;
+    get(name: string): any;
 }
 
-export class ScopedRewriterApi {
+class ScopedRewriterApi {
     private readonly id;
     constructor(id: string);
     /**
@@ -232,7 +234,7 @@ export class ScopedRewriterApi {
     removeSharedById(id: string): void;
 }
 
-export class RewriterApi {
+class RewriterApi {
     /**
      * Creates a hook that will modify the code of a script before it is run.
      * This value is cached, so this hook may not run on subsequent page loads.
@@ -259,7 +261,7 @@ export class RewriterApi {
     removeSharedById(pluginName: string, id: string): void;
 }
 
-export class ScopedPatcherApi {
+class ScopedPatcherApi {
     private readonly id;
     constructor(id: string);
     /**
@@ -280,13 +282,13 @@ export class ScopedPatcherApi {
     instead(object: any, method: string, callback: PatcherInsteadCallback): () => void;
 }
 
-export type PatcherInsteadCallback = (thisVal: any, args: IArguments) => void;
+type PatcherInsteadCallback = (thisVal: any, args: IArguments) => void;
 
-export type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | void;
+type PatcherBeforeCallback = (thisVal: any, args: IArguments) => boolean | void;
 
-export type PatcherAfterCallback = (thisVal: any, args: IArguments, returnVal: any) => any;
+type PatcherAfterCallback = (thisVal: any, args: IArguments, returnVal: any) => any;
 
-export class PatcherApi {
+class PatcherApi {
     /**
      * Runs a callback after a function on an object has been run
      * @returns A function to remove the patch
@@ -307,7 +309,7 @@ export class PatcherApi {
     unpatchAll(id: string): void;
 }
 
-export class ScopedStorageApi {
+class ScopedStorageApi {
     private readonly id;
     constructor(id: string);
     /** Gets a value that has previously been saved */
@@ -320,9 +322,9 @@ export class ScopedStorageApi {
     onChange(key: string, callback: ValueChangeCallback): () => void;
 }
 
-export type ValueChangeCallback = (value: any, remote: boolean) => void;
+type ValueChangeCallback = (value: any, remote: boolean) => void;
 
-export class StorageApi {
+class StorageApi {
     /** Gets a value that has previously been saved */
     getValue(pluginName: string, key: string, defaultValue?: any): any;
     /** Sets a value which can be retrieved later, through reloads */
@@ -342,7 +344,7 @@ export class StorageApi {
     offAllChanges(pluginName: string): void;
 }
 
-export class ScopedUIApi extends BaseUIApi {
+class ScopedUIApi extends BaseUIApi {
     private readonly id;
     constructor(id: string);
     /**
@@ -352,13 +354,13 @@ export class ScopedUIApi extends BaseUIApi {
     addStyles(style: string): () => void;
 }
 
-export interface ModalButton {
+interface ModalButton {
     text: string;
     style?: "primary" | "danger" | "close";
     onClick?: (event: MouseEvent) => boolean | void;
 }
 
-export interface ModalOptions {
+interface ModalOptions {
     id: string;
     title: string;
     style: string;
@@ -368,12 +370,12 @@ export interface ModalOptions {
     onClosed: () => void;
 }
 
-export class BaseUIApi {
+class BaseUIApi {
     /** Shows a customizable modal to the user */
     showModal(element: HTMLElement | ReactElement, options?: Partial<ModalOptions>): void;
 }
 
-export class UIApi extends BaseUIApi {
+class UIApi extends BaseUIApi {
     /**
      * Adds a style to the DOM
      * @returns A function to remove the styles
@@ -383,52 +385,39 @@ export class UIApi extends BaseUIApi {
     removeStyles(id: string): void;
 }
 
-export class ScopedNetApi extends BaseNetApi {
+class ScopedNetApi extends BaseNetApi {
     private readonly id;
     constructor(id: string);
     /**
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
      * @returns A function to cancel waiting for load
      */
-    onLoad(callback: (type: Connection["type"]) => void): () => void;
+    onLoad(callback: (type: ConnectionType) => void): () => void;
 }
 
-export interface NoConnection {
-    type: "None";
-    room: null;
-}
+type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
-export interface ColyseusConnection {
-    type: "Colyseus";
-    room: any;
-}
-
-export interface BlueboatConnection {
-    type: "Blueboat";
-    room: any;
-}
-
-export type Connection = BlueboatConnection | ColyseusConnection | NoConnection;
-
-export class BaseNetApi extends EventEmitter2 {
+class BaseNetApi extends EventEmitter2 {
     constructor();
     /** Which type of server the client is currently connected to */
-    get type(): Connection["type"];
+    get type(): ConnectionType;
+    /** The id of the gamemode the player is currently playing */
+    get gamemode(): string;
     /** The room that the client is connected to, or null if there is no connection */
-    get room(): Connection["room"];
+    get room(): any;
     /** Whether the user is the one hosting the current game */
     get isHost(): boolean;
     /** Sends a message to the server on a specific channel */
     send(channel: string, message: any): void;
 }
 
-export class NetApi extends BaseNetApi {
+class NetApi extends BaseNetApi {
     constructor();
     /**
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded
      * @returns A function to cancel waiting for load
      */
-    onLoad(id: string, callback: (type: Connection["type"]) => void): () => void;
+    onLoad(id: string, callback: (type: ConnectionType) => void): () => void;
     /** Cancels any calls to {@link onLoad} with the same id */
     offLoad(id: string): void;
     /**
@@ -455,7 +444,7 @@ export class NetApi extends BaseNetApi {
     removeEventListener(channel: string, callback: (...args: any[]) => void): void;
 }
 
-export class ScopedParcelApi extends BaseParcelApi {
+class ScopedParcelApi extends BaseParcelApi {
     private readonly id;
     constructor(id: string);
     /**
@@ -465,7 +454,7 @@ export class ScopedParcelApi extends BaseParcelApi {
     getLazy(): () => void;
 }
 
-export class BaseParcelApi {
+class BaseParcelApi {
     /**
      * Gets a module based on a filter, returns null if none are found
      * Be cautious when using this- plugins will often run before any modules load in,
@@ -482,7 +471,7 @@ export class BaseParcelApi {
     queryAll(): any[];
 }
 
-export class ParcelApi extends BaseParcelApi {
+class ParcelApi extends BaseParcelApi {
     /**
      * Waits for a module to be loaded, then runs a callback
      * @returns A function to cancel waiting for the module
@@ -502,7 +491,7 @@ export class ParcelApi extends BaseParcelApi {
     get stopIntercepts(): () => void;
 }
 
-export class ScopedHotkeysApi extends BaseHotkeysApi {
+class ScopedHotkeysApi extends BaseHotkeysApi {
     private readonly id;
     constructor(id: string);
     /**
@@ -517,9 +506,9 @@ export class ScopedHotkeysApi extends BaseHotkeysApi {
     addConfigurableHotkey(options: ConfigurableHotkeyOptions, callback: KeyboardCallback): () => void;
 }
 
-export type KeyboardCallback = (e: KeyboardEvent) => void;
+type KeyboardCallback = (e: KeyboardEvent) => void;
 
-export class BaseHotkeysApi {
+class BaseHotkeysApi {
     /**
      * Releases all keys, needed if a hotkey opens something that will
      * prevent keyup events from being registered, such as an alert
@@ -534,14 +523,14 @@ export class BaseHotkeysApi {
     get pressedKeys(): Set<string>;
 }
 
-export interface OldConfigurableOptions {
+interface OldConfigurableOptions {
     category: string;
     title: string;
     preventDefault?: boolean;
     defaultKeys?: Set<string>;
 }
 
-export interface ConfigurableHotkeyOptions {
+interface ConfigurableHotkeyOptions {
     category: string;
     /** There should be no duplicate titles within a category */
     title: string;
@@ -549,7 +538,7 @@ export interface ConfigurableHotkeyOptions {
     default?: HotkeyTrigger;
 }
 
-export interface HotkeyTrigger {
+interface HotkeyTrigger {
     /** Should be a keyboardevent [code](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) */
     key?: string;
     /** Should be keyboardevent [codes](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) */
@@ -559,11 +548,11 @@ export interface HotkeyTrigger {
     alt?: boolean;
 }
 
-export interface HotkeyOptions extends HotkeyTrigger {
+interface HotkeyOptions extends HotkeyTrigger {
     preventDefault?: boolean;
 }
 
-export class HotkeysApi extends BaseHotkeysApi {
+class HotkeysApi extends BaseHotkeysApi {
     /**
      * Adds a hotkey with a given id
      * @returns A function to remove the hotkey
@@ -601,7 +590,7 @@ export class HotkeysApi extends BaseHotkeysApi {
     removeConfigurable(pluginName: string, hotkeyId: string): void;
 }
 
-export class Api {
+class Api {
     /**
      * @deprecated Gimkit has switched from Parcel to vite, rendering this api useless.
      * @hidden
@@ -615,7 +604,7 @@ export class Api {
      * Ways to interact with the current connection to the server,
      * and functions to send general requests
      */
-    static net: Readonly<NetApi & Connection>;
+    static net: Readonly<NetApi>;
     /** Functions for interacting with the DOM */
     static UI: Readonly<UIApi>;
     /** Functions for persisting data between reloads */
@@ -625,11 +614,11 @@ export class Api {
     /** Methods for getting info on libraries */
     static libs: Readonly<LibsApi>;
     /** Gets the exported values of a library */
-    static lib: <T = any>(name: string) => T;
+    static lib: (name: string) => any;
     /** Methods for getting info on plugins */
     static plugins: Readonly<PluginsApi>;
     /** Gets the exported values of a plugin, if it has been enabled */
-    static plugin: <T = any>(name: string) => T;
+    static plugin: (name: string) => any;
     /** Gimkit's internal react instance */
     static get React(): typeof import("react");
     /** Gimkit's internal reactDom instance */
@@ -684,7 +673,7 @@ export class Api {
      * Ways to interact with the current connection to the server,
      * and functions to send general requests
      */
-    net: Readonly<ScopedNetApi & Connection>;
+    net: Readonly<ScopedNetApi>;
     /** Functions for interacting with the DOM */
     UI: Readonly<ScopedUIApi>;
     /** Functions for persisting data between reloads */
@@ -694,11 +683,11 @@ export class Api {
     /** Methods for getting info on libraries */
     libs: Readonly<LibsApi>;
     /** Gets the exported values of a library */
-    lib: <T = any>(name: string) => T;
+    lib: (name: string) => any;
     /** Methods for getting info on plugins */
     plugins: Readonly<PluginsApi>;
     /** Gets the exported values of a plugin, if it has been enabled */
-    plugin: <T = any>(name: string) => T;
+    plugin: (name: string) => any;
     /** Gimkit's internal react instance */
     get React(): typeof import("react");
     /** Gimkit's internal reactDom instance */

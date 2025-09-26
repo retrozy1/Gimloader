@@ -54,9 +54,9 @@ useRegexes.delete("Api");
 process("Api");
 
 // Create the final output
-let gimloaderTypes = added.map(name => "export " + declarations.get(name)).join("\n\n")
+let gimloaderTypes = added.map(name => declarations.get(name)).join("\n\n")
     .replaceAll("\n    ", "\n");
-let ee2Types = eventEmitterTypes.replace("export declare class", "export class")
+let ee2Types = eventEmitterTypes.replace("export declare class", "class")
     .replace("\n\nexport default EventEmitter2;\n", "");
 
 let declaration =
