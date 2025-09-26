@@ -200,7 +200,9 @@ export default new class Net extends EventEmitter2 {
         this.loaded = true;
         this.gamemode = gamemode;
 
-        const triggers = [gamemode, ...otherTriggers, "*"];
+        log(`Gamemode detected: ${gamemode}`);
+
+        const triggers = [gamemode.toLowerCase(), ...otherTriggers, "*"];
         for(let { callback, gamemodes } of this.loadCallbacks) {
             // Check if the callback isn't for this gamemode
             if(gamemodes.length > 0 && !gamemodes.some(g => triggers.includes(g))) continue;
