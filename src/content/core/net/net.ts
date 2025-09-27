@@ -142,11 +142,10 @@ export default new class Net extends EventEmitter2 {
             let officialGamemode = false;
             try {
                 const options = JSON.parse(GimkitInternals.stores.world.mapOptionsJSON);
-                const parts = options.musicUrl.split("/");
-                const gamemode = parts[parts.length - 2];
+                const gamemode = this.gamemodeFromUrl(options.musicUrl);
                 
                 if(gamemode) {
-                    gamemodeId = gamemode.toLowerCase();
+                    gamemodeId = gamemode;
                     officialGamemode = true;
                 } else if(GimkitInternals.stores.session.version === "saved") {
                     gamemodeId = "creative";
@@ -171,6 +170,15 @@ export default new class Net extends EventEmitter2 {
         );
 
         check();
+    }
+
+    gamemodeFromUrl(url: string) {
+        const parts = url.split("/");
+        for(let i = parts.length - 1; i >= 0; i--) {
+            const part = parts[i].toLowerCase();
+            if(part.includes(".") || part.includes("sound") || part.includes("music")) continue;
+            return part;
+        }
     }
 
     send(channel: string, message: any) {
@@ -198,17 +206,17 @@ export default new class Net extends EventEmitter2 {
 
     onLoad(type: ConnectionType, gamemode: string, ...otherTriggers: string[]) {
         this.loaded = true;
-        this.gamemode = gamemode;
+        this.gamemode = gamemode.toLowerCase();
 
-        log(`Gamemode detected: ${gamemode}`);
+        log(`Gamemode detected: ${this.gamemode}`);
 
-        const triggers = [gamemode.toLowerCase(), ...otherTriggers, "*"];
+        const triggers = [this.gamemode, ...otherTriggers, "*"];
         for(let { callback, gamemodes } of this.loadCallbacks) {
             // Check if the callback isn't for this gamemode
             if(gamemodes.length > 0 && !gamemodes.some(g => triggers.includes(g))) continue;
 
             try {
-                callback(type, gamemode);
+                callback(type, this.gamemode);
             } catch(e) {
                 console.error(e);
             }
