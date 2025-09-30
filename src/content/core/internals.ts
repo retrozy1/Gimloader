@@ -1,8 +1,9 @@
 import EventEmitter2 from "eventemitter2";
 import Rewriter from "./rewriter";
+import type { Stores } from "$types/stores";
 
 export default class GimkitInternals {
-    static stores: any;
+    static stores: Stores;
     static notification: any;
     static platformerPhysics: any;
     static events = new EventEmitter2();

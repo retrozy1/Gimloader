@@ -5,7 +5,6 @@ import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net";
 import Rewriter from "../rewriter";
-import GimkitInternals from "$core/internals";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
@@ -141,13 +140,13 @@ export default new class Net extends EventEmitter2 {
             let gamemodeId = "unknown";
             let officialGamemode = false;
             try {
-                const options = JSON.parse(GimkitInternals.stores.world.mapOptionsJSON);
+                const options = JSON.parse(Internals.stores.world.mapOptionsJSON);
                 const gamemode = this.gamemodeFromUrl(options.musicUrl);
                 
                 if(gamemode) {
                     gamemodeId = gamemode;
                     officialGamemode = true;
-                } else if(GimkitInternals.stores.session.version === "saved") {
+                } else if(Internals.stores.session.version === "saved") {
                     gamemodeId = "creative";
                 }
             } catch(e) {

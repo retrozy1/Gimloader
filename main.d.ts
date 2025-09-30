@@ -20,14 +20,14 @@ declare module '*.svelte' {
 
 declare const GL: typeof import('./src/content/api/api').default;
 /** @deprecated Use GL.stores */
-declare const stores: any;
+declare const stores: import('./src/types/stores').Stores;
 /** @deprecated No longer supported */
 declare const platformerPhysics: any;
 
 interface Window {
     GL: typeof import('./src/content/api/api').default;
     /** @deprecated Use GL.stores */
-    stores: any;
+    stores: import('./src/types/stores').Stores;
     /** @deprecated No longer supported */
     platformerPhysics: any;
 }
