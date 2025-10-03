@@ -157,8 +157,6 @@ class ScopedNetApi extends BaseNetApi {
     }
 }
 
-Object.freeze(EventEmitter2);
-Object.freeze(EventEmitter2.prototype);
 Object.freeze(BaseNetApi);
 Object.freeze(BaseNetApi.prototype);
 Object.freeze(NetApi);
