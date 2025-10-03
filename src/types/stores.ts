@@ -309,20 +309,72 @@ interface Loading {
     percentageAssetsLoaded: number;
 }
 
+interface ActivityFeed {
+    feedItems: any[];
+}
+
+interface Assignment {
+    hasSavedProgress: boolean;
+    objective: string;
+    percentageComplete: number;
+}
+
+interface Editing {
+    accessPoints: Map<any, any>;
+    gridSnap: number;
+    showMemoryBarAtAllTimes: boolean;
+}
+
+interface Hooks {
+    hookJSON: string;
+}
+
+interface Matchmaker {
+    gameCode: string;
+}
+
+interface Network {
+    attemptingToConnect: boolean;
+    attemptingToReconnect: boolean;
+    authId: string;
+    client: any;
+    clientConnectionString: string;
+    error: any;
+    errorFindingServerForGame: boolean;
+    errorJoiningRoom: boolean;
+    failedToReconnect: boolean;
+    findingServerForGame: boolean;
+    hasJoinedRoom: boolean;
+    isOffline: boolean;
+    isUpToDateWithPingPong: boolean;
+    joinedRoom: boolean;
+    phaseBeforeReconnect: any;
+    ping: number;
+    room: any;
+    roomIntentErrorMessage: string;
+    syncingAfterReconnection: boolean;
+}
+
+interface Scene {
+    currentScene: string;
+    gpuTier: number;
+    isCursorOverCanvas: boolean;
+}
+
 export interface StoresType {
-    activityFeed: any;
-    assignment: any;
+    activityFeed: ActivityFeed;
+    assignment: Assignment;
     characters: any;
-    editing: any;
+    editing: Editing;
     gui: any;
-    hooks: any;
+    hooks: Hooks;
     loading: Loading;
-    matchmaker: any;
+    matchmaker: Matchmaker;
     me: Me;
     memorySystem: any;
-    network: any;
+    network: Network;
     phaser: any;
-    scene: any;
+    scene: Scene;
     session: Session;
     teams: any;
     world: World;
