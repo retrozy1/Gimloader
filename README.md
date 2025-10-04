@@ -11,10 +11,10 @@ This is a Gimkit plugin loader and manager, based on a trick first used in [Gimh
 
 ## Usage
 
-At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. Once in the Gimloader menu, you can create or import plugins with the two buttons at the top. You can also easily download official plugins [here](https://thelazysquid.github.io/Gimloader/plugins) with a single click.
+At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. Once in the Gimloader menu, you can create or import plugins with the two buttons at the top. You can also easily download official plugins [here](https://gimloader.github.io/plugins) with a single click.
 
 The Gimloader menu also allows you to manage libraries, which are bits of code that multiple plugins rely on, as well as configure hotkeys for certain plugins.
 
 ## Development
 
-Documentation for the Gimloader api as well as some basics on making plugins can be found at https://thelazysquid.github.io/Gimloader.
+Documentation for the Gimloader api as well as some basics on making plugins can be found at https://gimloader.github.io/development/overview.
