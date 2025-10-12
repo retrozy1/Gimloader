@@ -1,10 +1,22 @@
-import type Scene from '../scene/scene';
+import type Scene from '../scene';
 import type AimingAndLookingAround from './aimingAndLookingAround';
 import type Animation from './animation';
-import type { TeamState, Updates } from './common';
 import type { Coords } from '$types/stores/common';
 import type Movement from './movement';
-import type Physics from './physics/physics';
+import type Physics from './physics';
+
+interface Updates {
+    update: any;
+    updateAlpha: any;
+    updateDepth: any;
+    updatePosition: any;
+    updateScale: any;
+}
+
+interface TeamState {
+    status: string;
+    teamId: string;
+}
 
 interface Alpha {
     character: Character;
@@ -55,7 +67,7 @@ interface Depth {
     updateDepth: any;
 }
 
-interface Dimentions {
+interface Dimensions {
     character: Character;
     currentDimensionsId: string;
     onPotentialDimensionsChange: any;
@@ -239,7 +251,7 @@ export default interface Character {
     culling: Culling;
     depth: Depth;
     destroy: () => void;
-    dimentions: Dimentions;
+    dimensions: Dimensions;
     flip: Flip;
     healthbar: Healthbar;
     id: string;

@@ -1,7 +1,32 @@
-import type Scene from '../../scene/scene';
-import type Character from '../character';
-import type Bodies from './bodies/bodies';
-import type State from './state';
+import type Scene from '../scene';
+import type Character from './character';
+import type { Collider, ColliderDesc, RigidBody, RigidBodyDesc, Vector } from "@dimforge/rapier2d-compat";
+
+interface Jump {
+    actuallyJumped: boolean;
+    isJumping: boolean;
+    jumpCounter: number;
+    jumpTicks: number;
+    jumpsLeft: number;
+    xVelocityAtJumpStart: number;
+}
+
+interface Movement {
+    accelerationTicks: number;
+    direction: string;
+    xVelocity: number;
+}
+
+interface State {
+    forces: any[];
+    gravity: number;
+    grounded: boolean;
+    groundedTicks: number;
+    jump: Jump;
+    lastGroundedAngle: number;
+    movement: Movement;
+    velocity: Vector;
+}
 
 interface Input {
     _jumpKeyPressed: boolean;
@@ -11,6 +36,14 @@ interface Input {
     ignoredTileBodies: Set<any>;
     jump: boolean;
     projectileHitForcesQueue: Set<any>;
+}
+
+interface Bodies {
+    character: Character;
+    collider: Collider;
+    colliderDesc: ColliderDesc;
+    rigidBody: RigidBody;
+    rigidBodyDesc: RigidBodyDesc;
 }
 
 export default interface Physics {

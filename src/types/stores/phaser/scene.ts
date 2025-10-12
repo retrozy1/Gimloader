@@ -1,4 +1,5 @@
-import type Scene from './scene';
+import type Character from './character/character';
+import type { Scene as BaseScene } from "phaser";
 
 interface Overlay {
     hide: any;
@@ -70,10 +71,44 @@ interface Removal {
     update: any;
 }
 
-export default interface ActionManager {
+interface ActionManager {
     depthSort: DepthSort;
     multiSelect: MultiSelect;
     platformerEditing: PlatformerEditing;
     removal: Removal;
     update: any;
+}
+
+interface Spectating {
+    findNewCharacter: any;
+    onBeginSpectating: any;
+    onEndSpectating: any;
+    setShuffle: any;
+}
+
+interface CharacterManager {
+    addCharacter: any;
+    // complex
+    characterContainer: any;
+    characters: Map<string, Character>;
+    cullCharacters: any;
+    removeCharacter: any;
+    scene: Scene;
+    spectating: Spectating;
+    update: any;
+}
+
+export default interface Scene extends BaseScene {
+    actionManager: ActionManager;
+    cameraHelper: any;
+    characterManager: CharacterManager;
+    create: any;
+    dt: number;
+    inputManager: any;
+    resizeManager: any;
+    shadowsManager: any;
+    spine: any;
+    tileManager: any;
+    uiManager: any;
+    worldManager: any;
 }
