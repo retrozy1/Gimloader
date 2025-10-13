@@ -95,7 +95,7 @@
         {plugin?.headers.description}
     {/snippet}
     {#snippet gamemodes()}
-        {#each plugin.headers.gamemode as gamemode}
+        {#each plugin?.headers.gamemode as gamemode}
             {#if Object.keys(modeDescriptions).includes(gamemode.toLowerCase())}
                 <div class="bg-gray-400 px-2 bold rounded-full">{modeDescriptions[gamemode]}</div>
             {:else}
