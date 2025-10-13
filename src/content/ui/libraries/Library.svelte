@@ -57,8 +57,8 @@
     {/snippet}
     {#snippet gamemodes()}
         {#each library?.headers.gamemode as gamemode}
-            {#if Object.keys(modeDescriptions).includes(gamemode.toLowerCase())}
-                <div class="bg-gray-400 px-2 bold rounded-full">{modeDescriptions[gamemode]}</div>
+            {#if gamemode.toLowerCase() in modeDescriptions}
+                <div class="bg-gray-400 px-2 bold rounded-full">{modeDescriptions[gamemode.toLowerCase()]}</div>
             {:else}
                 {@const parsedGamemode = parsedGamemodes.find(gm => gm.id.toLowerCase() === gamemode.toLowerCase())}
                 <img src={parsedGamemode.image} title={parsedGamemode.name} alt={parsedGamemode.name}>
