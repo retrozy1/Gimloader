@@ -11,20 +11,20 @@ interface Jump {
     xVelocityAtJumpStart: number;
 }
 
-interface Movement {
+interface MovementState {
     accelerationTicks: number;
     direction: string;
     xVelocity: number;
 }
 
-interface State {
+interface PhysicsState {
     forces: any[];
     gravity: number;
     grounded: boolean;
     groundedTicks: number;
     jump: Jump;
     lastGroundedAngle: number;
-    movement: Movement;
+    movement: MovementState;
     velocity: Vector;
 }
 
@@ -63,14 +63,14 @@ export default interface Physics {
     physicsBodyId: string;
     postUpdate: any;
     preUpdate: any;
-    prevState: State;
+    prevState: PhysicsState;
     projectileHitForcesHistory: Map<any, any>;
     projectileHitForcesQueue: Set<any>;
     scene: Scene;
     sendToServer: any;
     setServerPosition: any;
     setupBody: any;
-    state: State;
+    state: PhysicsState;
     tickInput: Input;
     updateDebugGraphics: any;
 }

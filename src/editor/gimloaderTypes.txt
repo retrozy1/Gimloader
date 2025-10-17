@@ -1,4 +1,8 @@
 declare namespace Gimloader {
+type BaseScene = import("phaser").Scene;
+interface Vector { x: number; y: number; }
+type Suggestion<T> = { [K in keyof T]: T[K] extends object ? Suggestion<T[K]> : T[K] } & { [key: string | number | symbol]: any };
+
 export type event = (symbol|string);
 export type eventNS = string|event[];
 
@@ -154,6 +158,1159 @@ class EventEmitter2 {
     static defaultMaxListeners: number;
 }
 
+interface Team {
+    characters: Map<number, string>;
+    id: string;
+    name: string;
+    score: number;
+}
+
+interface Teams {
+    teams: Map<string, Team>;
+    updateCounter: number;
+}
+
+interface SceneStore {
+    currentScene: string;
+    gpuTier: number;
+    isCursorOverCanvas: boolean;
+}
+
+interface NetworkStore {
+    attemptingToConnect: boolean;
+    attemptingToReconnect: boolean;
+    authId: string;
+    client: any;
+    clientConnectionString: string;
+    error: any;
+    errorFindingServerForGame: boolean;
+    errorJoiningRoom: boolean;
+    failedToReconnect: boolean;
+    findingServerForGame: boolean;
+    hasJoinedRoom: boolean;
+    isOffline: boolean;
+    isUpToDateWithPingPong: boolean;
+    joinedRoom: boolean;
+    phaseBeforeReconnect: any;
+    ping: number;
+    room: any;
+    roomIntentErrorMessage: string;
+    syncingAfterReconnection: boolean;
+}
+
+interface Matchmaker {
+    gameCode: string;
+}
+
+interface Loading {
+    completedInitialLoad: boolean;
+    loadedInitialDevices: boolean;
+    loadedInitialTerrain: boolean;
+    percentageAssetsLoaded: number;
+}
+
+interface Hooks {
+    hookJSON: string;
+}
+
+interface EditingStore {
+    accessPoints: Map<any, any>;
+    gridSnap: number;
+    showMemoryBarAtAllTimes: boolean;
+}
+
+interface Assignment {
+    hasSavedProgress: boolean;
+    objective: string;
+    percentageComplete: number;
+}
+
+interface ActivityFeed {
+    feedItems: {
+        id: string;
+        message: string;
+    }[];
+}
+
+interface Item {
+    description: string;
+    editorName: string;
+    id: string;
+    name: string;
+    previewImage: string;
+    type: string;
+}
+
+interface OptionSchema {
+    options: any[];
+}
+
+interface CodeGridSchema {
+    allowChannelGrids: boolean;
+    customBlocks: any[];
+    triggers: any[];
+}
+
+interface DeviceOption {
+    codeGridSchema: CodeGridSchema;
+    defaultState: any;
+    id: string;
+    optionSchema: OptionSchema;
+    wireConfig: any;
+}
+
+interface CodeGrids {
+    blockCategories: string;
+    customBlocks: string;
+    customBlocksParsed: any[];
+}
+
+interface WorldOptions {
+    codeGrids: CodeGrids;
+    customAssetsOptions: any[];
+    deviceOptions: DeviceOption[];
+    hasAllProps: boolean;
+    terrainOptions: Item[];
+}
+
+interface VFX {
+    character: Character;
+    damageBoostActive: boolean;
+    phaseActive: boolean;
+    setTintModifier: any;
+    setTransparencyModifier: any;
+    startDamageBoostAnim: any;
+    startPhaseAnim: any;
+    stopDamageBoostAnim: any;
+    stopPhaseAnim: any;
+    tintModifierId: string;
+    transparencyModifierId: string;
+}
+
+interface Tint {
+    character: Character;
+    getTintParams: any;
+    scene: Scene;
+    setTintParams: any;
+    startAnimateTint: any;
+    stopAnimateTint: any;
+    update: any;
+}
+
+interface Skin {
+    applyEditStyles: any;
+    character: Character;
+    editStyles: any;
+    latestSkinId: string;
+    scene: Scene;
+    setupSkin: any;
+    skinId: string;
+    updateSkin: any;
+}
+
+interface Shadow {
+    character: Character;
+    createShadow: any;
+    destroy: any;
+    update: any;
+}
+
+interface Scale {
+    activeScale: number;
+    baseScale: number;
+    character: Character;
+    getCurrentScale: any;
+    onSkinChange: any;
+    respawningScale: number;
+    scaleX: number;
+    scaleY: number;
+    scene: Scene;
+    setScale: any;
+    spectatorScale: number;
+    tweenScale: any;
+    update: any;
+    dependencyScale: number;
+    isVisible: boolean;
+}
+
+interface Position {
+    character: Character;
+    update: () => void;
+}
+
+interface Network {
+    lastAngle: number;
+    lastAngleUpdate: number;
+    updateAimAngle: (angle: number) => void;
+}
+
+interface Nametag {
+    alpha: number;
+    character: Character;
+    createFragilityTag: any;
+    createTag: any;
+    creatingTag: boolean;
+    depth: number;
+    destroy: () => void;
+    destroyed: boolean;
+    followScale: boolean;
+    fragilityTag: any;
+    healthMode: string;
+    makeVisibleChanges: any;
+    name: string;
+    playHideAnimation: () => void;
+    playShowUpAnimation: () => void;
+    scale: number;
+    scene: Scene;
+    setName: (name: string) => void;
+    tag: any;
+    teamState: TeamState;
+    update: any;
+    updateFontColor: any;
+    updateFragility: any;
+    updateTagAlpha: any;
+    updateTagDepth: any;
+    updateTagPosition: any;
+    updateTagScale: any;
+}
+
+interface CharacterInput {
+    character: Character;
+    isListeningForInput: boolean;
+    scene: Scene;
+    setupInput: any;
+}
+
+interface TeamState {
+    status: string;
+    teamId: string;
+}
+
+interface Indicator extends Updates {
+    character: Character;
+    characterHeight: number;
+    depth: number;
+    destroy: () => void;
+    image: any;
+    isMain: boolean;
+    isSpectated: boolean;
+    lastCharacterAlpha: number;
+    makeIndicator: any;
+    scene: Scene;
+    teamState: TeamState;
+}
+
+interface ImpactAnimation {
+    _play: any;
+    animations: Map<any, any>;
+    character: Character;
+    destroy: () => void;
+    load: any;
+    loadedAnimations: Set<string>;
+    play: any;
+    scene: Scene;
+}
+
+interface Immunity {
+    activate: () => void;
+    activateClassImmunity: () => void;
+    activateSpawnImmunity: () => void;
+    character: Character;
+    classImmunityActive: boolean;
+    deactivate: () => void;
+    deactivateClassImmunity: () => void;
+    deactivateSpawnImmunity: () => void;
+    isActive: () => boolean;
+    spawnImmunityActive: boolean;
+}
+
+interface Updates {
+    update: any;
+    updateAlpha: any;
+    updateDepth: any;
+    updatePosition: any;
+    updateScale: any;
+}
+
+interface Healthbar extends Updates {
+    character: Character;
+    depth: number;
+    destroy: () => void;
+    isVisible: boolean;
+    makeIndicator: any;
+    scene: Scene;
+    updateValue: any;
+}
+
+interface Flip {
+    character: Character;
+    flipXLastX: number;
+    isFlipped: boolean;
+    lastX: number;
+    lastY: number;
+    update: () => void;
+    updateFlipForMainCharacter: () => void;
+    updateFlipForOthers: () => void;
+}
+
+interface Dimensions {
+    character: Character;
+    currentDimensionsId: string;
+    onPotentialDimensionsChange: any;
+}
+
+interface Depth {
+    character: Character;
+    currentDepth: number;
+    lastY: number;
+    update: () => void;
+    updateDepth: any;
+}
+
+interface Culling {
+    character: Character;
+    forceUpdate: () => void;
+    hideObject: any;
+    isInCamera: boolean;
+    needsCullUpdate: boolean;
+    onInCamera: any;
+    onOutCamera: any;
+    scene: Scene;
+    shouldForceUpdate: boolean;
+    showObject: any;
+    updateNeedsUpdate: any;
+}
+
+interface CharacterTrail {
+    character: Character;
+    currentAppearance: any;
+    currentAppearanceId: string;
+    destroy: () => void;
+    followCharacter: () => void;
+    isReady: boolean;
+    lastSetAlpha: number;
+    setNewAppearance: any;
+    update: () => void;
+    updateAppearance: any;
+}
+
+interface Alpha {
+    character: Character;
+    cinematicModeAlpha: number;
+    currentAlpha: number;
+    getCurrentAlpha: any;
+    immunity: number;
+    phaseAlpha: number;
+    playerAppearanceModifierDeviceAlpha: number;
+    scene: Scene;
+    setAlpha: any;
+    tweenAlpha: any;
+    update: () => void;
+}
+
+interface Bodies {
+    character: Character;
+    collider: Collider;
+    colliderDesc: ColliderDesc;
+    rigidBody: RigidBody;
+    rigidBodyDesc: RigidBodyDesc;
+}
+
+interface Input {
+    _jumpKeyPressed: boolean;
+    activeClassDeviceId: string;
+    angle: null | number;
+    ignoredStaticBodies: Set<any>;
+    ignoredTileBodies: Set<any>;
+    jump: boolean;
+    projectileHitForcesQueue: Set<any>;
+}
+
+interface MovementState {
+    accelerationTicks: number;
+    direction: string;
+    xVelocity: number;
+}
+
+interface Jump {
+    actuallyJumped: boolean;
+    isJumping: boolean;
+    jumpCounter: number;
+    jumpTicks: number;
+    jumpsLeft: number;
+    xVelocityAtJumpStart: number;
+}
+
+interface PhysicsState {
+    forces: any[];
+    gravity: number;
+    grounded: boolean;
+    groundedTicks: number;
+    jump: Jump;
+    lastGroundedAngle: number;
+    movement: MovementState;
+    velocity: Vector;
+}
+
+interface Physics {
+    character: Character;
+    currentPacketId: number;
+    destroy: () => void;
+    frameInputsHistory: Map<number, Input>;
+    getBody: () => Bodies;
+    justAppliedProjectileHitForces: Set<any>;
+    lastClassDeviceActivationId: number;
+    lastPacketSent: number[];
+    lastSentClassDeviceActivationId: number;
+    lastSentTerrainUpdateId: number;
+    lastTerrainUpdateId: number;
+    newlyAddedTileBodies: Set<any>;
+    phase: boolean;
+    physicsBodyId: string;
+    postUpdate: any;
+    preUpdate: any;
+    prevState: PhysicsState;
+    projectileHitForcesHistory: Map<any, any>;
+    projectileHitForcesQueue: Set<any>;
+    scene: Scene;
+    sendToServer: any;
+    setServerPosition: any;
+    setupBody: any;
+    state: PhysicsState;
+    tickInput: Input;
+    updateDebugGraphics: any;
+}
+
+interface EndInfo {
+    end: number;
+    start: number;
+    x: number;
+    y: number;
+}
+
+interface Point {
+    endTime: number;
+    endX: number;
+    endY: number;
+    startTime: number;
+    startX: number;
+    startY: number;
+    teleported: boolean;
+    usedTeleported: boolean;
+}
+
+interface Movement {
+    character: Character;
+    currentPoint: Point;
+    currentTime: number;
+    getCurrentEndInfo: () => EndInfo;
+    moveToTargetPosition: () => void;
+    nonMainCharacterGrounded: boolean;
+    onMainCharacterTeleport: any;
+    pointMap: Point[];
+    postPhysicsUpdate: any;
+    setNonMainCharacterTargetGrounded: any;
+    setTargetX: any;
+    setTargetY: any;
+    setTeleportCount: any;
+    targetIsDirty: boolean;
+    targetNonMainCharacterGrounded: boolean;
+    targetX: number;
+    targetY: number;
+    teleported: boolean;
+    update: () => void;
+}
+
+interface CharacterState {
+    grounded: boolean;
+}
+
+interface Animation {
+    availableAnimations: string[];
+    blinkTimer: number;
+    bodyAnimationLocked: boolean;
+    bodyAnimationStartedAt: number;
+    character: Character;
+    currentBodyAnimation: string;
+    currentEyeAnimation: string;
+    destroy: () => void;
+    lastGroundedAnimationAt: number;
+    nonMainCharacterState: CharacterState;
+    onAnimationComplete: (callback: () => void) => void;
+    onSkinChanged: any;
+    playAnimationOrClearTrack: any;
+    playBodyAnimation: any;
+    playBodySupplementalAnimation: any;
+    playEyeAnimation: any;
+    playJumpSupplementalAnimation: any;
+    playMovementSupplementalAnimation: any;
+    prevNonMainCharacterState: any;
+    setupAnimations: () => void;
+    skinChanged: boolean;
+    startBlinkAnimation: () => void;
+    stopBlinkAnimation: () => void;
+    update: any;
+}
+
+interface WeaponAsset extends BaseAsset {
+    fireFrames: number[];
+    fromCharacterCenterRadius: number;
+    hideFireSlash: boolean;
+    idleFrames: number;
+    originX: number;
+    originY: number;
+}
+
+interface BaseAsset {
+    frameHeight: number;
+    frameRate: number;
+    frameWidth: number;
+    imageUrl: string;
+    scale: number;
+}
+
+interface ImpactAsset extends BaseAsset {
+    frames: number[];
+    hideIfNoHit: boolean;
+}
+
+interface SoundEffect {
+    path: string;
+    volume: number;
+}
+
+interface CurrentAppearance {
+    explosionSfx: SoundEffect[];
+    fireSfx: SoundEffect[];
+    id: string;
+    impact: ImpactAsset;
+    weapon: WeaponAsset;
+}
+
+interface AimingAndLookingAround {
+    angleTween: any;
+    character: Character;
+    characterShouldFlipX: () => boolean;
+    currentAngle: number;
+    currentAppearance: CurrentAppearance;
+    currentWeaponId?: any;
+    destroy: () => void;
+    isAiming: boolean;
+    isCurrentlyAiming: () => boolean;
+    lastUsedAngle: number;
+    onInventoryStateChange: () => void;
+    playFireAnimation: () => void;
+    setImage: any;
+    setSpriteParams: any;
+    setTargetAngle: any;
+    sprite: any;
+    targetAngle: number;
+    update: () => void;
+    updateAnotherCharacter: any;
+    updateMainCharacterMouse: any;
+    updateMainCharacterTouch: any;
+}
+
+interface Character {
+    aimingAndLookingAround: AimingAndLookingAround;
+    alpha: Alpha;
+    animation: Animation;
+    body: Vector;
+    characterTrail: CharacterTrail;
+    culling: Culling;
+    depth: Depth;
+    destroy: () => void;
+    dimensions: Dimensions;
+    flip: Flip;
+    healthbar: Healthbar;
+    id: string;
+    immunity: Immunity;
+    impactAnimation: ImpactAnimation;
+    indicator: Indicator;
+    input: CharacterInput;
+    isActive: boolean;
+    isDestroyed: boolean;
+    isMain: boolean;
+    movement: Movement;
+    nametag: Nametag;
+    network: Network;
+    physics: Physics;
+    position: Position;
+    prevBody: Vector;
+    scale: Scale;
+    scene: Scene;
+    setIsMain: any;
+    shadow: Shadow;
+    skin: Skin;
+    spine: any;
+    teamId: string;
+    tint: Tint;
+    type: string;
+    update: any;
+    vfx: VFX;
+}
+
+interface Spectating {
+    findNewCharacter: any;
+    onBeginSpectating: any;
+    onEndSpectating: any;
+    setShuffle: any;
+}
+
+interface CharacterManager {
+    addCharacter: any;
+    characterContainer: any;
+    characters: Map<string, Character>;
+    cullCharacters: any;
+    removeCharacter: any;
+    scene: Scene;
+    spectating: Spectating;
+    update: any;
+}
+
+interface Removal {
+    checkForItem: any;
+    createStateListeners: any;
+    overlay: Overlay;
+    prevMouseWasDown: boolean;
+    removeSelectedItems: any;
+    scene: Scene;
+    update: any;
+}
+
+interface PlatformerEditing {
+    setTopDownControlsActive: any;
+}
+
+interface SelectedDevicesOverlay {
+    graphics: any;
+    hide: any;
+    scene: Scene;
+    show: any;
+    showing: boolean;
+}
+
+interface MultiSelect {
+    addDeviceToSelection: any;
+    boundingBoxAroundEverything: any;
+    currentlySelectedDevices: any[];
+    currentlySelectedDevicesIds: string[];
+    endSelectionRect: any;
+    findSelectedDevices: any;
+    hasSomeSelection: any;
+    hideSelection: any;
+    hidingSelectionForDevices: boolean;
+    isSelecting: boolean;
+    modifierKeyDown: boolean;
+    mouseShifts: any[];
+    movedOrCopiedDevices: any[];
+    multiselectDeleteKeyHandler: any;
+    multiselectKeyHandler: any;
+    onDeviceAdded: any;
+    onDeviceRemoved: any;
+    overlay: Overlay;
+    scene: Scene;
+    selectedDevices: any[];
+    selectedDevicesIds: string[];
+    selectedDevicesOverlay: SelectedDevicesOverlay;
+    selection: any;
+    setShiftParams: any;
+    startSelectionRect: any;
+    unselectAll: any;
+    update: any;
+    updateSelectedDevicesOverlay: any;
+    updateSelectionRect: any;
+}
+
+interface Overlay {
+    hide: any;
+    scene: Scene;
+    show: any;
+    showing: boolean;
+    showingDimensions: any;
+    showingPosition: any;
+}
+
+interface DepthSort {
+    overlay: Overlay;
+    scene: Scene;
+    update: any;
+}
+
+interface ActionManager {
+    depthSort: DepthSort;
+    multiSelect: MultiSelect;
+    platformerEditing: PlatformerEditing;
+    removal: Removal;
+    update: any;
+}
+
+interface Scene extends BaseScene {
+    actionManager: ActionManager;
+    cameraHelper: any;
+    characterManager: CharacterManager;
+    create: any;
+    dt: number;
+    inputManager: any;
+    resizeManager: any;
+    shadowsManager: any;
+    spine: any;
+    tileManager: any;
+    uiManager: any;
+    worldManager: any;
+}
+
+interface Phaser {
+    mainCharacter: Character;
+    mainCharacterTeleported: boolean;
+    scene: Scene;
+}
+
+interface Counters {
+    codeGrids: number;
+    collidingTiles: number;
+    customAssets: any;
+    devices: any;
+    nonCollidingTiles: number;
+    wires: number;
+}
+
+interface Costs {
+    codeGrid: number;
+    collidingTile: number;
+    customAssetDefault: number;
+    deviceInitialDefault: number;
+    deviceSubsequentDefault: number;
+    nonCollidingTile: number;
+    wire: number;
+}
+
+interface MemorySystem {
+    costs: Costs;
+    counters: Counters;
+    limits: Limits;
+    maxUsedMemory: number;
+    usedMemoryCost: number;
+}
+
+interface CharacterData {
+    allowWeaponFire: boolean;
+    existsBeforeReconnect: boolean;
+    fragility: number;
+    health: number;
+    id: string;
+    isActive: boolean;
+    lastPlayersTeamId: string;
+    name: string;
+    permissions: Permissions;
+    score: number;
+    teamId: string;
+    type: string;
+}
+
+interface Characters {
+    characters: Map<string, CharacterData>;
+}
+
+interface Tile {
+    collides: boolean;
+    depth: number;
+    terrain: string;
+    x: number;
+    y: number;
+}
+
+interface Terrain {
+    currentTerrainUpdateId: number;
+    modifiedHealth: Map<any, any>;
+    queuedTiles: Map<any, any>;
+    teamColorTiles: Map<any, any>;
+    tiles: Map<string, Tile>;
+}
+
+interface Device {
+    depth: number;
+    deviceOption: any;
+    existsBeforeReconnect: boolean;
+    hooks: any;
+    id: string;
+    isPreview: boolean;
+    layerId: string;
+    name: any;
+    options: any;
+    props: any;
+    x: number;
+    y: number;
+}
+
+interface Devices {
+    codeGrids: Map<string, any>;
+    devices: Map<string, Device>;
+    states: Map<string, any>;
+}
+
+interface World {
+    customAssets: {
+        customAssets: Map<any, any>;
+    };
+    devices: Devices;
+    height: number;
+    width: number;
+    mapOptionsJSON: string;
+    terrain: Terrain;
+    wires: {
+        wires: Map<any, any>;
+    };
+}
+
+interface Modals {
+    closeAllModals: () => void;
+    cosmosModalOpen: boolean;
+    switchToRegisterScreenWhenCosmosModalOpens: boolean;
+}
+
+interface DamageIndicator {
+    show: boolean;
+    /**
+     * `h` for red, `s` for blue, and any other string for yellow.
+     */
+    type: string;
+}
+
+interface BottomInGamePrimaryContent {
+    interactionWantsToBeVisible: boolean;
+    prioritizeInteraction: boolean;
+}
+
+interface Achievement {
+    id: string;
+    key: string;
+    reset: () => void;
+    update: () => void;
+}
+
+interface GUI {
+    achievement: Achievement;
+    bottomInGamePrimaryContent: BottomInGamePrimaryContent;
+    damageIndicator: DamageIndicator;
+    guiSlots: any[];
+    guiSlotsChangeCounter: number;
+    knockoutAlerts: any[];
+    modals: Modals;
+    none: {
+        addMenu: {
+            screen: string;
+        };
+        duringGameScreenVisible: boolean;
+        optionsMenu: {
+            screen: string;
+        };
+        screen: string;
+    };
+    openInputBlockingUI: any[];
+    playersManagerUpdateCounter: number;
+    scale: number;
+    scorebar: any;
+    selectedPlayerId: string;
+    showingGrid: boolean;
+}
+
+interface Permissions {
+    adding: boolean;
+    editing: boolean;
+    manageCodeGrids: boolean;
+    removing: boolean;
+}
+
+interface Widget {
+    id: string;
+    placement: string;
+    statName: string;
+    statValue: number;
+    type: string;
+    y: number;
+}
+
+interface GameSession {
+    callToAction: any;
+    countdownEnd: number;
+    phase: string;
+    resultsEnd: number;
+    widgets: {
+        widgets: Widget[];
+    };
+}
+
+interface Session {
+    allowGoogleTranslate: boolean;
+    amIGameOwner: boolean;
+    canAddGameTime: boolean;
+    cosmosBlocked: boolean;
+    customTeams: {
+        characterToTeamMap: Map<any, any>;
+    };
+    duringTransition: boolean;
+    gameClockDuration: string;
+    gameOwnerId: string;
+    gameSession: GameSession;
+    gameTime: number;
+    gameTimeLastUpdateAt: number;
+    globalPermissions: Permissions;
+    loadingPhase: boolean;
+    mapCreatorRoleLevel: number;
+    mapStyle: string;
+    modeType: string;
+    ownerRole: string;
+    phase: string;
+    phaseChangedAt: number;
+    version: string;
+}
+
+interface ZoneDropOverrides {
+    allowItemDrop: boolean;
+    allowResourceDrop: boolean;
+    allowWeaponDrop: boolean;
+}
+
+interface Xp {
+    additionTimeouts: Map<any, any>;
+    additions: any[];
+    showingLevelUp: boolean;
+}
+
+interface MeSpectating {
+    id: string;
+    name: string;
+    shuffle: boolean;
+}
+
+interface Removing {
+    deviceIdToRemove: any;
+    removingMode: string;
+    removingTilesEraserSize: number;
+    removingTilesLayer: number;
+    removingTilesMode: string;
+    tilesToRemove: any[];
+    wireIdToRemove: any;
+}
+
+interface NonDismissMessage {
+    description: string;
+    title: string;
+}
+
+interface Mood {
+    activeDeviceId: string;
+    vignetteActive: boolean;
+    vignetteStrength: number;
+}
+
+interface MobileControls {
+    left: boolean;
+    right: boolean;
+    up: boolean;
+}
+
+interface InteractiveSlot {
+    clipSize: number;
+    count: number;
+    currentClip: number;
+    durability: number;
+    itemId: string;
+    waiting: boolean;
+    waitingEndTime: number;
+    waitingStartTime: number;
+}
+
+interface Inventory {
+    activeInteractiveSlot: number;
+    alertFeed: any;
+    alertsFeed: any[];
+    currentWaitingEndTime: number;
+    infiniteAmmo: boolean;
+    interactiveSlotErrorMessageTimeouts: Map<any, any>;
+    interactiveSlotErrorMessages: Map<any, any>;
+    interactiveSlots: Map<string, InteractiveSlot>;
+    interactiveSlotsOrder: number[];
+    isCurrentWaitingSoundForItem: boolean;
+    lastShotsTimestamps: Map<any, any>;
+    maxSlots: number;
+    slots: Map<any, any>;
+}
+
+interface Interactives {
+    deviceId: string;
+    info: any;
+}
+
+interface Health {
+    fragility: number;
+    health: number;
+    lives: number;
+    maxHealth: number;
+    maxShield: number;
+    shield: number;
+}
+
+interface DeviceUI {
+    current: {
+        deviceId: string;
+        props: any;
+    };
+    desiredOpenDeviceId: any;
+    serverVersionOpenDeviceId: string;
+}
+
+interface CustomAssets {
+    currentData: any;
+    currentIcon: any;
+    currentId: any;
+    currentName: any;
+    currentOptionId: any;
+    isUIOpen: boolean;
+    openOptionId: any;
+    pendingDeleteId: any;
+    showDeleteConfirm: boolean;
+}
+
+interface Context {
+    cursorIsOverCharacterId: string;
+    __devicesUnderCursor: any[];
+    __wiresUnderCursor: Set<any>;
+}
+
+interface ClassDesigner {
+    activeClassDeviceId: string;
+    lastActivatedClassDeviceId: string;
+    lastClassDeviceActivationId: number;
+}
+
+interface CinematicMode {
+    charactersVisible: boolean;
+    enabled: boolean;
+    followingMainCharacter: boolean;
+    hidingGUI: boolean;
+    mainCharacterVisible: boolean;
+    nameTagsVisible: boolean;
+}
+
+interface AddingWires {
+    hoveringOverSupportedDevice: boolean;
+    pointUnderMouseDeviceId: any;
+    startDeviceSelected: boolean;
+}
+
+interface AddingTerrain {
+    brushSize: number;
+    buildTerrainAsWall: boolean;
+    currentlySelectedTerrain: string;
+    currentlySelectedTerrainDepth: number;
+}
+
+interface ExistingDevice {
+    action: string;
+    id: string;
+    shiftX: number;
+    shiftY: number;
+    use: boolean;
+}
+
+interface AddingDevices {
+    currentlySelectedProp: string;
+    existingDevice: ExistingDevice;
+    selectedDeviceType: string;
+}
+
+interface Adding {
+    devices: AddingDevices;
+    terrain: AddingTerrain;
+    wires: AddingWires;
+    mode: string;
+}
+
+interface EditingPreferences {
+    cameraZoom: number;
+    movementSpeed: any;
+    phase: any;
+    showGrid: any;
+    topDownControlsActive: boolean;
+}
+
+interface EditingDevice {
+    currentlyEditedDevice: any;
+    currentlyEditedGridId: string;
+    currentlySortedDeviceId: string;
+    screen: string;
+    sortingState: any[];
+    usingMultiselect: boolean;
+    visualEditing: any;
+}
+
+interface Editing {
+    device: EditingDevice;
+    preferences: EditingPreferences;
+    wire: {
+        currentlyEditedWireId: string;
+    };
+}
+
+interface Me {
+    adding: Adding;
+    cinematicMode: CinematicMode;
+    classDesigner: ClassDesigner;
+    completedInitialPlacement: boolean;
+    context: Context;
+    currentAction: string;
+    customAssets: CustomAssets;
+    deviceUI: DeviceUI;
+    editing: Editing;
+    gotKicked: boolean;
+    health: Health;
+    interactives: Interactives;
+    inventory: Inventory;
+    isRespawning: boolean;
+    mobileControls: MobileControls;
+    mood: Mood;
+    movementSpeed: number;
+    myTeam: string;
+    nonDismissMessage: NonDismissMessage;
+    phase: boolean;
+    preferences: {
+        startGameWithMode: string;
+    };
+    properties: Map<string, any>;
+    removing: Removing;
+    roleLevel: number;
+    spawnPosition: Vector;
+    spectating: MeSpectating;
+    teleportCount: number;
+    unredeemeedXP: number;
+    xp: Xp;
+    zoneDropOverrides: ZoneDropOverrides;
+}
+
+interface StoresType {
+    activityFeed: ActivityFeed;
+    assignment: Assignment;
+    characters: Characters;
+    editing: EditingStore;
+    gui: GUI;
+    hooks: Hooks;
+    loading: Loading;
+    matchmaker: Matchmaker;
+    me: Me;
+    memorySystem: MemorySystem;
+    network: NetworkStore;
+    phaser: Phaser;
+    scene: SceneStore;
+    session: Session;
+    teams: Teams;
+    world: World;
+    worldOptions: WorldOptions;
+}
+
+type Stores = Suggestion<StoresType>;
+
 class PluginsApi {
     /** A list of all the plugins installed */
     get list(): string[];
@@ -232,6 +1389,17 @@ class ScopedRewriterApi {
     createShared(id: string, value: any): string;
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(id: string): void;
+}
+
+interface Limits {
+    blocksPerCodeGrid: number;
+    codeGrids: number;
+    codeGridsPerDevice: number;
+    collidingTiles: number;
+    customAssetOnMapDefault: number;
+    deviceMaxOnMapDefault: number;
+    nonCollidingTiles: number;
+    wires: number;
 }
 
 class RewriterApi {
@@ -383,6 +1551,16 @@ class UIApi extends BaseUIApi {
     addStyles(id: string, style: string): () => void;
     /** Remove all styles with a given id */
     removeStyles(id: string): void;
+}
+
+class UI {
+    static React: typeof React;
+    static ReactDOM: typeof ReactDOM;
+    static styles: Map<string, HTMLStyleElement[]>;
+    static init(): void;
+    static addStyles(id: string | null, styleString: string): () => void;
+    static removeStyles(id: string): void;
+    static addCoreStyles(): void;
 }
 
 class ScopedNetApi extends BaseNetApi {
@@ -626,7 +1804,7 @@ class Api {
     /** Gimkit's internal reactDom instance */
     static get ReactDOM(): typeof import("react-dom/client");
     /** A variety of Gimkit internal objects available in 2d gamemodes */
-    static get stores(): any;
+    static get stores(): Stores;
     /**
      * Gimkit's notification object, only available when joining or playing a game
      *
@@ -695,7 +1873,7 @@ class Api {
     /** Gimkit's internal reactDom instance */
     get ReactDOM(): typeof import("react-dom/client");
     /** A variety of gimkit internal objects available in 2d gamemodes */
-    get stores(): any;
+    get stores(): Stores;
     /**
      * Gimkit's notification object, only available when joining or playing a game
      *

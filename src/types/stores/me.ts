@@ -1,5 +1,5 @@
-import type { Coords } from './common';
 import type { Editing } from "./editing";
+import type { Vector } from "@dimforge/rapier2d-compat";
 
 interface ExistingDevice {
     action: string;
@@ -142,7 +142,7 @@ interface Removing {
     wireIdToRemove: any;
 }
 
-interface Spectating {
+interface MeSpectating {
     id: string;
     name: string;
     shuffle: boolean;
@@ -185,8 +185,8 @@ export default interface Me {
     properties: Map<string, any>;
     removing: Removing;
     roleLevel: number;
-    spawnPosition: Coords;
-    spectating: Spectating;
+    spawnPosition: Vector;
+    spectating: MeSpectating;
     teleportCount: number;
     unredeemeedXP: number;
     xp: Xp;

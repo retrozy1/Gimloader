@@ -1,5 +1,4 @@
 import type Character from './character';
-import type { Coords } from '$types/stores/common';
 
 interface Point {
     endTime: number;
@@ -12,9 +11,11 @@ interface Point {
     usedTeleported: boolean;
 }
 
-interface EndInfo extends Coords {
+interface EndInfo {
     end: number;
     start: number;
+    x: number;
+    y: number;
 }
 
 export default interface Movement {

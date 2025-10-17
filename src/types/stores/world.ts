@@ -1,6 +1,4 @@
-import type { Coords } from './common';
-
-interface Device extends Coords {
+interface Device {
     depth: number;
     deviceOption: any;
     existsBeforeReconnect: boolean;
@@ -11,6 +9,8 @@ interface Device extends Coords {
     name: any;
     options: any;
     props: any;
+    x: number;
+    y: number;
 }
 
 interface Devices {
@@ -19,10 +19,12 @@ interface Devices {
     states: Map<string, any>;
 }
 
-interface Tile extends Coords {
+interface Tile {
     collides: boolean;
     depth: number;
     terrain: string;
+    x: number;
+    y: number;
 }
 
 interface Terrain {

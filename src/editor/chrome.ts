@@ -14,7 +14,13 @@ self.MonacoEnvironment = {
 	}
 };
 
-console.log(types);
+const loadLib = async (url: string, path: string) => {
+	const res = await fetch(url);
+	const text = await res.text();
+	monaco.languages.typescript.javascriptDefaults.addExtraLib(text);
+}
+
+loadLib("https://unpkg.com/phaser@3.90.0/types/phaser.d.ts", "@types/phaser/phaser.d.ts");
 monaco.languages.typescript.javascriptDefaults.addExtraLib(types, "@types/gimloader/gimloader.d.ts");
 
 let style = document.createElement("style");

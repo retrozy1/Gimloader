@@ -22,7 +22,7 @@ interface Assignment {
     percentageComplete: number;
 }
 
-interface Editing {
+interface EditingStore {
     accessPoints: Map<any, any>;
     gridSnap: number;
     showMemoryBarAtAllTimes: boolean;
@@ -43,7 +43,7 @@ interface Matchmaker {
     gameCode: string;
 }
 
-interface Network {
+interface NetworkStore {
     attemptingToConnect: boolean;
     attemptingToReconnect: boolean;
     authId: string;
@@ -65,14 +65,21 @@ interface Network {
     syncingAfterReconnection: boolean;
 }
 
-interface Scene {
+interface SceneStore {
     currentScene: string;
     gpuTier: number;
     isCursorOverCanvas: boolean;
 }
 
+interface Team {
+    characters: Map<number, string>;
+    id: string;
+    name: string;
+    score: number;
+}
+
 interface Teams {
-    teams: any;
+    teams: Map<string, Team>;
     updateCounter: number;
 }
 
@@ -80,16 +87,16 @@ export interface StoresType {
     activityFeed: ActivityFeed;
     assignment: Assignment;
     characters: Characters;
-    editing: Editing;
+    editing: EditingStore;
     gui: GUI;
     hooks: Hooks;
     loading: Loading;
     matchmaker: Matchmaker;
     me: Me;
     memorySystem: MemorySystem;
-    network: Network;
+    network: NetworkStore;
     phaser: Phaser;
-    scene: Scene;
+    scene: SceneStore;
     session: Session;
     teams: Teams;
     world: World;

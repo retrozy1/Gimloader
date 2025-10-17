@@ -1,7 +1,7 @@
 import type Scene from '../scene';
 import type AimingAndLookingAround from './aimingAndLookingAround';
 import type Animation from './animation';
-import type { Coords } from '$types/stores/common';
+import type { Vector } from "@dimforge/rapier2d-compat";
 import type Movement from './movement';
 import type Physics from './physics';
 
@@ -133,7 +133,7 @@ interface Indicator extends Updates {
     teamState: TeamState;
 }
 
-interface Input {
+interface CharacterInput {
     character: Character;
     isListeningForInput: boolean;
     scene: Scene;
@@ -246,7 +246,7 @@ export default interface Character {
     aimingAndLookingAround: AimingAndLookingAround;
     alpha: Alpha;
     animation: Animation;
-    body: Coords;
+    body: Vector;
     characterTrail: CharacterTrail;
     culling: Culling;
     depth: Depth;
@@ -258,7 +258,7 @@ export default interface Character {
     immunity: Immunity;
     impactAnimation: ImpactAnimation;
     indicator: Indicator;
-    input: Input;
+    input: CharacterInput;
     isActive: boolean;
     isDestroyed: boolean;
     isMain: boolean;
@@ -267,7 +267,7 @@ export default interface Character {
     network: Network;
     physics: Physics;
     position: Position;
-    prevBody: Coords;
+    prevBody: Vector;
     scale: Scale;
     scene: Scene;
     setIsMain: any;

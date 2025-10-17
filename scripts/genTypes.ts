@@ -6,13 +6,15 @@ let eventEmitterTypes = fs.readFileSync("node_modules/eventemitter2/eventemitter
 // get types for Gimloader
 await $`bun run buildTypes`;
 let types = fs.readFileSync("types.d.ts").toString();
-fs.rmSync("types.d.ts");
+// fs.rmSync("types.d.ts");
+
+types = types.replaceAll(`import("$types/stores/stores").`, "");
 
 // Gather all the variable/type declarations
 const declarations = new Map<string, string>();
-const interfaceDeclaration = /    (?:export )?(interface ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
-const classDeclaration = /    (?:export )?(class ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
-const typeDeclaration = /    (?:export )?(type ([A-Z]\S+) .+)/g;
+const interfaceDeclaration = /    (?:export )?(?:default )?(interface ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
+const classDeclaration = /    (?:export )?(?:default )?(class ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
+const typeDeclaration = /    (?:export )?(?:default )?(type ([A-Z]\S+) .+)/g;
 
 let match: RegExpExecArray | null;
 const addDeclaration = () => {
@@ -74,8 +76,13 @@ interface Window {
     stores: any;
     /** @deprecated No longer supported */
     platformerPhysics: any;
-}`
+}`;
 
-let output = "declare namespace Gimloader {\n" + ee2Types + "\n\n" + gimloaderTypes + "\n}\n\n" + declaration;
+let header =
+`type BaseScene = import("phaser").Scene;
+interface Vector { x: number; y: number; }
+type Suggestion<T> = { [K in keyof T]: T[K] extends object ? Suggestion<T[K]> : T[K] } & { [key: string | number | symbol]: any };`;
+
+let output = "declare namespace Gimloader {\n" + header + "\n\n" + ee2Types + "\n\n" + gimloaderTypes + "\n}\n\n" + declaration;
 
 fs.writeFileSync("src/editor/gimloaderTypes.txt", output);

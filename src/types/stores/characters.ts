@@ -5,7 +5,7 @@ interface Permissions {
     removing: boolean;
 }
 
-interface Character {
+interface CharacterData {
     allowWeaponFire: boolean;
     existsBeforeReconnect: boolean;
     fragility: number;
@@ -21,5 +21,5 @@ interface Character {
 }
 
 export default interface Characters {
-    characters: Map<string, Character>;
+    characters: Map<string, CharacterData>;
 }
