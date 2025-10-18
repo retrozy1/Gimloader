@@ -14,17 +14,16 @@
     import BookSettings from "svelte-material-icons/BookSettings.svelte";
     import Update from "svelte-material-icons/Update.svelte";
     import Cog from "svelte-material-icons/Cog.svelte";
+    import CogPlayOutline from "svelte-material-icons/CogPlayOutline.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertCircleOutline from 'svelte-material-icons/AlertCircleOutline.svelte';
     import { showEditor } from "$content/utils";
-    import type { ParsedGamemode } from '$content/core/ui/ui';
-    import modeDescriptions from '../modeDescriptions';
+    import UI from '$core/ui/ui';
 
     interface Props {
         startDrag: () => void;
         dragDisabled: boolean;
         plugin: Plugin;
-        gamemodes: ParsedGamemode[];
         dragAllowed: boolean;
     }
 
@@ -32,7 +31,6 @@
         startDrag,
         dragDisabled,
         plugin,
-        gamemodes: parsedGamemodes,
         dragAllowed
     }: Props = $props();
 
@@ -59,6 +57,7 @@
     }
 
     let libInfoOpen = $state(false);
+    let gamemodeInfoOpen = $state(false);
 
     let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
     const SvelteComponent = $derived(component);
@@ -71,6 +70,10 @@
         title={`Libraries used by ${plugin.headers.name}`}>
         <PluginLibrariesInfo {plugin} />
     </Modal>
+{/if}
+
+{#if gamemodeInfoOpen}
+    
 {/if}
 
 <SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed} error={plugin?.errored}>
@@ -94,16 +97,6 @@
     {#snippet description()}
         {plugin?.headers.description}
     {/snippet}
-    {#snippet gamemodes()}
-        {#each plugin?.headers.gamemode as gamemode}
-            {#if gamemode.toLowerCase() in modeDescriptions}
-                <div class="bg-gray-400 px-2 bold rounded-full">{modeDescriptions[gamemode.toLowerCase()]}</div>
-            {:else}
-                {@const parsedGamemode = parsedGamemodes.find(gm => gm.id.toLowerCase() === gamemode.toLowerCase())}
-                <img src={parsedGamemode.image} title={parsedGamemode.name} alt={parsedGamemode.name}>
-            {/if}
-        {/each}
-    {/snippet}
     {#snippet buttons()}
         <button onclick={() => deletePlugin(plugin)}>
             <Delete size={28} />
@@ -119,6 +112,17 @@
             <Cog size={28} class="opacity-50" title={plugin?.enabled ?
                 "This plugin's settings menu is missing/invalid" :
                 'Plugins need to be enabled to open settings'} />
+        {/if}
+        {#if plugin?.headers.gamemode}
+            {#await UI.gamemodesRes}
+                <CogPlayOutline size={28} class="opacity-50" title="Loading gamemodes..." />
+            {:then}
+                <button onclick={() => gamemodeInfoOpen = true} title="Configure gamemodes">
+                    <CogPlayOutline size={28} />
+                </button>
+            {:catch}
+                <CogPlayOutline color="red" class="opacity-50" title="Gamemodes failed to load" />
+            {/await}
         {/if}
         {#if plugin?.headers.downloadUrl}
             <button onclick={() => checkPluginUpdate(plugin)}>

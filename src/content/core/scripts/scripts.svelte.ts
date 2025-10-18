@@ -4,6 +4,7 @@ import type { ScriptHeaders } from "$types/scripts";
 import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";
+import type { Gamemodes } from "$types/state";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -158,9 +159,8 @@ export class Plugin extends BaseScript {
     enablePromise: Promise<void> | null = null;
     errored = $state(false);
 
-    constructor(script: string, enabled = true) {
+    constructor(script: string, enabled = true, public gamemodes?: Gamemodes) {
         super(script);
-
         this.enabled = enabled;
     }
 

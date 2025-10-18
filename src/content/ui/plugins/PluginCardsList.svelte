@@ -16,6 +16,7 @@
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
     import UI from '$content/core/ui/ui';
+    import type { Experiences } from "$types/fetch";
 
     interface Props {
         onDrop: (callback: (text: string) => void) => void
@@ -26,6 +27,16 @@
     onDrop((text: string) => {
         PluginManager.createPlugin(text);
     });
+
+    UI.gamemodesRes ??= fetch("/api/experiences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "mode": "liveGame",
+            "forceUpgradedExperiences": false
+        })
+    })
+        .then<Experiences>(res => res.json());
     
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
@@ -126,7 +137,6 @@
             or import or create your own.
         </h2>
     {/if}
-    {#await UI.gamemodesRes then gamemodes}
         <div
             class="overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
             use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
@@ -137,10 +147,9 @@
                 {#each items as item (item.id)}
                     {@const plugin = PluginManager.getPlugin(item.id)}
                     <div animate:flip={{ duration: flipDurationMs }}>
-                        <Plugin {plugin} {gamemodes} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
+                        <Plugin {plugin} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
                     </div>
                 {/each}
             {/key}
         </div>
-    {/await}
 </div>

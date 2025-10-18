@@ -9,6 +9,7 @@ export default class PluginsHandler {
         Server.on("pluginCreate", this.onPluginCreate.bind(this));
         Server.on("pluginDelete", this.onPluginDelete.bind(this));
         Server.on("pluginToggled", this.onPluginToggled.bind(this));
+        Server.on("pluginGamemodes", this.onPluginGamemodes.bind(this));
         Server.on("pluginsArrange", this.onPluginsArrange.bind(this));
         Server.on("pluginsSetAll", this.onPluginsSetAll.bind(this));
         Server.on("pluginsDeleteAll", this.onPluginsDeleteAll.bind(this));
@@ -42,6 +43,12 @@ export default class PluginsHandler {
     static onPluginToggled(state: State, message: StateMessages["pluginToggled"]) {
         let toggle = state.plugins.find(p => p.name === message.name);
         toggle.enabled = message.enabled;
+        this.save();
+    }
+
+    static onPluginGamemodes(state: State, message: StateMessages["pluginGamemodes"]) {
+        let plugin = state.plugins.find(p => p.name === message.name);
+        plugin.gamemodes = message.gamemodes;
         this.save();
     }
     

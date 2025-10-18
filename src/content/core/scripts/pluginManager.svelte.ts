@@ -24,6 +24,7 @@ export default new class PluginManager {
         Port.on("pluginCreate", ({ script }) => this.createPlugin(script, false));
         Port.on("pluginDelete", ({ name }) => this.deletePlugin(name, false));
         Port.on("pluginToggled", ({ name, enabled }) => this.setEnabled(name, enabled, false));
+        Port.on("pluginGamemodes", ({ name, gamemodes }) => this.setGamemodes(name, gamemodes, false));
         Port.on("pluginsArrange", ({ order }) => this.arrangePlugins(order, false));
         Port.on("pluginsSetAll", ({ enabled }) => this.setAll(enabled, false));
         Port.on("pluginsDeleteAll", () => this.deleteAll(false));
@@ -272,5 +273,13 @@ export default new class PluginManager {
         }
 
         if(emit) Rewriter.invalidate();
+    }
+
+    setGamemodes(name: Plugin | string, gamemodes: string[], emit = true) {
+        let plugin = typeof name === "string" ? this.getPlugin(name) : name;
+        if(!plugin) return;
+
+        plugin.gamemodes = gamemodes;
+        if(emit) Port.send("pluginGamemodes", { name: plugin.headers.name, gamemodes });
     }
 }

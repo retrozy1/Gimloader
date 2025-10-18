@@ -1,9 +1,20 @@
 import type { HotkeyTrigger } from "./hotkeys";
 
+export interface Gamemodes {
+    official?: string[];
+    creative?: {
+        // This allows users to switch back
+        mode: "whitelist" | "blacklist" | "all";
+        whitelist: string[];
+        blacklist: string[];
+    };
+}
+
 export interface PluginInfo {
     script: string;
     name: string;
     enabled: boolean;
+    gamemodes?: Gamemodes;
 }
 
 export interface LibraryInfo {
