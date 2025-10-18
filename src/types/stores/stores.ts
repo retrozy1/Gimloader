@@ -83,7 +83,8 @@ interface Teams {
     updateCounter: number;
 }
 
-export interface StoresType {
+/** The stores type is incomplete and is not guaranteed to be accurate */
+export interface Stores {
     activityFeed: ActivityFeed;
     assignment: Assignment;
     characters: Characters;
@@ -102,8 +103,3 @@ export interface StoresType {
     world: World;
     worldOptions: WorldOptions;
 }
-
-type Suggestion<T> = { [K in keyof T]: T[K] extends object ? Suggestion<T[K]> : T[K] } & { [key: string | number | symbol]: any };
-
-/** The stores type is very incomplete and is not guaranteed to be accurate */
-export type Stores = Suggestion<StoresType>;

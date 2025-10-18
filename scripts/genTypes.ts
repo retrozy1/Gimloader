@@ -6,7 +6,7 @@ let eventEmitterTypes = fs.readFileSync("node_modules/eventemitter2/eventemitter
 // get types for Gimloader
 await $`bun run buildTypes`;
 let types = fs.readFileSync("types.d.ts").toString();
-// fs.rmSync("types.d.ts");
+fs.rmSync("types.d.ts");
 
 types = types.replaceAll(`import("$types/stores/stores").`, "");
 
@@ -31,7 +31,7 @@ while(match = typeDeclaration.exec(types)) addDeclaration();
 const useRegexes = new Map<string, RegExp>();
 
 for(let name of declarations.keys()) {
-    const regex = new RegExp(`[ <]${name}[^a-zA-Z0-9_]`, "g");
+    const regex = new RegExp(`[ <]${name}[^a-zA-Z0-9_:]`, "g");
     useRegexes.set(name, regex);
 }
 
@@ -65,7 +65,7 @@ let declaration =
 `declare const api: Gimloader.Api;
 declare const GL: typeof Gimloader.Api;
 /** @deprecated Use GL.stores */
-declare const stores: any;
+declare const stores: Gimloader.Stores;
 /** @deprecated No longer supported */
 declare const platformerPhysics: any;
 
@@ -73,15 +73,14 @@ interface Window {
     api: Gimloader.Api;
     GL: typeof Gimloader.Api;
     /** @deprecated Use GL.stores */
-    stores: any;
+    stores: Gimloader.Stores;
     /** @deprecated No longer supported */
     platformerPhysics: any;
 }`;
 
 let header =
 `type BaseScene = import("phaser").Scene;
-interface Vector { x: number; y: number; }
-type Suggestion<T> = { [K in keyof T]: T[K] extends object ? Suggestion<T[K]> : T[K] } & { [key: string | number | symbol]: any };`;
+interface Vector { x: number; y: number; }`;
 
 let output = "declare namespace Gimloader {\n" + header + "\n\n" + ee2Types + "\n\n" + gimloaderTypes + "\n}\n\n" + declaration;
 
