@@ -12,11 +12,24 @@ interface BottomInGamePrimaryContent {
 
 interface DamageIndicator {
     show: boolean;
-
-    /**
-     * `h` for red, `s` for blue, and any other string for yellow.
-     */
+    /** `h` for red, `s` for blue, and any other string for yellow. */
     type: string;
+}
+
+interface GuiSlot {
+    id: string;
+    position: string;
+    text: string;
+    trackedItemId: any;
+    showTrackedItemMaximumAmount: boolean;
+    type: string;
+    priority: number;
+    color: string;
+}
+
+interface KnockoutAlert {
+    id: string;
+    name: string;
 }
 
 interface Modals {
@@ -25,29 +38,31 @@ interface Modals {
     switchToRegisterScreenWhenCosmosModalOpens: boolean;
 }
 
+interface NoneGui {
+    addMenu: { screen: string };
+    duringGameScreenVisible: boolean;
+    optionsMenu: { screen: string };
+    screen: string;
+}
+
+interface Scorebar {
+    teamColors: string[];
+    teams: string[];
+}
+
 export default interface GUI {
     achievement: Achievement;
     bottomInGamePrimaryContent: BottomInGamePrimaryContent;
     damageIndicator: DamageIndicator;
-    guiSlots: any[];
+    guiSlots: GuiSlot[];
     guiSlotsChangeCounter: number;
-    knockoutAlerts: any[];
+    knockoutAlerts: KnockoutAlert[];
     modals: Modals;
-    none: {
-        addMenu: {
-            screen: string;
-        };
-        duringGameScreenVisible: boolean;
-        optionsMenu: {
-            screen: string;
-        };
-        screen: string;
-        
-    };
-    openInputBlockingUI: any[];
+    none: NoneGui;
+    openInputBlockingUI: string[];
     playersManagerUpdateCounter: number;
     scale: number;
-    scorebar: any;
+    scorebar?: Scorebar;
     selectedPlayerId: string;
     showingGrid: boolean;
 }

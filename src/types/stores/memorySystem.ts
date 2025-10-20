@@ -11,8 +11,8 @@ interface Costs {
 interface Counters {
     codeGrids: number;
     collidingTiles: number;
-    customAssets: any;
-    devices: any;
+    customAssets: Map<string, number>;
+    devices: Map<string, number>;
     nonCollidingTiles: number;
     wires: number;
 }

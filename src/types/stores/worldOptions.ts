@@ -12,29 +12,134 @@ interface CodeGridSchema {
 
 interface OptionSchema {
     options: any[];
+    categories?: any[];
 }
 
 interface DeviceOption {
-    codeGridSchema: CodeGridSchema;
-    defaultState: any;
-    id: string;
-    optionSchema: OptionSchema;
-    wireConfig: any;
-}
-
-interface Item {
-    description: string;
-    editorName: string;
     id: string;
     name: string;
-    previewImage: string;
+    description?: string;
+    optionSchema: OptionSchema;
+    defaultState: any;
+    codeGridSchema: CodeGridSchema;
+    wireConfig?: any;
+    minimumRoleLevel?: number;
+    maxOnMap?: number;
+    initialMemoryCost?: number;
+    subsequentMemoryCost?: number;
+    supportedMapStyles?: string[];
+    seasonTicketRequired?: boolean;
+    maximumRoleLevel?: number;
+}
+
+interface ItemOption {
     type: string;
+    id: string;
+    name: string;
+    editorName: string;
+    description: string;
+    previewImage: string;
+    rarity?: string;
+    weapon?: Weapon;
+    minimumRoleLevel?: number;
+    useCommand?: string;
+    consumeType?: string;
+    terrainId?: string;
+    maxStackSize?: number;
+}
+
+interface Weapon {
+    type: string;
+    appearance: string;
+    shared: WeaponShared;
+    bullet?: { ammoItemId: string };
+}
+
+interface WeaponShared {
+    cooldownBetweenShots: number;
+    allowAutoFire: boolean;
+    startingProjectileDistanceFromCharacter: number;
+}
+
+interface PropOption {
+    id: string;
+    name: string;
+    scaleMultip: number;
+    originX: number;
+    originY: number;
+    imageUrl: string;
+    rectColliders: RectCollider[];
+    circleColliders: CircleCollider[];
+    ellipseColliders: EllipseCollider[];
+    shadows: Shadow[];
+    seasonTicketRequired?: boolean;
+    minimumRoleLevel?: number;
+    defaultLayer?: string;
+}
+
+export interface RectCollider {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    angle: number;
+}
+
+export interface CircleCollider {
+    x: number;
+    y: number;
+    r: number;
+}
+
+export interface EllipseCollider {
+    x: number;
+    y: number;
+    r1: number;
+    r2: number;
+    angle?: number;
+}
+
+export interface Shadow {
+    x: number;
+    y: number;
+    r1: number;
+    r2: number;
+}
+
+interface SkinOption {
+    id: string;
+    name: string;
+    minimumRoleLevel?: number;
+}
+
+export interface TerrainOption {
+    id: string;
+    name: string;
+    maskTilesUrl: string;
+    borderTilesUrl: string;
+    fillUrl: string;
+    blockedMapStyles?: string[];
+    seasonTicketRequired?: boolean;
+    previewUrl: string;
+    health?: number;
+    minimumRoleLevel?: number;
+}
+
+interface CustomAssetOption {
+    id: string;
+    maxOnMap: number;
+    memoryCost: number;
+    minimumRoleLevel?: number;
+    validate: any;
 }
 
 export default interface WorldOptions {
     codeGrids: CodeGrids;
-    customAssetsOptions: any[];
+    customAssetsOptions: CustomAssetOption[];
     deviceOptions: DeviceOption[];
     hasAllProps: boolean;
-    terrainOptions: Item[];
+    itemOptions: ItemOption[];
+    propsOptions: PropOption[];
+    skinOptions: SkinOption[];
+    terrainOptions: TerrainOption[];
 }

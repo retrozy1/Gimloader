@@ -1,4 +1,5 @@
-import type Character from './character';
+import type Character from '../character';
+import type { Tweens, GameObjects } from 'phaser';
 
 interface SoundEffect {
     path: string;
@@ -15,7 +16,7 @@ interface BaseAsset {
 
 interface ImpactAsset extends BaseAsset {
     frames: number[];
-    hideIfNoHit: boolean;
+    hideIfNoHit?: boolean;
 }
 
 interface WeaponAsset extends BaseAsset {
@@ -27,36 +28,42 @@ interface WeaponAsset extends BaseAsset {
     originY: number;
 }
 
+interface Projectile {
+    imageUrl: string;
+    rotateToTarget: boolean;
+    scale: number;
+}
+
 interface CurrentAppearance {
+    id: string;
     explosionSfx: SoundEffect[];
     fireSfx: SoundEffect[];
-    id: string;
-    //TODO: get these for other gamemodes
     impact: ImpactAsset;
+    projectile: Projectile;
+    reloadSfx: SoundEffect;
     weapon: WeaponAsset;
 }
 
 export default interface AimingAndLookingAround {
-    angleTween: any;
+    angleTween?: Tweens.Tween;
     character: Character;
-    characterShouldFlipX: () => boolean;
-    currentAngle: number;
-    currentAppearance: CurrentAppearance;
-    currentWeaponId?: any;
-    destroy: () => void;
+    currentAngle?: number;
+    currentAppearance?: CurrentAppearance;
+    currentWeaponId?: string;
     isAiming: boolean;
-    isCurrentlyAiming: () => boolean;
     lastUsedAngle: number;
+    sprite: GameObjects.Sprite;
+    targetAngle?: number;
+    characterShouldFlipX: () => boolean;
+    destroy: () => void;
+    isCurrentlyAiming: () => boolean;
     onInventoryStateChange: () => void;
     playFireAnimation: () => void;
-    setImage: any;
-    setSpriteParams: any;
-    setTargetAngle: any;
-    //Complex phaser interface
-    sprite: any;
-    targetAngle: number;
+    setImage: (appearance: CurrentAppearance) => void;
+    setSpriteParams: (skipRecalculateAlpha: boolean) => void;
+    setTargetAngle: (angle: number, instant?: boolean) => void;
     update: () => void;
-    updateAnotherCharacter: any;
-    updateMainCharacterMouse: any;
-    updateMainCharacterTouch: any;
+    updateAnotherCharacter: () => void;
+    updateMainCharacterMouse: () => void;
+    updateMainCharacterTouch: () => void;
 }

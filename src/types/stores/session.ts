@@ -1,18 +1,9 @@
-interface Widget {
-    id: string;
-    placement: string;
-    statName: string;
-    statValue: number;
-    type: string;
-    y: number;
-}
-
 interface GameSession {
     callToAction: any;
     countdownEnd: number;
     phase: string;
     resultsEnd: number;
-    widgets: { widgets: Widget[] };
+    widgets: { widgets: any[] };
 }
 
 export default interface Session {
@@ -20,7 +11,7 @@ export default interface Session {
     amIGameOwner: boolean;
     canAddGameTime: boolean;
     cosmosBlocked: boolean;
-    customTeams: { characterToTeamMap: Map<any, any> };
+    customTeams: { characterToTeamMap: Map<string, string> };
     duringTransition: boolean;
     gameClockDuration: string;
     gameOwnerId: string;

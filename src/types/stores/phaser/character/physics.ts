@@ -1,5 +1,5 @@
 import type Scene from '../scene';
-import type Character from './character';
+import type Character from '../character';
 import type { Collider, ColliderDesc, RigidBody, RigidBodyDesc, Vector } from "@dimforge/rapier2d-compat";
 
 interface Jump {
@@ -31,7 +31,7 @@ interface PhysicsState {
 interface Input {
     _jumpKeyPressed: boolean;
     activeClassDeviceId: string;
-    angle: null | number;
+    angle: number;
     ignoredStaticBodies: Set<any>;
     ignoredTileBodies: Set<any>;
     jump: boolean;
@@ -46,12 +46,24 @@ interface Bodies {
     rigidBodyDesc: RigidBodyDesc;
 }
 
+interface ServerPosition {
+    packet: number;
+    x: number;
+    y: number;
+    jsonState: string;
+    teleport: boolean;
+}
+
+export interface TickInput {
+    angle: number | null;
+    jump: boolean;
+    _jumpKeyPressed: boolean;
+}
+
 export default interface Physics {
     character: Character;
     currentPacketId: number;
-    destroy: () => void;
     frameInputsHistory: Map<number, Input>;
-    getBody: () => Bodies;
     justAppliedProjectileHitForces: Set<any>;
     lastClassDeviceActivationId: number;
     lastPacketSent: number[];
@@ -61,16 +73,18 @@ export default interface Physics {
     newlyAddedTileBodies: Set<any>;
     phase: boolean;
     physicsBodyId: string;
-    postUpdate: any;
-    preUpdate: any;
     prevState: PhysicsState;
     projectileHitForcesHistory: Map<any, any>;
     projectileHitForcesQueue: Set<any>;
     scene: Scene;
-    sendToServer: any;
-    setServerPosition: any;
-    setupBody: any;
     state: PhysicsState;
-    tickInput: Input;
-    updateDebugGraphics: any;
+    tickInput: TickInput;
+    destroy: () => void;
+    getBody: () => Bodies;
+    postUpdate: (dt: number) => void;
+    preUpdate: () => void;
+    sendToServer: () => void;
+    setServerPosition: (serverPosition: ServerPosition) => void;
+    setupBody: (x: number, y: number) => void;
+    updateDebugGraphics: () => void;
 }

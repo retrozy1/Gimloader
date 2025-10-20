@@ -1,11 +1,12 @@
-import type Me from './me';
-import type Session from './session';
-import type GUI from './gui';
-import type World from './world';
-import type Characters from './characters';
-import type MemorySystem from './memorySystem';
-import type Phaser from './phaser/phaser';
-import type WorldOptions from './worldOptions';
+import type Me from "./me";
+import type Session from "./session";
+import type GUI from "./gui";
+import type World from "./world";
+import type Characters from "./characters";
+import type MemorySystem from "./memorySystem";
+import type WorldOptions from "./worldOptions";
+import type Character from "./phaser/character";
+import type Scene from "./phaser/scene";
 
 // Single-interface stores properties are in this file, everything else is in its own file
 
@@ -47,7 +48,7 @@ interface NetworkStore {
     attemptingToConnect: boolean;
     attemptingToReconnect: boolean;
     authId: string;
-    client: any;
+    client: any; // colyseus.js Client type
     clientConnectionString: string;
     error: any;
     errorFindingServerForGame: boolean;
@@ -58,11 +59,17 @@ interface NetworkStore {
     isOffline: boolean;
     isUpToDateWithPingPong: boolean;
     joinedRoom: boolean;
-    phaseBeforeReconnect: any;
+    phaseBeforeReconnect: string | null;
     ping: number;
-    room: any;
+    room: any; // colyseus.js Room type
     roomIntentErrorMessage: string;
     syncingAfterReconnection: boolean;
+}
+
+interface Phaser {
+    mainCharacter: Character;
+    mainCharacterTeleported: boolean;
+    scene: Scene;
 }
 
 interface SceneStore {

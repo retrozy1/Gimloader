@@ -1,74 +1,87 @@
-import type Character from './character/character';
-import type { Scene as BaseScene } from "phaser";
+import type { Scene as BaseScene, GameObjects } from "phaser";
+import type Character from "./character";
+import type { Device } from "./scene/device";
+import type { Rect } from "./scene/shapes";
+import type { Vector } from "@dimforge/rapier2d-compat";
+import type { TerrainOption } from "../worldOptions";
+import type WorldManager from "./scene/worldManager";
+import type InputManager from "./scene/inputManager";
 
-interface Overlay {
-    hide: any;
+interface ShowOverlayOptions {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    depth: number;
+}
+
+export interface Overlay {
     scene: Scene;
-    show: any;
     showing: boolean;
-    showingDimensions: any;
-    showingPosition: any;
+    showingDimensions: { width: number; height: number } | null;
+    showingPosition: { x: number; y: number } | null;
+    hide: () => void;
+    show: (options: ShowOverlayOptions) => void;
 }
 
 interface DepthSort {
     overlay: Overlay;
     scene: Scene;
-    update: any;
+    update: () => void;
 }
 
 interface SelectedDevicesOverlay {
-    // complex
-    graphics: any;
-    hide: any;
+    graphics: GameObjects.Graphics;
     scene: Scene;
-    show: any;
     showing: boolean;
+    hide: () => void;
+    show: (rects: Rect[]) => void;
 }
 
 interface MultiSelect {
-    addDeviceToSelection: any;
-    boundingBoxAroundEverything: any;
-    currentlySelectedDevices: any[];
+    boundingBoxAroundEverything: Rect | null;
+    currentlySelectedDevices: Device[];
     currentlySelectedDevicesIds: string[];
-    endSelectionRect: any;
-    findSelectedDevices: any;
-    hasSomeSelection: any;
-    hideSelection: any;
     hidingSelectionForDevices: boolean;
     isSelecting: boolean;
     modifierKeyDown: boolean;
-    mouseShifts: any[];
-    movedOrCopiedDevices: any[];
-    multiselectDeleteKeyHandler: any;
-    multiselectKeyHandler: any;
-    onDeviceAdded: any;
-    onDeviceRemoved: any;
+    mouseShifts: Vector[];
+    movedOrCopiedDevices: Device[];
     overlay: Overlay;
     scene: Scene;
-    selectedDevices: any[];
+    selectedDevices: Device[];
     selectedDevicesIds: string[];
     selectedDevicesOverlay: SelectedDevicesOverlay;
-    selection: any;
-    setShiftParams: any;
-    startSelectionRect: any;
-    unselectAll: any;
-    update: any;
-    updateSelectedDevicesOverlay: any;
-    updateSelectionRect: any;
+    selection: Rect | null;
+    addDeviceToSelection: (device: Device) => void;
+    endSelectionRect: () => void;
+    findSelectedDevices: () => void;
+    hasSomeSelection: () => boolean;
+    hideSelection: () => void;
+    multiselectDeleteKeyHandler: () => void;
+    multiselectKeyHandler: (down: boolean) => void;
+    onDeviceAdded: (device: Device) => void;
+    onDeviceRemoved: (id: string) => void;
+    setShiftParams: () => void;
+    startSelectionRect: () => void;
+    unselectAll: () => void;
+    update: () => void;
+    updateSelectedDevicesOverlay: () => void;
+    updateSelectionRect: () => void;
 }
 
 interface PlatformerEditing {
-    setTopDownControlsActive: any;
+    setTopDownControlsActive: (active: boolean) => void;
 }
 
 interface Removal {
-    checkForItem: any;
-    createStateListeners: any;
     overlay: Overlay;
     prevMouseWasDown: boolean;
-    removeSelectedItems: any;
     scene: Scene;
-    update: any;
+    checkForItem: () => void;
+    createStateListeners: () => void;
+    removeSelectedItems: () => void;
+    update: () => void;
 }
 
 interface ActionManager {
@@ -76,39 +89,75 @@ interface ActionManager {
     multiSelect: MultiSelect;
     platformerEditing: PlatformerEditing;
     removal: Removal;
-    update: any;
+    update: () => void;
 }
 
 interface Spectating {
-    findNewCharacter: any;
-    onBeginSpectating: any;
-    onEndSpectating: any;
-    setShuffle: any;
+    findNewCharacter: () => void;
+    onBeginSpectating: () => void;
+    onEndSpectating: () => void;
+    setShuffle: (shuffle: boolean, save?: boolean) => void;
+}
+
+interface CharacterOptions {
+    id: string;
+    x: number;
+    y: number;
+    scale: number;
+    type: string;
 }
 
 interface CharacterManager {
-    addCharacter: any;
-    // complex
-    characterContainer: any;
+    characterContainer: GameObjects.Container;
     characters: Map<string, Character>;
-    cullCharacters: any;
-    removeCharacter: any;
     scene: Scene;
     spectating: Spectating;
-    update: any;
+    addCharacter: (options: CharacterOptions) => Character;
+    cullCharacters: () => void;
+    removeCharacter: (id: string) => void;
+    update: (dt: number) => void;
+}
+
+interface BackgroundLayersManager {
+    layerManager: LayerManager;
+    scene: Scene;
+    createLayer: (options: { layerId: string, depth: number }) => void;
+    fill: (terrain: TerrainOption) => void;
+    fillForPlatformer: () => void;
+    fillForTopDown: (terrain: TerrainOption) => void;
+    removeLayer: (options: { layerId: string }) => void;
+}
+
+interface LayerManager {
+    backgroundLayersManager: BackgroundLayersManager;
+    colliders: Map<string, Map<string, string>>;
+    layers: Map<string, any>;
+    scene: Scene;
+    createInitialLayers: () => void;
+    createLayer: (id: string) => void;
+    fillBottomLayer: (terrain: TerrainOption) => void;
+    getActualLayerDepth: (id: string) => number;
+    moveLayersAboveCharacters: () => void;
+    onWorldSizeChange: () => void;
+}
+
+interface TileManager {
+    cumulTime: number;
+    scene: Scene;
+    layerManager: LayerManager;
 }
 
 export default interface Scene extends BaseScene {
     actionManager: ActionManager;
     cameraHelper: any;
     characterManager: CharacterManager;
-    create: any;
     dt: number;
-    inputManager: any;
+    inputManager: InputManager;
     resizeManager: any;
     shadowsManager: any;
     spine: any;
-    tileManager: any;
+    tileManager: TileManager;
     uiManager: any;
-    worldManager: any;
+    worldManager: WorldManager;
+    create: () => void;
 }

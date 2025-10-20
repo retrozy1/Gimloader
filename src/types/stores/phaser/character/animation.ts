@@ -1,6 +1,6 @@
-import type Character from './character';
+import type Character from '../character';
 
-interface CharacterState {
+interface NonMainCharacterState {
     grounded: boolean;
 }
 
@@ -12,21 +12,21 @@ export default interface Animation {
     character: Character;
     currentBodyAnimation: string;
     currentEyeAnimation: string;
-    destroy: () => void;
     lastGroundedAnimationAt: number;
-    nonMainCharacterState: CharacterState;
-    onAnimationComplete: (callback: () => void) => void;
-    onSkinChanged: any;
-    playAnimationOrClearTrack: any;
-    playBodyAnimation: any;
-    playBodySupplementalAnimation: any;
-    playEyeAnimation: any;
-    playJumpSupplementalAnimation: any;
-    playMovementSupplementalAnimation: any;
-    prevNonMainCharacterState: any;
-    setupAnimations: () => void;
+    nonMainCharacterState: NonMainCharacterState;
+    prevNonMainCharacterState: NonMainCharacterState;
     skinChanged: boolean;
+    destroy: () => void;
+    onAnimationComplete: (options: any) => void;
+    onSkinChanged: () => void;
+    playAnimationOrClearTrack: (animations: string[], track: number) => void;
+    playBodyAnimation: (animation: string) => void;
+    playBodySupplementalAnimation: (animation: string) => void;
+    playEyeAnimation: (animation: string) => void;
+    playJumpSupplementalAnimation: (animation: string) => void;
+    playMovementSupplementalAnimation: (animation: string) => void;
+    setupAnimations: () => void;
     startBlinkAnimation: () => void;
     stopBlinkAnimation: () => void;
-    update: any;
+    update: (dt: number) => void;
 }

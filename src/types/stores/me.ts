@@ -1,5 +1,5 @@
-import type { Editing } from "./editing";
 import type { Vector } from "@dimforge/rapier2d-compat";
+import type { Shapes } from "./world";
 
 interface ExistingDevice {
     action: string;
@@ -24,7 +24,7 @@ interface AddingTerrain {
 
 interface AddingWires {
     hoveringOverSupportedDevice: boolean;
-    pointUnderMouseDeviceId: any;
+    pointUnderMouseDeviceId?: string;
     startDeviceSelected: boolean;
 }
 
@@ -52,26 +52,57 @@ interface ClassDesigner {
 
 interface Context {
     cursorIsOverCharacterId: string;
-    __devicesUnderCursor: any[];
-    __wiresUnderCursor: Set<any>;
+    __devicesUnderCursor: string[];
+    __wiresUnderCursor: Set<string>;
+    cursorIsOverDevice: boolean;
+    cursorIsOverWire: boolean;
 }
 
 interface CustomAssets {
-    currentData: any;
-    currentIcon: any;
-    currentId: any;
-    currentName: any;
-    currentOptionId: any;
+    currentData?: { shapes: Shapes };
+    currentIcon: string;
+    currentId: string;
+    currentName: string;
+    currentOptionId: string;
     isUIOpen: boolean;
-    openOptionId: any;
-    pendingDeleteId: any;
+    openOptionId: string | null;
+    pendingDeleteId: string | null;
     showDeleteConfirm: boolean;
 }
 
 interface DeviceUI {
     current: { deviceId: string; props: any };
-    desiredOpenDeviceId: any;
+    desiredOpenDeviceId?: string;
     serverVersionOpenDeviceId: string;
+}
+
+interface CurrentlyEditedDevice {
+    deviceOptionId: string;
+    id: string;
+}
+
+interface EditingDevice {
+    currentlyEditedDevice: CurrentlyEditedDevice;
+    currentlyEditedGridId: string;
+    currentlySortedDeviceId: string;
+    screen: string;
+    sortingState: any[];
+    usingMultiselect: boolean;
+    visualEditing: any;
+}
+
+interface EditingPreferences {
+    cameraZoom: number;
+    movementSpeed: number | null;
+    phase: boolean | null;
+    showGrid: boolean | null;
+    topDownControlsActive: boolean;
+}
+
+interface Editing {
+    device: EditingDevice;
+    preferences: EditingPreferences;
+    wire: { currentlyEditedWireId: string };
 }
 
 interface Health {
@@ -83,9 +114,17 @@ interface Health {
     shield: number;
 }
 
+interface InteractiveInfo {
+    action: string;
+    allowedToInteract: boolean;
+    message: string;
+    topHeader?: string;
+    topHeaderColor: string;
+}
+
 interface Interactives {
     deviceId: string;
-    info: any;
+    info: InteractiveInfo;
 }
 
 interface InteractiveSlot {
@@ -99,20 +138,30 @@ interface InteractiveSlot {
     waitingStartTime: number;
 }
 
+interface AlertFeed {
+    amount: number;
+    itemId: string;
+}
+
+interface InventorySlot {
+    amount: number;
+    existsBeforeReconnect: boolean;
+}
+
 interface Inventory {
     activeInteractiveSlot: number;
-    alertFeed: any;
-    alertsFeed: any[];
+    alertFeed?: AlertFeed;
+    alertsFeed: AlertFeed[];
     currentWaitingEndTime: number;
     infiniteAmmo: boolean;
-    interactiveSlotErrorMessageTimeouts: Map<any, any>;
-    interactiveSlotErrorMessages: Map<any, any>;
+    interactiveSlotErrorMessageTimeouts: Map<string, ReturnType<typeof setTimeout>>;
+    interactiveSlotErrorMessages: Map<string, string>;
     interactiveSlots: Map<string, InteractiveSlot>;
     interactiveSlotsOrder: number[];
     isCurrentWaitingSoundForItem: boolean;
-    lastShotsTimestamps: Map<any, any>;
+    lastShotsTimestamps: Map<string, number>;
     maxSlots: number;
-    slots: Map<any, any>;
+    slots: Map<string, InventorySlot>;
 }
 
 interface MobileControls {
@@ -132,14 +181,21 @@ interface NonDismissMessage {
     title: string;
 }
 
+interface TileToRemove {
+    depth: number;
+    id: string;
+    x: number;
+    y: number;
+}
+
 interface Removing {
-    deviceIdToRemove: any;
-    removingMode:string;
+    deviceIdToRemove?: string;
+    removingMode: string;
     removingTilesEraserSize: number;
     removingTilesLayer: number;
     removingTilesMode: string;
-    tilesToRemove: any[];
-    wireIdToRemove: any;
+    tilesToRemove: TileToRemove[];
+    wireIdToRemove?: string;
 }
 
 interface MeSpectating {
@@ -148,9 +204,15 @@ interface MeSpectating {
     shuffle: boolean;
 }
 
-interface Xp {
-    additionTimeouts: Map<any, any>;
-    additions: any[];
+interface XPAddition {
+    amount: number;
+    reason: string;
+    xp: number;
+}
+
+interface XP {
+    additionTimeouts: Map<string, ReturnType<typeof setTimeout>>;
+    additions: XPAddition[];
     showingLevelUp: boolean;
 }
 
@@ -189,6 +251,6 @@ export default interface Me {
     spectating: MeSpectating;
     teleportCount: number;
     unredeemeedXP: number;
-    xp: Xp;
+    xp: XP;
     zoneDropOverrides: ZoneDropOverrides;
 }
