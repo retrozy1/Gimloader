@@ -7,11 +7,11 @@ import type { Vector } from "@dimforge/rapier2d-compat";
 import type { GameObjects, Tweens } from 'phaser';
 
 interface Updates {
-    update: (update: { delta: number }) => void;
-    updateAlpha: () => void;
-    updateDepth: () => void;
-    updatePosition: (dt: number) => void;
-    updateScale: () => void;
+    update(update: { delta: number }): void;
+    updateAlpha(): void;
+    updateDepth(): void;
+    updatePosition(dt: number): void;
+    updateScale(): void;
 }
 
 interface TeamState {
@@ -34,10 +34,10 @@ interface Alpha {
     phaseAlpha: number;
     playerAppearanceModifierDeviceAlpha: number;
     scene: Scene;
-    getCurrentAlpha: () => number;
-    setAlpha: (type: string, alpha: number) => void;
-    tweenAlpha: (options: TweenAlphaOptions) => void;
-    update: () => void;
+    getCurrentAlpha(): number;
+    setAlpha(type: string, alpha: number): void;
+    tweenAlpha(options: TweenAlphaOptions): void;
+    update(): void;
 }
 
 interface TrailEmitter {
@@ -81,11 +81,11 @@ interface CharacterTrail {
     currentAppearanceId: string;
     isReady: boolean;
     lastSetAlpha: number;
-    destroy: () => void;
-    followCharacter: () => void;
-    setNewAppearance: (appearance: TrailAppearance) => void;
-    update: () => void;
-    updateAppearance: (id: string) => void;
+    destroy(): void;
+    followCharacter(): void;
+    setNewAppearance(appearance: TrailAppearance): void;
+    update(): void;
+    updateAppearance(id: string): void;
 }
 
 interface Culling {
@@ -94,20 +94,20 @@ interface Culling {
     needsCullUpdate: boolean;
     scene: Scene;
     shouldForceUpdate: boolean;
-    forceUpdate: () => void;
-    hideObject: (object: any) => void;
-    onInCamera: () => void;
-    onOutCamera: () => void;
-    showObject: (object: any) => void;
-    updateNeedsUpdate: () => void;
+    forceUpdate(): void;
+    hideObject(object: any): void;
+    onInCamera(): void;
+    onOutCamera(): void;
+    showObject(object: any): void;
+    updateNeedsUpdate(): void;
 }
 
 interface Depth {
     character: Character;
     currentDepth: number;
     lastY: number;
-    update: () => void;
-    updateDepth: () => void;
+    update(): void;
+    updateDepth(): void;
 }
 
 interface Dimensions {
@@ -117,7 +117,7 @@ interface Dimensions {
     centerX: number;
     topY: number;
     x: number;
-    onPotentialDimensionsChange: () => void;
+    onPotentialDimensionsChange(): void;
 }
 
 interface Flip {
@@ -126,9 +126,9 @@ interface Flip {
     isFlipped: boolean;
     lastX: number;
     lastY: number;
-    update: () => void;
-    updateFlipForMainCharacter: () => void;
-    updateFlipForOthers: () => void;
+    update(): void;
+    updateFlipForMainCharacter(): void;
+    updateFlipForOthers(): void;
 }
 
 interface Healthbar extends Updates {
@@ -136,22 +136,22 @@ interface Healthbar extends Updates {
     depth: number;
     isVisible: boolean;
     scene: Scene;
-    destroy: () => void;
-    makeIndicator: () => void;
-    updateValue: () => void;
+    destroy(): void;
+    makeIndicator(): void;
+    updateValue(): void;
 }
 
 interface Immunity {
     character: Character;
     classImmunityActive: boolean;
     spawnImmunityActive: boolean;
-    activate: () => void;
-    activateClassImmunity: () => void;
-    activateSpawnImmunity: () => void;
-    deactivate: () => void;
-    deactivateClassImmunity: () => void;
-    deactivateSpawnImmunity: () => void;
-    isActive: () => boolean;
+    activate(): void;
+    activateClassImmunity(): void;
+    activateSpawnImmunity(): void;
+    deactivate(): void;
+    deactivateClassImmunity(): void;
+    deactivateSpawnImmunity(): void;
+    isActive(): boolean;
 }
 
 interface ImpactAnimation {
@@ -159,10 +159,10 @@ interface ImpactAnimation {
     character: Character;
     loadedAnimations: Set<string>;
     scene: Scene;
-    _play: (animation: string) => void;
-    destroy: () => void;
-    load: (animation: string) => void;
-    play: (animation: string) => void;
+    _play(animation: string): void;
+    destroy(): void;
+    load(animation: string): void;
+    play(animation: string): void;
 }
 
 interface Indicator extends Updates {
@@ -175,15 +175,15 @@ interface Indicator extends Updates {
     lastCharacterAlpha: number;
     scene: Scene;
     teamState: TeamState;
-    destroy: () => void;
-    makeIndicator: () => void;
+    destroy(): void;
+    makeIndicator(): void;
 }
 
 interface CharacterInput {
     character: Character;
     isListeningForInput: boolean;
     scene: Scene;
-    setupInput: () => void;
+    setupInput(): void;
 }
 
 interface Nametag {
@@ -202,31 +202,31 @@ interface Nametag {
     teamState: TeamState;
     fontColor: string;
     tags: GameObjects.Text[];
-    createFragilityTag: () => void;
-    createTag: () => void;
-    destroy: () => void;
-    makeVisibleChanges: (force?: boolean) => void;
-    playHideAnimation: () => void;
-    playShowUpAnimation: () => void;
-    setName: (name: string) => void;
-    update: (update: { teamState: TeamState }) => void;
-    updateFontColor: () => void;
-    updateFragility: (fragility: number) => void;
-    updateTagAlpha: (force?: boolean) => void;
-    updateTagDepth: (force?: boolean) => void;
-    updateTagPosition: (force?: boolean) => void;
-    updateTagScale: (force?: boolean) => void;
+    createFragilityTag(): void;
+    createTag(): void;
+    destroy(): void;
+    makeVisibleChanges(force?: boolean): void;
+    playHideAnimation(): void;
+    playShowUpAnimation(): void;
+    setName(name: string): void;
+    update(update: { teamState: TeamState }): void;
+    updateFontColor(): void;
+    updateFragility(fragility: number): void;
+    updateTagAlpha(force?: boolean): void;
+    updateTagDepth(force?: boolean): void;
+    updateTagPosition(force?: boolean): void;
+    updateTagScale(force?: boolean): void;
 }
 
 interface Network {
     lastAngle?: number;
     lastAngleUpdate: number;
-    updateAimAngle: (angle: number) => void;
+    updateAimAngle(angle: number): void;
 }
 
 interface Position {
     character: Character;
-    update: (dt: number) => void;
+    update(dt: number): void;
 }
 
 interface TweenScaleOptions {
@@ -246,19 +246,19 @@ interface Scale {
     spectatorScale: number;
     dependencyScale: number;
     isVisible: boolean;
-    getCurrentScale: (type: number) => void;
-    onSkinChange: () => void;
-    setScale: (type: number, scale: number) => void;
-    tweenScale: (options: TweenScaleOptions) => void;
-    update: () => void;
+    getCurrentScale(type: number): void;
+    onSkinChange(): void;
+    setScale(type: number, scale: number): void;
+    tweenScale(options: TweenScaleOptions): void;
+    update(): void;
 }
 
 interface Shadow {
     character: Character;
     image?: GameObjects.Image;
-    createShadow: () => void;
-    destroy: () => void;
-    update: () => void;
+    createShadow(): void;
+    destroy(): void;
+    update(): void;
 }
 
 interface SkinOptions {
@@ -272,9 +272,9 @@ interface Skin {
     latestSkinId: string;
     scene: Scene;
     skinId: string;
-    applyEditStyles: (options: SkinOptions) => void;
-    setupSkin: (position: Vector) => void;
-    updateSkin: (options: SkinOptions) => void;
+    applyEditStyles(options: SkinOptions): void;
+    setupSkin(position: Vector): void;
+    updateSkin(options: SkinOptions): void;
 }
 
 interface TintParams {
@@ -283,7 +283,7 @@ interface TintParams {
     toColor: string;
     duration: number;
     tween?: Tweens.Tween;
-    ease: (t: number) => number;
+    ease(t: number): number;
 }
 
 interface Tint {
@@ -293,11 +293,11 @@ interface Tint {
     playerAppearanceModifierDevice?: TintParams;
     immunity?: TintParams;
     damageBoost?: TintParams;
-    getTintParams: (type: string) => TintParams | undefined;
-    setTintParams: (type: string, tint?: TintParams) => void;
-    startAnimateTint: (params: TintParams) => void;
-    stopAnimateTint: (type: string) => void;
-    update: () => void;
+    getTintParams(type: string): TintParams | undefined;
+    setTintParams(type: string, tint?: TintParams): void;
+    startAnimateTint(params: TintParams): void;
+    stopAnimateTint(type: string): void;
+    update(): void;
 }
 
 interface VFX {
@@ -306,12 +306,12 @@ interface VFX {
     phaseActive: boolean;
     tintModifierId: string;
     transparencyModifierId: string;
-    setTintModifier: (id: string) => void;
-    setTransparencyModifier: (id: string) => void;
-    startDamageBoostAnim: () => void;
-    startPhaseAnim: () => void;
-    stopDamageBoostAnim: () => void;
-    stopPhaseAnim: () => void;
+    setTintModifier(id: string): void;
+    setTransparencyModifier(id: string): void;
+    startDamageBoostAnim(): void;
+    startPhaseAnim(): void;
+    stopDamageBoostAnim(): void;
+    stopPhaseAnim(): void;
 }
 
 export default interface Character {
@@ -348,7 +348,7 @@ export default interface Character {
     tint: Tint;
     type: string;
     vfx: VFX;
-    destroy: () => void;
-    setIsMain: (isMain: boolean) => void;
-    update: (dt: number) => void;
+    destroy(): void;
+    setIsMain(isMain: boolean): void;
+    update(dt: number): void;
 }

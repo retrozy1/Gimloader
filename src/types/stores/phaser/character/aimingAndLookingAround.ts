@@ -28,7 +28,7 @@ interface WeaponAsset extends BaseAsset {
     originY: number;
 }
 
-interface Projectile {
+interface ProjectileAppearance {
     imageUrl: string;
     rotateToTarget: boolean;
     scale: number;
@@ -39,7 +39,7 @@ interface CurrentAppearance {
     explosionSfx: SoundEffect[];
     fireSfx: SoundEffect[];
     impact: ImpactAsset;
-    projectile: Projectile;
+    projectile: ProjectileAppearance;
     reloadSfx: SoundEffect;
     weapon: WeaponAsset;
 }
@@ -54,16 +54,16 @@ export default interface AimingAndLookingAround {
     lastUsedAngle: number;
     sprite: GameObjects.Sprite;
     targetAngle?: number;
-    characterShouldFlipX: () => boolean;
-    destroy: () => void;
-    isCurrentlyAiming: () => boolean;
-    onInventoryStateChange: () => void;
-    playFireAnimation: () => void;
-    setImage: (appearance: CurrentAppearance) => void;
-    setSpriteParams: (skipRecalculateAlpha: boolean) => void;
-    setTargetAngle: (angle: number, instant?: boolean) => void;
-    update: () => void;
-    updateAnotherCharacter: () => void;
-    updateMainCharacterMouse: () => void;
-    updateMainCharacterTouch: () => void;
+    characterShouldFlipX(): boolean;
+    destroy(): void;
+    isCurrentlyAiming(): boolean;
+    onInventoryStateChange(): void;
+    playFireAnimation(): void;
+    setImage(appearance: CurrentAppearance): void;
+    setSpriteParams(skipRecalculateAlpha: boolean): void;
+    setTargetAngle(angle: number, instant?: boolean): void;
+    update(): void;
+    updateAnotherCharacter(): void;
+    updateMainCharacterMouse(): void;
+    updateMainCharacterTouch(): void;
 }

@@ -30,13 +30,13 @@ export default interface Movement {
     targetY: number;
     teleportCount: number;
     teleported: boolean;
-    getCurrentEndInfo: () => EndInfo;
-    moveToTargetPosition: () => void;
-    onMainCharacterTeleport: () => void;
-    postPhysicsUpdate: (dt: number) => void;
-    setNonMainCharacterTargetGrounded: (grounded: boolean) => void;
-    setTargetX: (x: number) => void;
-    setTargetY: (y: number) => void;
-    setTeleportCount: (teleportCount: number) => void;
-    update: (dt: number) => void;
+    getCurrentEndInfo(): EndInfo;
+    moveToTargetPosition(): void;
+    onMainCharacterTeleport(): void;
+    postPhysicsUpdate(dt: number): void;
+    setNonMainCharacterTargetGrounded(grounded: boolean): void;
+    setTargetX(x: number): void;
+    setTargetY(y: number): void;
+    setTeleportCount(teleportCount: number): void;
+    update(dt: number): void;
 }

@@ -28,7 +28,7 @@ interface PhysicsState {
     velocity: Vector;
 }
 
-interface Input {
+interface PhysicsInput {
     _jumpKeyPressed: boolean;
     activeClassDeviceId: string;
     angle: number;
@@ -63,7 +63,7 @@ export interface TickInput {
 export default interface Physics {
     character: Character;
     currentPacketId: number;
-    frameInputsHistory: Map<number, Input>;
+    frameInputsHistory: Map<number, PhysicsInput>;
     justAppliedProjectileHitForces: Set<any>;
     lastClassDeviceActivationId: number;
     lastPacketSent: number[];
@@ -79,12 +79,12 @@ export default interface Physics {
     scene: Scene;
     state: PhysicsState;
     tickInput: TickInput;
-    destroy: () => void;
-    getBody: () => Bodies;
-    postUpdate: (dt: number) => void;
-    preUpdate: () => void;
-    sendToServer: () => void;
-    setServerPosition: (serverPosition: ServerPosition) => void;
-    setupBody: (x: number, y: number) => void;
-    updateDebugGraphics: () => void;
+    destroy(): void;
+    getBody(): Bodies;
+    postUpdate(dt: number): void;
+    preUpdate(): void;
+    sendToServer(): void;
+    setServerPosition(serverPosition: ServerPosition): void;
+    setupBody(x: number, y: number): void;
+    updateDebugGraphics(): void;
 }

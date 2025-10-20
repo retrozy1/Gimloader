@@ -1,13 +1,10 @@
+import type { CircleShort, Ellipse, RotatedEllipse, RotatedRectShort } from "./shapes";
+import type { CodeGridSchema } from "./world";
+
 interface CodeGrids {
     blockCategories: string;
     customBlocks: string;
     customBlocksParsed: any[];
-}
-
-interface CodeGridSchema {
-    allowChannelGrids: boolean;
-    customBlocks: any[];
-    triggers: any[];
 }
 
 interface OptionSchema {
@@ -15,7 +12,7 @@ interface OptionSchema {
     categories?: any[];
 }
 
-interface DeviceOption {
+interface DeviceInfo {
     id: string;
     name: string;
     description?: string;
@@ -68,42 +65,13 @@ interface PropOption {
     originX: number;
     originY: number;
     imageUrl: string;
-    rectColliders: RectCollider[];
-    circleColliders: CircleCollider[];
-    ellipseColliders: EllipseCollider[];
-    shadows: Shadow[];
+    rectColliders: RotatedRectShort[];
+    circleColliders: CircleShort[];
+    ellipseColliders: RotatedEllipse[];
+    shadows: Ellipse[];
     seasonTicketRequired?: boolean;
     minimumRoleLevel?: number;
     defaultLayer?: string;
-}
-
-export interface RectCollider {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    angle: number;
-}
-
-export interface CircleCollider {
-    x: number;
-    y: number;
-    r: number;
-}
-
-export interface EllipseCollider {
-    x: number;
-    y: number;
-    r1: number;
-    r2: number;
-    angle?: number;
-}
-
-export interface Shadow {
-    x: number;
-    y: number;
-    r1: number;
-    r2: number;
 }
 
 interface SkinOption {
@@ -136,7 +104,7 @@ interface CustomAssetOption {
 export default interface WorldOptions {
     codeGrids: CodeGrids;
     customAssetsOptions: CustomAssetOption[];
-    deviceOptions: DeviceOption[];
+    deviceOptions: DeviceInfo[];
     hasAllProps: boolean;
     itemOptions: ItemOption[];
     propsOptions: PropOption[];

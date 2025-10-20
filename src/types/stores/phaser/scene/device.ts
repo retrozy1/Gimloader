@@ -3,46 +3,48 @@ import type { DeviceOption } from "../../world";
 import type Character from "../character";
 import type Scene from "../scene";
 import type { Types, Tweens } from "phaser";
-import type { Rect, Circle, BoxCollider, CircleCollider, EllipseCollider, Collider } from "./shapes";
+import type { Rect, Circle, RectShort, CircleShort, Ellipse, RotatedRect, RotatedCircle } from "../../shapes";
 
 interface AppearanceVariation {
     device: Device;
-    resetAppearance: () => void;
-    setPreviewAppearance: () => void;
-    setRemovalAppearance: () => void;
+    resetAppearance(): void;
+    setPreviewAppearance(): void;
+    setRemovalAppearance(): void;
 }
 
 interface BoundingBox {
     cachedBoundingBox: Rect;
     device: Device;
     hardcodedBoundingBox?: Rect;
-    clearCached: () => void;
-    clearHardcoded: () => void;
-    getBoundingBox: () => Rect;
-    isHardcoded: () => boolean;
-    isInsideBoundingBox: (x: number, y: number) => boolean;
-    setHardcoded: (rect: Rect) => void;
+    clearCached(): void;
+    clearHardcoded(): void;
+    getBoundingBox(): Rect;
+    isHardcoded(): boolean;
+    isInsideBoundingBox(x: number, y: number): boolean;
+    setHardcoded(rect: Rect): void;
 }
+
+type DeviceCollider = RectShort | CircleShort | Ellipse;
 
 type ColliderOptions = {
     device: Device;
     scene: Scene;
     angle: number;
-} & Collider;
+} & DeviceCollider;
 
 interface Colliders {
     add: {
-        box: (collider: BoxCollider) => void;
-        circle: (collider: CircleCollider) => void;
-        ellipse: (collider: EllipseCollider) => void;
+        box(collider: RectShort): void;
+        circle(collider: CircleShort): void;
+        ellipse(collider: Ellipse): void;
     }
     device: Device;
-    list: Collider[];
-    createOptions: (collider: Collider) => ColliderOptions;
-    destroy: () => void;
-    forEach: (callback: (collider: Collider) => void) => void;
-    hideDebug: () => void;
-    showDebug: () => void;
+    list: DeviceCollider[];
+    createOptions(collider: DeviceCollider): ColliderOptions;
+    destroy(): void;
+    forEach(callback: (collider: DeviceCollider) => void): void;
+    hideDebug(): void;
+    showDebug(): void;
 }
 
 interface UpdateCullOptions {
@@ -57,21 +59,21 @@ interface Cull {
     isInsideView: boolean;
     margin: number;
     wasInsideView: boolean;
-    getMargin: () => number;
-    ignoreCulling: () => void;
-    setMargin: (margin: number) => void;
-    setOnEnterViewCallback: (callback: () => void) => void;
-    setOnLeaveViewCallback: (callback: () => void) => void;
-    onEnterViewCallback?: () => void;
-    onLeaveViewCallback?: () => void;
-    updateCull: (options: UpdateCullOptions) => void;
+    getMargin(): number;
+    ignoreCulling(): void;
+    setMargin(margin: number): void;
+    setOnEnterViewCallback(callback: () => void): void;
+    setOnLeaveViewCallback(callback: () => void): void;
+    onEnterViewCallback?(): void;
+    onLeaveViewCallback?(): void;
+    updateCull(options: UpdateCullOptions): void;
 }
 
 interface DeviceUI {
     device: Device;
-    close: () => void;
-    open: (options: Record<string, any>) => void;
-    update: (options: Record<string, any>) => void;
+    close(): void;
+    open(options: Record<string, any>): void;
+    update(options: Record<string, any>): void;
 }
 
 interface DeviceInput {
@@ -79,42 +81,38 @@ interface DeviceInput {
     enabled: boolean;
     hasKeyListeners: boolean;
     isCurrentlyUnderMouse: boolean;
-    addDeviceToCursorUnderList: () => void;
-    createKeyListeners: () => void;
-    cutCopyHandler: (action: string) => void;
-    disable: () => void;
-    dispose: () => void;
-    disposeKeyListeners: () => void;
-    enable: () => void;
-    partIsNoLongerUnderMouse: () => void;
-    partIsUnderMouse: () => void;
-    removeDeviceFromCursorUnderList: () => void;
+    addDeviceToCursorUnderList(): void;
+    createKeyListeners(): void;
+    cutCopyHandler(action: string): void;
+    disable(): void;
+    dispose(): void;
+    disposeKeyListeners(): void;
+    enable(): void;
+    partIsNoLongerUnderMouse(): void;
+    partIsUnderMouse(): void;
+    removeDeviceFromCursorUnderList(): void;
 }
 
 interface InteractiveZones {
     add: {
-        circle: (zone: CircleCollider) => void;
-        rect: (zone: Rect) => void;
+        circle(zone: CircleShort): void;
+        rect(zone: Rect): void;
     }
     canInteractThroughColliders: boolean;
     device: Device;
     forceDisabled: boolean;
-    zones: (CircleCollider | Rect)[];
-    contains: (x: number, y: number) => boolean;
-    destroy: () => void;
-    getCanInteractThroughColliders: () => boolean;
-    getInfo: () => any;
-    getMaxDistance: (x: number, y: number) => number;
-    isInteractive: () => boolean;
-    onPlayerCanInteract: () => void;
-    onPlayerCantInteractAnyMore: () => void;
-    setCanInteractThroughColliders: (canInteract: boolean) => void;
-    setForceDisabled: (forceDisabled: boolean) => void;
-    setInfo: (info: any) => void;
-}
-
-interface VisualEditingBoxVal extends Rect {
-    angle: number;
+    zones: (CircleShort | Rect)[];
+    contains(x: number, y: number): boolean;
+    destroy(): void;
+    getCanInteractThroughColliders(): boolean;
+    getInfo(): any;
+    getMaxDistance(x: number, y: number): number;
+    isInteractive(): boolean;
+    onPlayerCanInteract(): void;
+    onPlayerCantInteractAnyMore(): void;
+    setCanInteractThroughColliders(canInteract: boolean): void;
+    setForceDisabled(forceDisabled: boolean): void;
+    setInfo(info: any): void;
 }
 
 interface VisualEditingBox {
@@ -127,11 +125,7 @@ interface VisualEditingBox {
     maxHeight: number;
     keepRatio: boolean;
     rotable: boolean;
-    onChange: (value: VisualEditingBoxVal) => void;
-}
-
-interface VisualEditingCircleVal extends Circle {
-    angle: number;
+    onChange(value: RotatedRect): void;
 }
 
 interface VisualEditingCircle {
@@ -140,18 +134,18 @@ interface VisualEditingCircle {
     radius: number;
     minRadius: number;
     maxRadius: number;
-    onChange: (value: VisualEditingCircleVal) => void;
+    onChange(value: RotatedCircle): void;
 }
 
 interface VisualEditing {
     add: {
-        box: (options: VisualEditingBox) => void;
-        circle: (options: VisualEditingCircle) => void;
+        box(options: VisualEditingBox): void;
+        circle(options: VisualEditingCircle): void;
     }
     device: Device;
     isActive: boolean;
     shapes: (VisualEditingBox | VisualEditingCircle)[];
-    clear: () => void;
+    clear(): void;
 }
 
 interface ShadowOptions {
@@ -166,11 +160,11 @@ interface ShadowOptions {
 interface Shadows {
     device: Device;
     list: ShadowOptions[];
-    add: (options: ShadowOptions) => void;
-    destroy: () => void;
-    forEach: (callback: (shadow: ShadowOptions) => void) => void;
-    hide: () => void;
-    show: () => void;
+    add(options: ShadowOptions): void;
+    destroy(): void;
+    forEach(callback: (shadow: ShadowOptions) => void): void;
+    hide(): void;
+    show(): void;
 }
 
 interface Layers {
@@ -184,24 +178,24 @@ interface WirePoints {
     device: Device;
     end: Vector;
     start: Vector;
-    onPointChange: () => void;
-    setBoth: (x: number, y: number) => void;
+    onPointChange(): void;
+    setBoth(x: number, y: number): void;
 }
 
 interface DeviceTweens {
     list: Tweens.Tween[];
     device: Device;
-    add: (config: Types.Tweens.TweenBuilderConfig) => Tweens.Tween;
-    destroy: () => void;
+    add(config: Types.Tweens.TweenBuilderConfig): Tweens.Tween;
+    destroy(): void;
 }
 
-interface Projectiles {
+interface DeviceProjectiles {
     device: Device;
-    addToDynamicDevices: () => void;
-    collidesWithProjectile: (object: Circle) => boolean;
-    onClientPredictedHit: (position: Vector) => void;
-    removeFromDynamicDevices: () => void;
-    setDynamic: (dynamic: boolean) => void;
+    addToDynamicDevices(): void;
+    collidesWithProjectile(object: Circle): boolean;
+    onClientPredictedHit(position: Vector): void;
+    removeFromDynamicDevices(): void;
+    setDynamic(dynamic: boolean): void;
 }
 
 interface BaseDevice {
@@ -231,24 +225,24 @@ interface BaseDevice {
     layers: Layers;
     wirePoints: WirePoints;
     tweens: DeviceTweens;
-    projectiles: Projectiles;
+    projectiles: DeviceProjectiles;
     sensors: any;
     onHide: (() => void) | null;
     onShow: (() => void) | null;
-    initialStateProcessing: (state: Record<string, any>) => Record<string, any>;
-    getMaxDepth: () => number;
-    onStateUpdateFromServer: (key: string, value: any) => void;
-    getRealKey: (key: string) => string;
     onUpdate: (() => void) | null;
-    onPostUpdate: () => void;
-    onInit: () => void;
-    onMessage: (message: { key: string, data: any }) => void;
-    onStateChange: (key: string) => void;
-    onDestroy: (options: { isBeingReplaced: boolean }) => void;
-    sendToServerDevice: (key: string, data: any) => void;
-    openDeviceUI: () => void;
-    checkIfCollidersEnabled: () => boolean;
-    destroy: (options: { isBeingReplaced: boolean }) => void;
+    initialStateProcessing(state: Record<string, any>): Record<string, any>;
+    getMaxDepth(): number;
+    onStateUpdateFromServer(key: string, value: any): void;
+    getRealKey(key: string): string;
+    onPostUpdate(): void;
+    onInit(): void;
+    onMessage(message: { key: string, data: any }): void;
+    onStateChange(key: string): void;
+    onDestroy(options: { isBeingReplaced: boolean }): void;
+    sendToServerDevice(key: string, data: any): void;
+    openDeviceUI(): void;
+    checkIfCollidersEnabled(): boolean;
+    destroy(options: { isBeingReplaced: boolean }): void;
 }
 
 export type Device = BaseDevice & { [key: string]: any };

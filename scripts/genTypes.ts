@@ -8,13 +8,17 @@ await $`bun run buildTypes`;
 let types = fs.readFileSync("types.d.ts").toString();
 fs.rmSync("types.d.ts");
 
-types = types.replaceAll(`import("$types/stores/stores").`, "");
+types = types.replaceAll(`import("$types/stores/stores").`, "")
+    .replaceAll("Input.Pointer", "import(\"phaser\").Input.Pointer")
+    .replaceAll("Types.Tweens", "import(\"phaser\").Types.Tweens")
+    .replaceAll(" Tweens.Tween", " import(\"phaser\").Tweens.Tween")
+    .replaceAll("GameObjects", "import(\"phaser\").GameObjects");
 
 // Gather all the variable/type declarations
 const declarations = new Map<string, string>();
 const interfaceDeclaration = /    (?:export )?(?:default )?(interface ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
 const classDeclaration = /    (?:export )?(?:default )?(class ([A-Z]\S+) .*{[\S\s]+?\n    })/g;
-const typeDeclaration = /    (?:export )?(?:default )?(type ([A-Z]\S+) .+)/g;
+const typeDeclaration = /    (?:export )?(?:default )?(type ([A-Z]\S+) [\S\s]+?;\n)(?=}|    \w)/g;
 
 let match: RegExpExecArray | null;
 const addDeclaration = () => {
@@ -37,9 +41,11 @@ for(let name of declarations.keys()) {
 
 // Figure out which ones need to be used
 const added: string[] = [];
+const storesAdded: string[] = [];
 
-const process = (name: string) => {
-    added.unshift(name);
+const process = (name: string, inStores: boolean) => {
+    if(inStores) storesAdded.unshift(name);
+    else added.unshift(name);
     
     const code = declarations.get(name);
     if(!code) return;
@@ -47,25 +53,38 @@ const process = (name: string) => {
     for(let [otherName, regex] of useRegexes) {
         if(code.match(regex)) {
             useRegexes.delete(otherName);
-            process(otherName);
+            if(otherName === "Stores") process(otherName, true);
+            else process(otherName, inStores);
         }
     }
 }
 
 useRegexes.delete("Api");
-process("Api");
+process("Api", false);
 
 // Create the final output
-let gimloaderTypes = added.map(name => declarations.get(name)).join("\n\n")
-    .replaceAll("\n    ", "\n");
-let ee2Types = eventEmitterTypes.replace("export declare class", "class")
-    .replace("\n\nexport default EventEmitter2;\n", "");
+let gimloaderTypes =
+`namespace Stores {
+interface Vector { x: number; y: number; }
+type BaseScene = import("phaser").Scene;\n\n`
+
+gimloaderTypes += storesAdded.map(name => declarations.get(name)).join("\n\n")
+    .replaceAll("\n    ", "\n")
+    .replaceAll("ReactElement", "import('react').ReactElement");
+
+gimloaderTypes += "\n}\n\n";
+
+gimloaderTypes += added.map(name => declarations.get(name)).join("\n\n")
+    .replaceAll("\n    ", "\n")
+    .replaceAll("ReactElement", "import('react').ReactElement");
+
+gimloaderTypes = gimloaderTypes.replaceAll(": Stores", ": Stores.Stores");
 
 let declaration =
 `declare const api: Gimloader.Api;
 declare const GL: typeof Gimloader.Api;
 /** @deprecated Use GL.stores */
-declare const stores: Gimloader.Stores;
+declare const stores: Gimloader.Stores.Stores;
 /** @deprecated No longer supported */
 declare const platformerPhysics: any;
 
@@ -73,15 +92,14 @@ interface Window {
     api: Gimloader.Api;
     GL: typeof Gimloader.Api;
     /** @deprecated Use GL.stores */
-    stores: Gimloader.Stores;
+    stores: Gimloader.Stores.Stores;
     /** @deprecated No longer supported */
     platformerPhysics: any;
 }`;
 
-let header =
-`type BaseScene = import("phaser").Scene;
-interface Vector { x: number; y: number; }`;
+let ee2Types = eventEmitterTypes.replace("export declare class", "class")
+    .replace("\n\nexport default EventEmitter2;\n", "");
 
-let output = "declare namespace Gimloader {\n" + header + "\n\n" + ee2Types + "\n\n" + gimloaderTypes + "\n}\n\n" + declaration;
+let output = "declare namespace Gimloader {\n" + ee2Types + "\n\n" + gimloaderTypes + "\n}\n\n" + declaration;
 
 fs.writeFileSync("src/editor/gimloaderTypes.txt", output);

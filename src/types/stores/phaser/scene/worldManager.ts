@@ -4,7 +4,7 @@ import type { Overlay } from "../scene";
 import type Scene from "../scene";
 import type { Device } from "./device";
 import type InputManager from "./inputManager";
-import type { Rect } from "./shapes";
+import type { Rect } from "../../shapes";
 import type { Input } from "phaser";
 
 interface Cameras {
@@ -13,33 +13,33 @@ interface Cameras {
     camerasPlayerIsInside: any[];
     scene: Scene;
     wasInPrePhase: boolean;
-    findNewCameras: (allCameras: Device[], x: number, y: number) => any;
-    setCurrentCameraSizeDevice: (device: Device) => void;
-    switchToDefaultCameraSize: (reset: boolean) => void;
-    update: (devices: Device[]) => void;
+    findNewCameras(allCameras: Device[], x: number, y: number): any;
+    setCurrentCameraSizeDevice(device: Device): void;
+    switchToDefaultCameraSize(reset: boolean): void;
+    update(devices: Device[]): void;
 }
 
 interface DevicesAction {
     inputManager: InputManager;
     scene: Scene;
-    onClick: (arg: any) => void;
-    update: () => void;
+    onClick(arg: any): void;
+    update(): void;
 }
 
 interface DevicesPreview {
     devicePreviewOverlay: Overlay;
     previousDevices: Device[];
     scene: Scene;
-    removePreviousDevices: (isBeingReplaced: boolean) => void;
-    update: () => void;
+    removePreviousDevices(isBeingReplaced: boolean): void;
+    update(): void;
 }
 
-interface Interactives {
+interface WorldInteractives {
     scene: Scene;
     currentDevice?: Device;
-    clearCurrentDevice: () => void;
-    setCurrentDevice: (device: Device) => void;
-    update: (devices: Device[]) => void;
+    clearCurrentDevice(): void;
+    setCurrentDevice(device: Device): void;
+    update(devices: Device[]): void;
 }
 
 interface Devices {
@@ -49,16 +49,16 @@ interface Devices {
     devicesPreview: DevicesPreview;
     devicesToPostUpdate: Set<Device>;
     devicesToUpdate: Set<Device>;
-    interactives: Interactives;
+    interactives: WorldInteractives;
     scene: Scene;
     visualEditingManager: any;
-    addDevice: (device: Device) => void;
-    cullDevices: () => void;
-    findDeviceUnderMouse: () => Device | undefined;
-    getDeviceById: (id: string) => Device | undefined;
-    hasDevice: (id: string) => boolean;
-    removeDeviceById: (id: string, options: { isBeingReplaced: boolean }) => void;
-    update: (dt: number) => void;
+    addDevice(device: Device): void;
+    cullDevices(): void;
+    findDeviceUnderMouse(): Device | undefined;
+    getDeviceById(id: string): Device | undefined;
+    hasDevice(id: string): boolean;
+    removeDeviceById(id: string, options: { isBeingReplaced: boolean }): void;
+    update(dt: number): void;
 }
 
 interface CreateTileOptions {
@@ -70,13 +70,13 @@ interface CreateTileOptions {
 
 interface InGameTerrainBuilder {
     afterFailureWithTouch: boolean;
-    clearConsumeErrorMessage: () => void;
-    clearPreviewLayer: () => void;
-    createPreviewTile: (options: CreateTileOptions) => void
+    clearConsumeErrorMessage(): void;
+    clearPreviewLayer(): void;
+    createPreviewTile(options: CreateTileOptions): void
     overlay: Overlay;
     previewingTile?: Vector;
     scene: Scene;
-    update: () => void;
+    update(): void;
     wasDown: boolean;
 }
 
@@ -85,12 +85,12 @@ interface ActiveBodies {
     bodyManager: BodyManager;
     currentCoordinateKeys: Set<string>;
     world: World;
-    disableBody: (id: string) => void;
-    enable: (keys: Set<string>, setAll: boolean) => void;
-    enableBodiesAlongLine: (options: { start: Vector, end: Vector }) => void;
-    enableBodiesWithinAreas: (options: { areas: Rect[], disableActiveBodiesOutsideArea: boolean }) => void;
-    enableBody: (id: string) => void;
-    setDirty: () => void;
+    disableBody(id: string): void;
+    enable(keys: Set<string>, setAll: boolean): void;
+    enableBodiesAlongLine(options: { start: Vector, end: Vector }): void;
+    enableBodiesWithinAreas(options: { areas: Rect[], disableActiveBodiesOutsideArea: boolean }): void;
+    enableBody(id: string): void;
+    setDirty(): void;
 }
 
 interface BodyBounds {
@@ -124,11 +124,11 @@ interface BodyManager {
     staticBodies: Set<string>;
     staticSensorBodies: Set<string>;
     _idCount: number;
-    find: (id: string) => Body | undefined;
-    findPotentialStaticBodiesWithinArea: (area: Rect) => Set<string>;
-    generateId: () => void;
-    insert: (body: Body) => string;
-    remove: (id: string) => void;
+    find(id: string): Body | undefined;
+    findPotentialStaticBodiesWithinArea(area: Rect): Set<string>;
+    generateId(): void;
+    insert(body: Body): string;
+    remove(id: string): void;
 }
 
 interface WorldBoundsCollider {
@@ -136,12 +136,12 @@ interface WorldBoundsCollider {
     collider: Collider;
 }
 
-interface Physics {
+interface PhysicsManager {
     bodies: BodyManager;
     cumulTime: number;
     lastTime: number;
-    physicsStep: (dt: number) => void;
-    runPhysicsLoop: (dt: number) => void;
+    physicsStep(dt: number): void;
+    runPhysicsLoop(dt: number): void;
     world: World;
     worldBoundsColliders: Set<WorldBoundsCollider>;
 }
@@ -168,18 +168,18 @@ interface Projectiles {
     projectileJSON: Map<string, Projectile>;
     runClientSidePrediction: boolean;
     scene: Scene;
-    addProjectile: (projectile: Projectile) => void;
-    fire: (pointer: Input.Pointer, snap: boolean) => void;
-    update: () => void;
+    addProjectile(projectile: Projectile): void;
+    fire(pointer: Input.Pointer, snap: boolean): void;
+    update(): void;
 }
 
 export default interface WorldManager {
     devices: Devices;
     inGameTerrainBuilder: InGameTerrainBuilder;
-    bodies: Physics;
+    physics: PhysicsManager;
     projectiles: Projectiles;
     scene: Scene;
     terrain: any;
     wires: any;
-    update: (dt: number) => void;
+    update(dt: number): void;
 }

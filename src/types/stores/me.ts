@@ -58,7 +58,7 @@ interface Context {
     cursorIsOverWire: boolean;
 }
 
-interface CustomAssets {
+interface MeCustomAssets {
     currentData?: { shapes: Shapes };
     currentIcon: string;
     currentId: string;
@@ -70,7 +70,7 @@ interface CustomAssets {
     showDeleteConfirm: boolean;
 }
 
-interface DeviceUI {
+interface MeDeviceUI {
     current: { deviceId: string; props: any };
     desiredOpenDeviceId?: string;
     serverVersionOpenDeviceId: string;
@@ -229,8 +229,8 @@ export default interface Me {
     completedInitialPlacement: boolean;
     context: Context;
     currentAction: string;
-    customAssets: CustomAssets;
-    deviceUI: DeviceUI;
+    customAssets: MeCustomAssets;
+    deviceUI: MeDeviceUI;
     editing: Editing;
     gotKicked: boolean;
     health: Health;

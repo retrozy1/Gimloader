@@ -1,7 +1,7 @@
 import type { Scene as BaseScene, GameObjects } from "phaser";
 import type Character from "./character";
 import type { Device } from "./scene/device";
-import type { Rect } from "./scene/shapes";
+import type { Rect } from "../shapes";
 import type { Vector } from "@dimforge/rapier2d-compat";
 import type { TerrainOption } from "../worldOptions";
 import type WorldManager from "./scene/worldManager";
@@ -20,22 +20,22 @@ export interface Overlay {
     showing: boolean;
     showingDimensions: { width: number; height: number } | null;
     showingPosition: { x: number; y: number } | null;
-    hide: () => void;
-    show: (options: ShowOverlayOptions) => void;
+    hide(): void;
+    show(options: ShowOverlayOptions): void;
 }
 
 interface DepthSort {
     overlay: Overlay;
     scene: Scene;
-    update: () => void;
+    update(): void;
 }
 
 interface SelectedDevicesOverlay {
     graphics: GameObjects.Graphics;
     scene: Scene;
     showing: boolean;
-    hide: () => void;
-    show: (rects: Rect[]) => void;
+    hide(): void;
+    show(rects: Rect[]): void;
 }
 
 interface MultiSelect {
@@ -53,35 +53,35 @@ interface MultiSelect {
     selectedDevicesIds: string[];
     selectedDevicesOverlay: SelectedDevicesOverlay;
     selection: Rect | null;
-    addDeviceToSelection: (device: Device) => void;
-    endSelectionRect: () => void;
-    findSelectedDevices: () => void;
-    hasSomeSelection: () => boolean;
-    hideSelection: () => void;
-    multiselectDeleteKeyHandler: () => void;
-    multiselectKeyHandler: (down: boolean) => void;
-    onDeviceAdded: (device: Device) => void;
-    onDeviceRemoved: (id: string) => void;
-    setShiftParams: () => void;
-    startSelectionRect: () => void;
-    unselectAll: () => void;
-    update: () => void;
-    updateSelectedDevicesOverlay: () => void;
-    updateSelectionRect: () => void;
+    addDeviceToSelection(device: Device): void;
+    endSelectionRect(): void;
+    findSelectedDevices(): void;
+    hasSomeSelection(): boolean;
+    hideSelection(): void;
+    multiselectDeleteKeyHandler(): void;
+    multiselectKeyHandler(down: boolean): void;
+    onDeviceAdded(device: Device): void;
+    onDeviceRemoved(id: string): void;
+    setShiftParams(): void;
+    startSelectionRect(): void;
+    unselectAll(): void;
+    update(): void;
+    updateSelectedDevicesOverlay(): void;
+    updateSelectionRect(): void;
 }
 
 interface PlatformerEditing {
-    setTopDownControlsActive: (active: boolean) => void;
+    setTopDownControlsActive(active: boolean): void;
 }
 
 interface Removal {
     overlay: Overlay;
     prevMouseWasDown: boolean;
     scene: Scene;
-    checkForItem: () => void;
-    createStateListeners: () => void;
-    removeSelectedItems: () => void;
-    update: () => void;
+    checkForItem(): void;
+    createStateListeners(): void;
+    removeSelectedItems(): void;
+    update(): void;
 }
 
 interface ActionManager {
@@ -89,14 +89,14 @@ interface ActionManager {
     multiSelect: MultiSelect;
     platformerEditing: PlatformerEditing;
     removal: Removal;
-    update: () => void;
+    update(): void;
 }
 
 interface Spectating {
-    findNewCharacter: () => void;
-    onBeginSpectating: () => void;
-    onEndSpectating: () => void;
-    setShuffle: (shuffle: boolean, save?: boolean) => void;
+    findNewCharacter(): void;
+    onBeginSpectating(): void;
+    onEndSpectating(): void;
+    setShuffle(shuffle: boolean, save?: boolean): void;
 }
 
 interface CharacterOptions {
@@ -112,20 +112,20 @@ interface CharacterManager {
     characters: Map<string, Character>;
     scene: Scene;
     spectating: Spectating;
-    addCharacter: (options: CharacterOptions) => Character;
-    cullCharacters: () => void;
-    removeCharacter: (id: string) => void;
-    update: (dt: number) => void;
+    addCharacter(options: CharacterOptions): Character;
+    cullCharacters(): void;
+    removeCharacter(id: string): void;
+    update(dt: number): void;
 }
 
 interface BackgroundLayersManager {
     layerManager: LayerManager;
     scene: Scene;
-    createLayer: (options: { layerId: string, depth: number }) => void;
-    fill: (terrain: TerrainOption) => void;
-    fillForPlatformer: () => void;
-    fillForTopDown: (terrain: TerrainOption) => void;
-    removeLayer: (options: { layerId: string }) => void;
+    createLayer(options: { layerId: string, depth: number }): void;
+    fill(terrain: TerrainOption): void;
+    fillForPlatformer(): void;
+    fillForTopDown(terrain: TerrainOption): void;
+    removeLayer(options: { layerId: string }): void;
 }
 
 interface LayerManager {
@@ -133,12 +133,12 @@ interface LayerManager {
     colliders: Map<string, Map<string, string>>;
     layers: Map<string, any>;
     scene: Scene;
-    createInitialLayers: () => void;
-    createLayer: (id: string) => void;
-    fillBottomLayer: (terrain: TerrainOption) => void;
-    getActualLayerDepth: (id: string) => number;
-    moveLayersAboveCharacters: () => void;
-    onWorldSizeChange: () => void;
+    createInitialLayers(): void;
+    createLayer(id: string): void;
+    fillBottomLayer(terrain: TerrainOption): void;
+    getActualLayerDepth(id: string): number;
+    moveLayersAboveCharacters(): void;
+    onWorldSizeChange(): void;
 }
 
 interface TileManager {
@@ -159,5 +159,5 @@ export default interface Scene extends BaseScene {
     tileManager: TileManager;
     uiManager: any;
     worldManager: WorldManager;
-    create: () => void;
+    create(): void;
 }

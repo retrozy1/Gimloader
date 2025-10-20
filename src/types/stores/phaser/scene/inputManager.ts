@@ -11,13 +11,13 @@ interface AimCursor {
     scene: Scene;
     x: number;
     y: number;
-    update: () => void;
+    update(): void;
 }
 
 interface Cursor {
     scene: Scene;
-    createStateListeners: () => void;
-    updateCursor: () => void;
+    createStateListeners(): void;
+    updateCursor(): void;
 }
 
 interface PressedKeys {
@@ -39,8 +39,8 @@ interface Keyboard {
     heldKeys: Set<string>;
     scene: Scene;
     state: KeyboardState;
-    createListeners: () => void;
-    isKeyDown: (key: number) => boolean;
+    createListeners(): void;
+    isKeyDown(key: number): boolean;
 }
 
 interface MovementPointer {
@@ -63,10 +63,10 @@ interface Mouse {
     worldY: number;
     x: number;
     y: number;
-    addClickListener: (options: { callback: (pointer: Input.Pointer) => void}) => () => void;
-    pointerUpdate: (pointer: Input.Pointer) => void;
-    removeClickListener: (id: string) => void;
-    shouldBecomeMovementPointer: (pointer: Input.Pointer) => boolean;
+    addClickListener(options: { callback: (pointer: Input.Pointer) => void}): () => void;
+    pointerUpdate(pointer: Input.Pointer): void;
+    removeClickListener(id: string): void;
+    shouldBecomeMovementPointer(pointer: Input.Pointer): boolean;
 }
 
 export default interface InputManager {
@@ -79,11 +79,11 @@ export default interface InputManager {
     mouse: Mouse;
     physicsInputHandledBetweenUpdates: boolean;
     scene: Scene;
-    getAimingDirection: () => Vector;
-    getInputAngle: () => number | null;
-    getKeys: () => PressedKeys;
-    getMouseWorldXY: () => Vector;
-    getPhysicsInput: () => TickInput;
-    refreshInput: () => void;
-    update: () => void;
+    getAimingDirection(): Vector;
+    getInputAngle(): number | null;
+    getKeys(): PressedKeys;
+    getMouseWorldXY(): Vector;
+    getPhysicsInput(): TickInput;
+    refreshInput(): void;
+    update(): void;
 }

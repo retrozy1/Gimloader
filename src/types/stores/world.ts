@@ -13,13 +13,13 @@ interface CustomAsset {
     optionId: string;
 }
 
-interface CustomAssets {
+interface WorldCustomAssets {
     customAssets: Map<string, CustomAsset>;
     isUIOpen: boolean;
     updateCounter: number;
 }
 
-interface CodeGridSchema {
+export interface CodeGridSchema {
     allowChannelGrids: boolean;
     customBlocks: any[];
     triggers: any[]
@@ -33,7 +33,7 @@ export interface DeviceOption {
     wireConfig: any;
 }
 
-interface Device {
+interface DeviceData {
     depth: number;
     deviceOption: DeviceOption;
     existsBeforeReconnect: boolean;
@@ -68,9 +68,9 @@ interface DeviceState {
     properties: Map<string, any>;
 }
 
-interface Devices {
+interface WorldDevices {
     codeGrids: Map<string, CodeGrid>;
-    devices: Map<string, Device>;
+    devices: Map<string, DeviceData>;
     states: Map<string, DeviceState>;
 }
 
@@ -96,8 +96,8 @@ interface Terrain {
 }
 
 export default interface World {
-    customAssets: CustomAssets;
-    devices: Devices;
+    customAssets: WorldCustomAssets;
+    devices: WorldDevices;
     height: number;
     width: number;
     mapOptionsJSON: string;
