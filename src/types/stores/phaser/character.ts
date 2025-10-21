@@ -263,7 +263,7 @@ interface Shadow {
 
 interface SkinOptions {
     id: string;
-    editStyles: Record<string, string>;
+    editStyles?: Record<string, string>;
 }
 
 interface Skin {

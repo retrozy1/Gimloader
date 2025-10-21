@@ -32,6 +32,13 @@ type ColliderOptions = {
     angle: number;
 } & DeviceCollider;
 
+interface ColliderEntry {
+    bodyId: string;
+    options: ColliderOptions;
+    device: Device;
+    scene: Scene;
+}
+
 interface Colliders {
     add: {
         box(collider: RectShort): void;
@@ -39,7 +46,7 @@ interface Colliders {
         ellipse(collider: Ellipse): void;
     }
     device: Device;
-    list: DeviceCollider[];
+    list: ColliderEntry[];
     createOptions(collider: DeviceCollider): ColliderOptions;
     destroy(): void;
     forEach(callback: (collider: DeviceCollider) => void): void;

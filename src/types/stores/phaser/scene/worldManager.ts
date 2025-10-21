@@ -40,12 +40,15 @@ interface WorldInteractives {
     clearCurrentDevice(): void;
     setCurrentDevice(device: Device): void;
     update(devices: Device[]): void;
+    canBeReachedByPlayer(device: Device): boolean;
+    findClosestInteractiveDevice(devices: Device[], x: number, y: number): Device | undefined;
 }
 
 interface Devices {
     allDevices: Device[];
     cameras: Cameras;
     devicesAction: DevicesAction;
+    devicesInView: Device[];
     devicesPreview: DevicesPreview;
     devicesToPostUpdate: Set<Device>;
     devicesToUpdate: Set<Device>;
@@ -70,14 +73,14 @@ interface CreateTileOptions {
 
 interface InGameTerrainBuilder {
     afterFailureWithTouch: boolean;
-    clearConsumeErrorMessage(): void;
-    clearPreviewLayer(): void;
-    createPreviewTile(options: CreateTileOptions): void
     overlay: Overlay;
     previewingTile?: Vector;
     scene: Scene;
-    update(): void;
     wasDown: boolean;
+    clearConsumeErrorMessage(): void;
+    clearPreviewLayer(): void;
+    createPreviewTile(options: CreateTileOptions): void
+    update(): void;
 }
 
 interface ActiveBodies {

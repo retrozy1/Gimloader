@@ -176,40 +176,6 @@ interface SceneStore {
     isCursorOverCanvas: boolean;
 }
 
-interface BackgroundLayersManager {
-    layerManager: LayerManager;
-    scene: Scene;
-    createLayer(options: {
-        layerId: string;
-        depth: number;
-    }): void;
-    fill(terrain: TerrainOption): void;
-    fillForPlatformer(): void;
-    fillForTopDown(terrain: TerrainOption): void;
-    removeLayer(options: {
-        layerId: string;
-    }): void;
-}
-
-interface LayerManager {
-    backgroundLayersManager: BackgroundLayersManager;
-    colliders: Map<string, Map<string, string>>;
-    layers: Map<string, any>;
-    scene: Scene;
-    createInitialLayers(): void;
-    createLayer(id: string): void;
-    fillBottomLayer(terrain: TerrainOption): void;
-    getActualLayerDepth(id: string): number;
-    moveLayersAboveCharacters(): void;
-    onWorldSizeChange(): void;
-}
-
-interface TileManager {
-    cumulTime: number;
-    scene: Scene;
-    layerManager: LayerManager;
-}
-
 interface CharacterOptions {
     id: string;
     x: number;
@@ -302,6 +268,52 @@ interface ActionManager {
     platformerEditing: PlatformerEditing;
     removal: Removal;
     update(): void;
+}
+
+interface TileKey {
+    depth: number;
+    x: number;
+    y: number;
+}
+
+interface BackgroundLayersManager {
+    layerManager: LayerManager;
+    scene: Scene;
+    createLayer(options: {
+        layerId: string;
+        depth: number;
+    }): void;
+    fill(terrain: TerrainOption): void;
+    fillForPlatformer(): void;
+    fillForTopDown(terrain: TerrainOption): void;
+    removeLayer(options: {
+        layerId: string;
+    }): void;
+}
+
+interface LayerManager {
+    backgroundLayersManager: BackgroundLayersManager;
+    colliders: Map<string, Map<string, string>>;
+    layers: Map<string, any>;
+    scene: Scene;
+    createInitialLayers(): void;
+    createLayer(id: string): void;
+    fillBottomLayer(terrain: TerrainOption): void;
+    getActualLayerDepth(id: string): number;
+    moveLayersAboveCharacters(): void;
+    onWorldSizeChange(): void;
+}
+
+interface TileManager {
+    cumulTime: number;
+    scene: Scene;
+    layerManager: LayerManager;
+    damageTileAtXY(x: number, y: number, depth: number, damage: number, healthPercent: number): void;
+    destroyTileByTileKey(tileKey: TileKey): void;
+    onMapStyleSet(): void;
+    regenerateTileAtXY(x: number, y: number, depth: number, healthPercent: number): void;
+    update(dt: number): void;
+    updateTeamColorTileAtXY(x: number, y: number, depth: number, team?: string, playerId?: string): void;
 }
 
 interface Projectile {
@@ -416,14 +428,14 @@ interface CreateTileOptions {
 
 interface InGameTerrainBuilder {
     afterFailureWithTouch: boolean;
-    clearConsumeErrorMessage(): void;
-    clearPreviewLayer(): void;
-    createPreviewTile(options: CreateTileOptions): void;
     overlay: Overlay;
     previewingTile?: Vector;
     scene: Scene;
-    update(): void;
     wasDown: boolean;
+    clearConsumeErrorMessage(): void;
+    clearPreviewLayer(): void;
+    createPreviewTile(options: CreateTileOptions): void;
+    update(): void;
 }
 
 interface WorldInteractives {
@@ -432,6 +444,8 @@ interface WorldInteractives {
     clearCurrentDevice(): void;
     setCurrentDevice(device: Device): void;
     update(devices: Device[]): void;
+    canBeReachedByPlayer(device: Device): boolean;
+    findClosestInteractiveDevice(devices: Device[], x: number, y: number): Device | undefined;
 }
 
 interface ShowOverlayOptions {
@@ -654,7 +668,7 @@ interface Tint {
 
 interface SkinOptions {
     id: string;
-    editStyles: Record<string, string>;
+    editStyles?: Record<string, string>;
 }
 
 interface Skin {
@@ -1208,6 +1222,9 @@ interface Cull {
     updateCull(options: UpdateCullOptions): void;
 }
 
+type DeviceCollider = RectShort | CircleShort | Ellipse;
+
+
 type ColliderOptions = {
     device: Device;
     scene: Scene;
@@ -1215,8 +1232,12 @@ type ColliderOptions = {
 } & DeviceCollider;
 
 
-type DeviceCollider = RectShort | CircleShort | Ellipse;
-
+interface ColliderEntry {
+    bodyId: string;
+    options: ColliderOptions;
+    device: Device;
+    scene: Scene;
+}
 
 interface Colliders {
     add: {
@@ -1225,7 +1246,7 @@ interface Colliders {
         ellipse(collider: Ellipse): void;
     };
     device: Device;
-    list: DeviceCollider[];
+    list: ColliderEntry[];
     createOptions(collider: DeviceCollider): ColliderOptions;
     destroy(): void;
     forEach(callback: (collider: DeviceCollider) => void): void;
@@ -1334,6 +1355,7 @@ interface Devices {
     allDevices: Device[];
     cameras: Cameras;
     devicesAction: DevicesAction;
+    devicesInView: Device[];
     devicesPreview: DevicesPreview;
     devicesToPostUpdate: Set<Device>;
     devicesToUpdate: Set<Device>;

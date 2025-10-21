@@ -3,9 +3,9 @@ import type Character from "./character";
 import type { Device } from "./scene/device";
 import type { Rect } from "../shapes";
 import type { Vector } from "@dimforge/rapier2d-compat";
-import type { TerrainOption } from "../worldOptions";
 import type WorldManager from "./scene/worldManager";
 import type InputManager from "./scene/inputManager";
+import type TileManager from "./scene/tileManager";
 
 interface ShowOverlayOptions {
     x: number;
@@ -116,35 +116,6 @@ interface CharacterManager {
     cullCharacters(): void;
     removeCharacter(id: string): void;
     update(dt: number): void;
-}
-
-interface BackgroundLayersManager {
-    layerManager: LayerManager;
-    scene: Scene;
-    createLayer(options: { layerId: string, depth: number }): void;
-    fill(terrain: TerrainOption): void;
-    fillForPlatformer(): void;
-    fillForTopDown(terrain: TerrainOption): void;
-    removeLayer(options: { layerId: string }): void;
-}
-
-interface LayerManager {
-    backgroundLayersManager: BackgroundLayersManager;
-    colliders: Map<string, Map<string, string>>;
-    layers: Map<string, any>;
-    scene: Scene;
-    createInitialLayers(): void;
-    createLayer(id: string): void;
-    fillBottomLayer(terrain: TerrainOption): void;
-    getActualLayerDepth(id: string): number;
-    moveLayersAboveCharacters(): void;
-    onWorldSizeChange(): void;
-}
-
-interface TileManager {
-    cumulTime: number;
-    scene: Scene;
-    layerManager: LayerManager;
 }
 
 export default interface Scene extends BaseScene {
