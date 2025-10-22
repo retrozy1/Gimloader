@@ -10,7 +10,7 @@ export default class GimkitInternals {
 
     static init() {
         // window.stores
-        Rewriter.exposeObject("FixSpinePlugin", "stores", "assignment:new", (stores) => {
+        Rewriter.exposeObject<Stores>("FixSpinePlugin", "stores", "assignment:new", (stores) => {
             this.stores = stores;
             window.stores = stores;
 

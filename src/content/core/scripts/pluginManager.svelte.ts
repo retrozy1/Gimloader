@@ -190,7 +190,7 @@ export default new class PluginManager {
         if(emit) Rewriter.invalidate();
     }
 
-    getExports(pluginName: string) {
+    getExports<T = any>(pluginName: string): T | null {
         let plugin = this.plugins.find(lib => lib.headers.name === pluginName);
         return plugin?.exported ?? null;
     }

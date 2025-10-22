@@ -1,5 +1,5 @@
 import type { StateMessages } from "$types/messages";
-import type { State } from "$types/state";
+import type { Settings, State } from "$types/state";
 import Server from "$bg/server";
 import { saveDebounced } from "$bg/state";
 import Updater from "$bg/updater";
@@ -14,8 +14,12 @@ export default new class SettingsHandler extends EventEmitter2 {
         saveDebounced('settings');
     }
 
-    onSettingUpdate(state: State, message: StateMessages["settingUpdate"]) {
+    updateSettingInState<K extends keyof Settings>(state: State, message: { key: K, value: Settings[K] }) {
         state.settings[message.key] = message.value;
+    }
+
+    onSettingUpdate(state: State, message: StateMessages["settingUpdate"]) {
+        this.updateSettingInState(state, message);
         this.save();
         this.emit(message.key, message.value);
 

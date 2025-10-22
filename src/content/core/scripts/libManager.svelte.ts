@@ -55,7 +55,7 @@ export default new class LibManagerClass {
         this.libs = newOrder;
     }
 
-    get(libName: string) {
+    get<T = any>(libName: string): T | null {
         let lib = this.libs.find(lib => lib.headers.name === libName);
         return lib?.library ?? null;
     }

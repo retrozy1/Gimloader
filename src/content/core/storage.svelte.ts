@@ -1,6 +1,7 @@
 import { splicer } from "$content/utils";
 import { defaultSettings } from "$shared/consts";
 import Port from "$shared/port.svelte";
+import type { StateMessages } from "$types/messages";
 import type { PluginStorage, Settings } from "$types/state";
 import EventEmitter2 from "eventemitter2";
 
@@ -39,9 +40,12 @@ export default new class Storage extends EventEmitter2 {
         document.documentElement.classList.toggle("noPluginButtons", !this.settings.showPluginButtons);
     }
 
-    updateSetting(key: string, value: any, emit = true) {        
+    updateSetting<K extends keyof Settings>(key: K, value: Settings[K], emit = true) {        
         this.settings[key] = value;
-        if(emit) Port.send("settingUpdate", { key, value });
+        if(emit) {
+            let payload = { key, value };
+            Port.send("settingUpdate", payload as StateMessages['settingUpdate']);
+        }
         else this.emit(key, value);
 
         switch(key) {
@@ -51,13 +55,13 @@ export default new class Storage extends EventEmitter2 {
         }
     }
 
-    getPluginValue(id: string, key: string, defaultVal?: any) {
-        let val = this.values[id]?.[key];
+    getPluginValue<T = unknown>(id: string, key: string, defaultVal?: T) {
+        let val: T = this.values[id]?.[key];
         if(val !== undefined) return val;
         return defaultVal ?? null;
     }
     
-    setPluginValue(id: string, key: string, value: any, emit = true) {
+    setPluginValue<T = unknown>(id: string, key: string, value: T, emit = true) {
         if(!this.values[id]) this.values[id] = {};
         this.values[id][key] = value;
 

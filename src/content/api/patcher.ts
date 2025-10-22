@@ -7,7 +7,7 @@ class PatcherApi {
      * Runs a callback after a function on an object has been run
      * @returns A function to remove the patch
      */
-    after(id: string, object: any, method: string, callback: PatcherAfterCallback) {
+    after<O extends object = object>(id: string, object: O, method: keyof O, callback: PatcherAfterCallback) {
         if(!validate("patcher.after", arguments,
             ['id', 'string'], ['object', 'object'], ['method', 'string'], ['callback', 'function'])) return;
 

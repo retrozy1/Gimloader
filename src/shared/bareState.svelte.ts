@@ -69,8 +69,12 @@ export default new class BareState {
         });
 
         // sync settings
-        Port.on("settingUpdate", ({ key, value }) => {
-            this.settings[key] = value;
+        Port.on("settingUpdate", (message) => {
+            function updateSettingInState<K extends keyof Settings>(message: { key: K, value: Settings[K] }) {
+                this.settings[message.key] = message.value;
+            }
+
+            updateSettingInState(message);
         });
     }
 }

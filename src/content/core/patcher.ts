@@ -12,10 +12,10 @@ type Patch = { callback: PatcherBeforeCallback, point: 'before' } |
     { callback: PatcherInsteadCallback, point: 'instead' };
 
 export default class Patcher {
-    static patches: Map<object, Map<string, { original: any, patches: Patch[] }>> = new Map();
+    static patches: Map<object, Map<keyof any, { original: any, patches: Patch[] }>> = new Map();
     static unpatchers: Map<string, (() => void)[]> = new Map();
 
-    static applyPatches(object: object, property: string) {
+    static applyPatches<O extends object = object>(object: O, property: keyof O) {
         const properties = this.patches.get(object);
         if(!properties) return;
 
@@ -68,7 +68,7 @@ export default class Patcher {
         }
     }
 
-    static addPatch(object: object, property: string, patch: Patch) {
+    static addPatch<O extends object = object>(object: O, property: keyof O, patch: Patch) {
         if(!this.patches.has(object)) {
             this.patches.set(object, new Map([[property, { original: object[property], patches: [] }]]));
         }
@@ -143,7 +143,7 @@ export default class Patcher {
         return unpatch;
     }
 
-    static after(id: string | null, object: object, property: string, callback: PatcherAfterCallback) {
+    static after<O extends object = object>(id: string | null, object: O, property: keyof O, callback: PatcherAfterCallback) {
         let patch: Patch = { callback, point: 'after' };
 
         this.addPatch(object, property, patch);

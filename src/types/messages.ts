@@ -1,5 +1,5 @@
 import type { HotkeyTrigger } from "./hotkeys";
-import type { ConfigurableHotkeysState, SavedState, State } from "./state";
+import type { ConfigurableHotkeysState, SavedState, Settings, State } from "./state";
 
 // These go both ways
 export interface StateMessages {
@@ -20,9 +20,14 @@ export interface StateMessages {
     pluginToggled: { name: string, enabled: boolean };
     pluginsSetAll: { enabled: boolean };
 
-    settingUpdate: { key: string, value: any };
+    settingUpdate: {
+        [K in keyof Settings]: {
+            key: K;
+            value: Settings[K];
+        }
+    }[keyof Settings];
 
-    pluginValueUpdate: { id: string, key: string, value: string };
+    pluginValueUpdate: { id: string, key: string, value: any };
     pluginValueDelete: { id: string, key: string };
     pluginValuesDelete: { id: string };
 

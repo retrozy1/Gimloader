@@ -197,7 +197,7 @@ export default class Rewriter {
         }
     }
 
-    static createShared(pluginName: string | null, id: string, value: any) {
+    static createShared<T = any>(pluginName: string | null, id: string, value: T) {
         let sharedId = id;
 
         if(pluginName !== null) {
@@ -224,8 +224,8 @@ export default class Rewriter {
         delete this.shared[`${pluginName}-${id}`];
     }
 
-    static createMemoized(id: string, getter: () => any) {
-        let stored: any;
+    static createMemoized<T = any>(id: string, getter: () => T) {
+        let stored: T;
         let shared = this.createShared(null, id, () => {
             if(stored) return stored;
 
@@ -236,7 +236,7 @@ export default class Rewriter {
         return `${shared}?.()`;
     }
 
-    static exposeObject(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
+    static exposeObject<T = any>(prefix: Prefix, id: string, substring: string, callback: (val: T) => void) {
         const cb = this.createShared(null, id, callback);
 
         this.addParseHook(null, prefix, (code) => {
@@ -261,7 +261,7 @@ export default class Rewriter {
         });
     }
 
-    static exposeObjectBefore(prefix: Prefix, id: string, substring: string, callback: (val: any) => void) {
+    static exposeObjectBefore<T = any>(prefix: Prefix, id: string, substring: string, callback: (val: T) => void) {
         const cb = this.createShared(null, id, callback);
 
         this.addParseHook(null, prefix, (code) => {
