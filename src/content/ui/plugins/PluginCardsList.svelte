@@ -15,8 +15,6 @@
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-    import UI from '$content/core/ui/ui';
-    import type { Experiences } from "$types/fetch";
 
     interface Props {
         onDrop: (callback: (text: string) => void) => void
@@ -27,16 +25,6 @@
     onDrop((text: string) => {
         PluginManager.createPlugin(text);
     });
-
-    UI.gamemodesRes ??= fetch("/api/experiences", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            "mode": "liveGame",
-            "forceUpgradedExperiences": false
-        })
-    })
-        .then<Experiences>(res => res.json());
     
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));

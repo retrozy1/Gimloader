@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Gamemodes } from '$types/state';
+    import GamemodeList from './GamemodeList.svelte';
     import parsed, { type MappedMode } from './parseExperiences'
 
     interface Props {
@@ -7,44 +8,53 @@
         gamemodes: Gamemodes;
         parsedExperiences: ReturnType<typeof parsed>;
     }
-    let { configurable, gamemodes, parsedExperiences }: Props = $props();
+    const { configurable, gamemodes, parsedExperiences }: Props = $props();
 
     let { allGamemodes, mappedModes, gamemodes1d, gamemodes2d } = parsedExperiences;
 
+    let visibleGamemodes = $derived([...allGamemodes]
+        .filter(gm => gm !== "creative")
+        .map(id => mappedModes.find(m => m.id === id))    
+    );
+
     function massAction(modes: MappedMode[], enabled: boolean) {
-        if (enabled) {
-            modes.forEach((gm) => {
-                if (!gamemodes.official.includes(gm.id)) gamemodes.official.push(gm.id);
-            });
+        if(enabled) {
+            gamemodes.official = new Set([...gamemodes.official, ...modes.map(x => x.id)]);
         } else {
-            gamemodes.official = gamemodes.official.filter(gm => modes.every(g => g.id !== gm));
+            gamemodes.official = new Set([...gamemodes.official].filter(gm => modes.every(g => g.id !== gm)));
         }
     }
 </script>
 
-{#if configurable}
-    <div class="flex flex-row">
-        <button onclick={() => massAction(gamemodes1d, true)}>Enable All 1D</button>
-        <button onclick={() => massAction(gamemodes2d, true)}>Enable All 2D</button>
-        <button onclick={() => massAction(gamemodes1d, false)}>Disable All 1D</button>
-        <button onclick={() => massAction(gamemodes2d, false)}>Disable All 2D</button>
-    </div>
-{/if}
-<div>
-    {#each allGamemodes.filter(gm => gm !== "creative") as gamemodeId}
-        {@const gamemode = mappedModes.find(m => m.id === gamemodeId)}
-        <div class="flex flex-row">
-            {#if configurable}
-                <input type="checkbox" checked={gamemodes.official.includes(gamemodeId)} onchange={(e) => {
-                    if (e.currentTarget.checked) {
-                        gamemodes.official.push(gamemodeId);
-                    } else {
-                        gamemodes.official.filter(gm => gm !== gamemodeId);
-                    }
-                }}>
-            {/if}
-            <img src={gamemode.image} alt={gamemode.name}>
-            {gamemode.name}
+{#snippet button(name: string, modes: MappedMode[], enabled: boolean)}
+    <button class="border-2 rounded-md" onclick={() => massAction(modes, enabled)}>{name}</button>
+{/snippet}
+
+<div class="flex flex-col gap-2">
+    {#if configurable}
+        <div class="flex gap-2">
+            {@render button("Enable All 1D", gamemodes1d, true)}
+            {@render button("Enable All 2D", gamemodes2d, true)}
+            {@render button("Disable All 1D", gamemodes1d, false)}
+            {@render button("Disable All 2D", gamemodes2d, false)}
         </div>
-    {/each}
+    {/if}
+    <div>
+        <GamemodeList gamemodes={visibleGamemodes}>
+            {#snippet interaction(gamemode)}
+                {#if configurable}
+                    <input type="checkbox" checked={gamemodes.official.has(gamemode.id)} onchange={(e) => {
+                        if (e.currentTarget.checked) {
+                            gamemodes.official = new Set([...gamemodes.official, gamemode.id]);
+                            console.log(`checked ${gamemode.id}! gamemodes.official:`)
+                            console.log(gamemodes.official);
+                            console.log($state.snapshot(gamemodes))
+                        } else {
+                            gamemodes.official = new Set([...gamemodes.official].filter(gm => gm !== gamemode.id));
+                        }
+                    }}>
+                {/if}
+            {/snippet}
+        </GamemodeList>
+    </div>
 </div>

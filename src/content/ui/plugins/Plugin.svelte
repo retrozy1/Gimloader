@@ -5,6 +5,7 @@
     import { Toggle, Modal } from "flowbite-svelte";
     import Card from "../components/Card.svelte";
     import PluginLibrariesInfo from "./PluginLibrariesInfo.svelte";
+    import Gamemodes from '../components/gamemodes/Gamemodes.svelte';
     import ListItem from '../components/ListItem.svelte'
     import { Tooltip } from "flowbite-svelte";
     import Storage from "$core/storage.svelte";
@@ -61,8 +62,6 @@
 
     let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
     const SvelteComponent = $derived(component);
-
-    
 </script>
 
 {#if libInfoOpen}
@@ -73,7 +72,20 @@
 {/if}
 
 {#if gamemodeInfoOpen}
-    
+    {#await UI.experiencesRes then experiences} 
+        <Modal
+            size="md" open outsideclose
+            on:close={() => gamemodeInfoOpen = false}
+            title={`Gamemode configuration for ${plugin.headers.name}`}
+        >
+            <Gamemodes
+                {experiences}
+                header={plugin?.headers.gamemode}
+                initialGamemodes={plugin?.gamemodes}
+                onChange={gamemodes => PluginManager.setGamemodes(plugin, gamemodes)}
+            />
+        </Modal>
+    {/await}
 {/if}
 
 <SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed} error={plugin?.errored}>
@@ -113,15 +125,15 @@
                 "This plugin's settings menu is missing/invalid" :
                 'Plugins need to be enabled to open settings'} />
         {/if}
-        {#if plugin?.headers.gamemode}
-            {#await UI.gamemodesRes}
+        {#if plugin?.headers.gamemode.length}
+            {#await UI.experiencesRes}
                 <CogPlayOutline size={28} class="opacity-50" title="Loading gamemodes..." />
             {:then}
                 <button onclick={() => gamemodeInfoOpen = true} title="Configure gamemodes">
                     <CogPlayOutline size={28} />
                 </button>
             {:catch}
-                <CogPlayOutline color="red" class="opacity-50" title="Gamemodes failed to load" />
+                <CogPlayOutline size={28} color="red" class="opacity-50" title="Gamemodes failed to load" />
             {/await}
         {/if}
         {#if plugin?.headers.downloadUrl}

@@ -1,4 +1,4 @@
-import type { PluginInfo } from "$types/state";
+import type { Gamemodes, PluginInfo } from "$types/state";
 import showErrorMessage from "$content/ui/showErrorMessage";
 import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
@@ -275,7 +275,7 @@ export default new class PluginManager {
         if(emit) Rewriter.invalidate();
     }
 
-    setGamemodes(name: Plugin | string, gamemodes: string[], emit = true) {
+    setGamemodes(name: Plugin | string, gamemodes: Gamemodes, emit = true) {
         let plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
 

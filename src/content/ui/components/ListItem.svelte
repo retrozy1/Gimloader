@@ -14,7 +14,6 @@
         buttons?: Snippet;
         author?: Snippet;
         description?: Snippet;
-        gamemodes?: Snippet;
         border?: string;
         hasDrag?: boolean;
     }
@@ -30,7 +29,6 @@
         buttons,
         author,
         description,
-        gamemodes,
         border,
         hasDrag = true
     }: Props = $props();
@@ -77,9 +75,6 @@ p-3 h-full bg-white preflight rounded-xl relative">
             </div>
             <div class="flex-grow text-sm pr-7 overflow-hidden overflow-ellipsis">
                 {@render description?.()}
-            </div>
-            <div class="flex flex-row gap-1">
-                {@render gamemodes?.()}
             </div>
         </div>
     {/if}

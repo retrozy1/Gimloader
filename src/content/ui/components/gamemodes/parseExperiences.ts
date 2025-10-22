@@ -20,33 +20,34 @@ export default function parseExperiences(experiences: Experiences, header: strin
     let gamemodes2d = allModes.filter(gm => gm.source === "map").map(gamemodesMap);
     
     // Get all the gamemode ids from the groups + explicit ids + "creative"
-    let allGamemodesSet = new Set<string>();
+    let allGamemodes = new Set<string>();
     for(let mode of header.map(id => id.toLowerCase())) {
         switch(mode) {
             case "*": {
-                mappedModes.forEach(gm => allGamemodesSet.add(gm.id));
-                allGamemodesSet.add("creative");
+                mappedModes.forEach(gm => allGamemodes.add(gm.id));
+                allGamemodes.add("creative");
                 break;
             }
             case "2d": {
-                gamemodes2d.forEach(gm => allGamemodesSet.add(gm.id));
-                allGamemodesSet.add("creative");
+                gamemodes2d.forEach(gm => allGamemodes.add(gm.id));
+                allGamemodes.add("creative");
                 break;
             }
             case "1d": {
-                gamemodes1d.forEach(gm => allGamemodesSet.add(gm.id));
+                gamemodes1d.forEach(gm => allGamemodes.add(gm.id));
                 break;
             }
             case "official": {
-                mappedModes.forEach(gm => allGamemodesSet.add(gm.id));
+                mappedModes.forEach(gm => allGamemodes.add(gm.id));
                 break;
             }
             case "official-2d": {
-                gamemodes2d.forEach(gm => allGamemodesSet.add(gm.id));
+                gamemodes2d.forEach(gm => allGamemodes.add(gm.id));
                 break;
             }
+            case "creative": break;
             default: {
-                allGamemodesSet.add(mode);
+                allGamemodes.add(mode);
             }
         }
     }
@@ -55,6 +56,6 @@ export default function parseExperiences(experiences: Experiences, header: strin
         mappedModes,
         gamemodes1d,
         gamemodes2d,
-        allGamemodes: [...allGamemodesSet]
+        allGamemodes
     };
 }

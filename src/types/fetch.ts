@@ -17,3 +17,17 @@ interface Category {
 }
 
 export type Experiences = Category[];
+
+interface BaseCreativeMap {
+    image: string;
+    title: string;
+    tags: string[];
+}
+
+export interface SingleCreativeMap extends BaseCreativeMap {
+    description: string;
+}
+
+export interface ListCreativeMap extends BaseCreativeMap {
+    _id: string;
+}

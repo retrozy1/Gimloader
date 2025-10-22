@@ -5,12 +5,14 @@ import styles from "../../css/styles.scss";
 import { domLoaded } from '$content/utils';
 import Rewriter from '../rewriter';
 import type { Experiences } from '$types/fetch';
+import type { MappedMode } from '$content/ui/components/gamemodes/parseExperiences';
 
 export default class UI {
     static React: typeof React;
     static ReactDOM: typeof ReactDOM;
     static styles: Map<string, HTMLStyleElement[]> = new Map();
-    static gamemodesRes: Promise<Experiences>;
+    static experiencesRes: Promise<Experiences>;
+    static storedCreativeMaps: MappedMode[] = [];
 
     static init() {
         Rewriter.exposeObjectBefore(true, "React", ".useDebugValue=", (react) => {

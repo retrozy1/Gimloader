@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { Experiences } from "$types/fetch";
     import type { Gamemodes } from "$types/state";
-    import CreativeGamemodes from "./CreativeGamemodes.svelte";
+    import { TabItem, Tabs } from 'flowbite-svelte';
+    import CreativeMaps from "./CreativeMaps.svelte";
     import OfficialGamemodes from "./OfficialGamemodes.svelte";
     import parseExperiences from "./parseExperiences";
 
@@ -17,24 +18,19 @@
     let { allGamemodes } = parsedExperiences;
 
     let gamemodes = $state<Gamemodes>(initialGamemodes ?? { official: allGamemodes });
+    console.log(gamemodes);
 
     $effect(() => onChange?.(gamemodes));
 
-    let hasCreative = allGamemodes.includes("creative");
-    let isTabs = allGamemodes.length > 1 && hasCreative;
-
-    let tab = $state<"official" | "creative">(hasCreative ? "creative" : "official");
+    let creativeDisabled = !allGamemodes.has("creative");
+    let officialDisabled = !creativeDisabled && allGamemodes.size === 1;
 </script>
 
-{#if isTabs}
-    <div class="flex flex-row">
-        <button onclick={() => tab = "official"}>Official</button>
-        <button onclick={() => tab = "creative"}>Creative</button>
-    </div>
-{/if}
-
-{#if tab === "official"}
-    <OfficialGamemodes configurable={!!onChange} {gamemodes} {parsedExperiences} />
-{:else}
-    <CreativeGamemodes configurable={!!onChange} {gamemodes} />
-{/if}
+<Tabs>
+    <TabItem title="Official" disabled={officialDisabled} open={!officialDisabled}>
+        <div class="h-96"><OfficialGamemodes configurable={!!onChange} {gamemodes} {parsedExperiences} /></div>
+    </TabItem>
+    <TabItem title="Creative" disabled={creativeDisabled} open={officialDisabled}>
+        <div class="h-96"><CreativeMaps configurable={!!onChange} {gamemodes} /></div>
+    </TabItem>
+</Tabs>

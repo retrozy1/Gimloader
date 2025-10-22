@@ -30,7 +30,7 @@
     const onDrop = (callback: DropCallback) => {
         dropCallback = callback;
     }
-    
+
     let wrapper: HTMLDivElement;
     let modalDragCounter = $state(0);
     onMount(() => {

@@ -1,7 +1,7 @@
 import type { HotkeyTrigger } from "./hotkeys";
 
 export interface Gamemodes {
-    official?: string[];
+    official?: Set<string>;
     creative?: {
         // This allows users to switch back
         mode: "whitelist" | "blacklist" | "all";
