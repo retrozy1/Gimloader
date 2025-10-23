@@ -1,5 +1,6 @@
 import type Scene from "../scene";
 import type { TerrainOption } from "../../worldOptions";
+import type { XY } from '$types/shared';
 
 interface BackgroundLayersManager {
     layerManager: LayerManager;
@@ -24,10 +25,8 @@ interface LayerManager {
     onWorldSizeChange(): void;
 }
 
-interface TileKey {
+interface TileKey extends XY {
     depth: number;
-    x: number;
-    y: number;
 }
 
 export default interface TileManager {

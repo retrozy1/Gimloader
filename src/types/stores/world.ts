@@ -1,3 +1,5 @@
+import type { XY } from '$types/shared';
+
 export interface Shapes {
     circles: number[][];
     lines: number[][];
@@ -33,7 +35,7 @@ export interface DeviceOption {
     wireConfig: any;
 }
 
-interface DeviceData {
+interface DeviceData extends XY {
     depth: number;
     deviceOption: DeviceOption;
     existsBeforeReconnect: boolean;
@@ -44,8 +46,6 @@ interface DeviceData {
     name: any;
     options: Record<string, any>;
     props: any;
-    x: number;
-    y: number;
 }
 
 interface CodeGridItem {
@@ -74,12 +74,10 @@ interface WorldDevices {
     states: Map<string, DeviceState>;
 }
 
-interface Tile {
+interface Tile extends XY {
     collides: boolean;
     depth: number;
     terrain: string;
-    x: number;
-    y: number;
 }
 
 interface QueuedTile {

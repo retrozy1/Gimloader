@@ -1,6 +1,7 @@
 import type Scene from '../scene';
 import type Character from '../character';
 import type { Collider, ColliderDesc, RigidBody, RigidBodyDesc, Vector } from "@dimforge/rapier2d-compat";
+import type { XY } from '$types/shared';
 
 interface Jump {
     actuallyJumped: boolean;
@@ -46,10 +47,8 @@ interface Bodies {
     rigidBodyDesc: RigidBodyDesc;
 }
 
-interface ServerPosition {
+interface ServerPosition extends XY {
     packet: number;
-    x: number;
-    y: number;
     jsonState: string;
     teleport: boolean;
 }

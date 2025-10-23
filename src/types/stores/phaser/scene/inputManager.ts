@@ -2,15 +2,14 @@ import type { Vector } from "@dimforge/rapier2d-compat";
 import type Scene from "../scene";
 import type { TickInput } from "../character/physics";
 import type { GameObjects, Input } from "phaser";
+import type { XY } from '$types/shared';
 
-interface AimCursor {
+interface AimCursor extends XY {
     aimCursor: GameObjects.Sprite;
     aimCursorWorldPos: Vector;
     centerShiftX: number;
     centerShiftY: number;
     scene: Scene;
-    x: number;
-    y: number;
     update(): void;
 }
 
@@ -43,15 +42,13 @@ interface Keyboard {
     isKeyDown(key: number): boolean;
 }
 
-interface MovementPointer {
+interface MovementPointer extends XY {
     id: string;
-    x: number;
-    y: number;
     downX: number;
     downY: number;
 }
 
-interface Mouse {
+interface Mouse extends XY {
     clickListeners: Map<string, (pointer: Input.Pointer) => void>;
     downX: number;
     downY: number;
@@ -61,8 +58,6 @@ interface Mouse {
     stopRunningClickHandlers: boolean;
     worldX: number;
     worldY: number;
-    x: number;
-    y: number;
     addClickListener(options: { callback: (pointer: Input.Pointer) => void}): () => void;
     pointerUpdate(pointer: Input.Pointer): void;
     removeClickListener(id: string): void;

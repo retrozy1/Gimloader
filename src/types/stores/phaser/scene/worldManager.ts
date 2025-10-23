@@ -6,6 +6,7 @@ import type { Device } from "./device";
 import type InputManager from "./inputManager";
 import type { Rect } from "../../shapes";
 import type { Input } from "phaser";
+import type { XY } from '$types/shared';
 
 interface Cameras {
     allCameras: Device[];
@@ -64,9 +65,7 @@ interface Devices {
     update(dt: number): void;
 }
 
-interface CreateTileOptions {
-    x: number;
-    y: number;
+interface CreateTileOptions extends XY {
     tileIndex: number;
     terrainOption: TerrainOption;
 }

@@ -1,5 +1,6 @@
 import type { Vector } from "@dimforge/rapier2d-compat";
 import type { Shapes } from "./world";
+import type { XY } from '$types/shared';
 
 interface ExistingDevice {
     action: string;
@@ -181,11 +182,9 @@ interface NonDismissMessage {
     title: string;
 }
 
-interface TileToRemove {
+interface TileToRemove extends XY {
     depth: number;
     id: string;
-    x: number;
-    y: number;
 }
 
 interface Removing {

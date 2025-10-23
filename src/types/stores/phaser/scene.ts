@@ -6,10 +6,9 @@ import type { Vector } from "@dimforge/rapier2d-compat";
 import type WorldManager from "./scene/worldManager";
 import type InputManager from "./scene/inputManager";
 import type TileManager from "./scene/tileManager";
+import type { XY } from '$types/shared';
 
-interface ShowOverlayOptions {
-    x: number;
-    y: number;
+interface ShowOverlayOptions extends XY {
     width: number;
     height: number;
     depth: number;
@@ -19,7 +18,7 @@ export interface Overlay {
     scene: Scene;
     showing: boolean;
     showingDimensions: { width: number; height: number } | null;
-    showingPosition: { x: number; y: number } | null;
+    showingPosition: XY | null;
     hide(): void;
     show(options: ShowOverlayOptions): void;
 }
@@ -99,10 +98,8 @@ interface Spectating {
     setShuffle(shuffle: boolean, save?: boolean): void;
 }
 
-interface CharacterOptions {
+interface CharacterOptions extends XY {
     id: string;
-    x: number;
-    y: number;
     scale: number;
     type: string;
 }

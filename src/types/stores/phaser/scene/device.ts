@@ -4,6 +4,7 @@ import type Character from "../character";
 import type Scene from "../scene";
 import type { Types, Tweens } from "phaser";
 import type { Rect, Circle, RectShort, CircleShort, Ellipse, RotatedRect, RotatedCircle } from "../../shapes";
+import type { XY } from '$types/shared';
 
 interface AppearanceVariation {
     device: Device;
@@ -155,9 +156,7 @@ interface VisualEditing {
     clear(): void;
 }
 
-interface ShadowOptions {
-    x: number;
-    y: number;
+interface ShadowOptions extends XY {
     r1: number;
     r2: number;
     alphaMultip: number;
@@ -205,12 +204,10 @@ interface DeviceProjectiles {
     setDynamic(dynamic: boolean): void;
 }
 
-interface BaseDevice {
+interface BaseDevice extends XY {
     isPreview: boolean;
     placedByClient: boolean;
     isDestroyed: boolean;
-    x: number;
-    y: number;
     forceUseMyState: boolean;
     options: Record<string, any>;
     state: Record<string, any>;

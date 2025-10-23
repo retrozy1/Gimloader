@@ -1,3 +1,4 @@
+import type { XY } from '$types/shared';
 import type Character from '../character';
 
 interface Point {
@@ -11,11 +12,9 @@ interface Point {
     usedTeleported: boolean;
 }
 
-interface EndInfo {
+interface EndInfo extends XY {
     end: number;
     start: number;
-    x: number;
-    y: number;
 }
 
 export default interface Movement {
