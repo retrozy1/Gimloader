@@ -30,7 +30,7 @@ type ColliderOptions = {
     device: Device;
     scene: Scene;
     angle: number;
-} & DeviceCollider;
+} & Partial<RectShort & CircleShort & Ellipse>;
 
 interface ColliderEntry {
     bodyId: string;
