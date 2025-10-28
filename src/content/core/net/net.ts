@@ -180,7 +180,7 @@ export default new class Net extends EventEmitter2 {
         }
     }
 
-    send(channel: string, message: any) {
+    send(channel: string, message?: any) {
         if(this.room.type !== "None") {
             this.room.send(channel, message);
         }

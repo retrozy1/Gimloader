@@ -266,6 +266,11 @@ interface SkinOptions {
     editStyles?: Record<string, string>;
 }
 
+interface SkinSetupOptions extends SkinOptions {
+    x?: number;
+    y?: number;
+}
+
 interface Skin {
     character: Character;
     editStyles?: Record<string, string>;
@@ -273,7 +278,7 @@ interface Skin {
     scene: Scene;
     skinId: string;
     applyEditStyles(options: SkinOptions): void;
-    setupSkin(position: Vector): void;
+    setupSkin(position: SkinSetupOptions): void;
     updateSkin(options: SkinOptions): void;
 }
 

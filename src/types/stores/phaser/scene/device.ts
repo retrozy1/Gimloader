@@ -120,6 +120,8 @@ interface InteractiveZones {
     setCanInteractThroughColliders(canInteract: boolean): void;
     setForceDisabled(forceDisabled: boolean): void;
     setInfo(info: any): void;
+    remove(zone: CircleShort | Rect): void;
+    onInteraction?(): void;
 }
 
 interface VisualEditingBox {

@@ -20,7 +20,7 @@ type Prefix = string | boolean;
 interface ParseHook {
     pluginName?: string;
     prefix: Prefix;
-    callback: (code: string) => string;
+    callback: (code: string) => string | undefined;
 }
 
 export default class Rewriter {
