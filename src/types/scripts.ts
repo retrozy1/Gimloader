@@ -10,6 +10,7 @@ export interface ScriptHeaders {
     needsLib: string[];
     optionalLib: string[];
     syncEval: string;
+    deprecated: string | null;
     gamemode: string[];
     /** Only available for plugins */
     hasSettings: string;

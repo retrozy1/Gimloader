@@ -16,6 +16,7 @@
         description?: Snippet;
         border?: string;
         hasDrag?: boolean;
+        deprecated?: string | null;
     }
 
     let {
@@ -30,7 +31,8 @@
         author,
         description,
         border,
-        hasDrag = true
+        hasDrag = true,
+        deprecated
     }: Props = $props();
 
     function checkDrag() {

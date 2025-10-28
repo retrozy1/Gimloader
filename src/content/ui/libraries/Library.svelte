@@ -5,11 +5,13 @@
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import Update from "svelte-material-icons/Update.svelte";
-    import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import ListItem from "../components/ListItem.svelte";
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
+    import { Tooltip } from "flowbite-svelte";
+    import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
+    import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
 
     function deleteLib() {
         let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
@@ -36,7 +38,8 @@
     const SvelteComponent = $derived(component);
 </script>
 
-<SvelteComponent {dragDisabled} {startDrag} {dragAllowed}>
+<SvelteComponent {dragDisabled} {startDrag} {dragAllowed}
+    deprecated={library?.headers.deprecated !== null}>
     {#snippet header()}
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
             {library?.headers.name}
@@ -67,6 +70,19 @@
             <a href={library.headers.webpage} target="_blank">
                 <ScriptTextOutline size={28} />
             </a>
+        {/if}
+        {#if library?.headers.deprecated !== null}
+            <button>
+                <AlertTriangleOutline size={28} color="#faca15" />
+            </button>
+            <Tooltip trigger="hover" class="z-50">
+                {#if library?.headers.deprecated === ""}
+                    This library has been marked as deprecated.
+                {:else}
+                    This library has been marked as deprecated:
+                    {library?.headers.deprecated}
+                {/if}
+            </Tooltip>
         {/if}
     {/snippet}
 </SvelteComponent>

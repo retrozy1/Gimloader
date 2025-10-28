@@ -8,6 +8,7 @@
     import ListItem from '../components/ListItem.svelte'
     import { Tooltip } from "flowbite-svelte";
     import Storage from "$core/storage.svelte";
+    import { showEditor } from "$content/utils";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
@@ -16,7 +17,7 @@
     import Cog from "svelte-material-icons/Cog.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertCircleOutline from 'svelte-material-icons/AlertCircleOutline.svelte';
-    import { showEditor } from "$content/utils";
+    import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
 
     interface Props {
         startDrag: () => void;
@@ -67,7 +68,8 @@
     </Modal>
 {/if}
 
-<SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed} error={plugin?.errored}>
+<SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed}
+    error={plugin?.errored} deprecated={plugin?.headers.deprecated !== null}>
     {#snippet header()}
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
             {plugin?.headers.name}
@@ -118,6 +120,19 @@
             <a href={plugin.headers.webpage} target="_blank">
                 <ScriptTextOutline size={28} />
             </a>
+        {/if}
+        {#if plugin?.headers.deprecated !== null}
+            <button>
+                <AlertTriangleOutline size={28} color="#faca15" />
+            </button>
+            <Tooltip trigger="hover" class="z-50">
+                {#if plugin?.headers.deprecated === ""}
+                    This plugin has been marked as deprecated.
+                {:else}
+                    This plugin has been marked as deprecated:
+                    {plugin?.headers.deprecated}
+                {/if}
+            </Tooltip>
         {/if}
         {#if plugin?.errored}
             <button>
