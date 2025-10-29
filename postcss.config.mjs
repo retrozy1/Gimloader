@@ -1,7 +1,5 @@
 export default {
-  plugins: {
-    "postcss-minify": {},
-    tailwindcss: {},
-    autoprefixer: {},
-  },
+    plugins: {
+        "@tailwindcss/postcss": {}
+    }
 }

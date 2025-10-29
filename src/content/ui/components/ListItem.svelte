@@ -42,7 +42,7 @@
     let expanded = $state(false);
 </script>
 
-<div class="{error ? 'border-2 border-red-500' : border ?? "border border-gray-500"}
+<div class="{error ? 'border-2 border-red-500' : deprecated ? 'border-2 border-yellow-300' : "border border-gray-500"}
 p-3 h-full bg-white preflight rounded-xl relative">
     <div class="flex items-center">
         {#if loading}

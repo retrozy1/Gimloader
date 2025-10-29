@@ -1,7 +1,7 @@
 import type { EditorOptions } from '$types/editor';
 import { mount } from 'svelte';
 import Editor from './Editor.svelte';
-import styles from "../shared/tailwind.scss";
+import styles from "$shared/tailwind.css";
 import { javascript } from "@codemirror/lang-javascript";
 import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";

@@ -1,6 +1,6 @@
 import Popup from "./Popup.svelte";
 import { mount } from "svelte";
-import styles from '../shared/tailwind.scss';
+import styles from '../shared/tailwind.css';
 import state from '$shared/bareState.svelte';
 
 state.init();

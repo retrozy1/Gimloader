@@ -1,7 +1,8 @@
 import type * as React from 'react';
 import type * as ReactDOM from 'react-dom/client';
 import { addPluginButtons } from './addPluginButtons';
-import styles from "../../css/styles.scss";
+import styles from "$content/css/styles.css";
+import tailwindStyles from "$content/css/tailwind.css";
 import { domLoaded } from '$content/utils';
 import Rewriter from '../rewriter';
 
@@ -60,5 +61,6 @@ export default class UI {
 
     static addCoreStyles() {
         this.addStyles(null, styles);
+        this.addStyles(null, tailwindStyles);
     }
 }

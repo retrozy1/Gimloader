@@ -2,11 +2,10 @@
     import type { Plugin } from "$core/scripts/scripts.svelte";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import { checkPluginUpdate } from "$core/net/checkUpdates";
-    import { Toggle, Modal } from "flowbite-svelte";
+    import { Toggle, Modal, Tooltip } from "flowbite-svelte";
     import Card from "../components/Card.svelte";
     import PluginLibrariesInfo from "./PluginLibrariesInfo.svelte";
     import ListItem from '../components/ListItem.svelte'
-    import { Tooltip } from "flowbite-svelte";
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
 

@@ -2,7 +2,7 @@ import * as monaco from 'monaco-editor';
 import types from "./gimloaderTypes.txt";
 import { mount } from 'svelte';
 import Editor from './Editor.svelte';
-import styles from "../shared/tailwind.scss";
+import styles from "$shared/tailwind.css";
 import type { EditorOptions } from '$types/editor';
 
 self.MonacoEnvironment = {

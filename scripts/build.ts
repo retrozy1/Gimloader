@@ -3,9 +3,8 @@ import sveltePlugin from 'esbuild-svelte';
 import { sveltePreprocess } from 'svelte-preprocess';
 import postcss from 'postcss';
 import postcssLoadConfig from 'postcss-load-config';
-import { compileAsync } from "sass";
-import path from "path";
-import fs from 'fs';
+import fs from "node:fs";
+import fsp from "node:fs/promises";
 
 const isFirefox = process.argv.includes("--firefox");
 
@@ -29,21 +28,31 @@ if(!isFirefox && !fs.existsSync('extension/build/js/editor/vs')) {
     console.timeEnd("Built monaco");
 }
 
-// unholy amalgamation of esbuild-postcss-inline-styles and esbuild-style-plugin
 function importStyles(): Plugin {
     return {
         name: "import-styles",
         setup(build) {
-            build.onResolve({ filter: /.\.scss$/ }, (args) => {
+            build.onResolve({ filter: /tailwind\.css$/ }, async (args) => {
+                if(args.pluginData === "import-styles-resolved") return;
+                const result = await build.resolve(args.path, {
+                    resolveDir: args.resolveDir,
+                    kind: "import-statement",
+                    pluginData: "import-styles-resolved"
+                });
+
+                // Remove everything before "src" in the path
+                const startIndex = result.path.indexOf("src");
+                const path = result.path.slice(startIndex);
+
                 return {
-                    path: path.join(args.resolveDir, args.path),
+                    path,
                     namespace: "import-styles"
                 }
             });
             build.onLoad({ filter: /.*/, namespace: "import-styles" }, async (args) => {
-                const sassed = (await compileAsync(args.path)).css;
+                const css = (await fsp.readFile(args.path)).toString();
                 const config = await postcssLoadConfig();
-                const postcssed = await postcss(config.plugins).process(sassed, {
+                const postcssed = await postcss(config.plugins).process(css, {
                     from: args.path
                 });
 

@@ -1,8 +1,7 @@
 <script lang="ts">
     import LibraryCardsList from "./libraries/LibraryCardsList.svelte";
     import PluginCardsList from "./plugins/PluginCardsList.svelte";
-    import { Tabs, TabItem } from "flowbite-svelte";
-    import Modal from './flowbite/Modal.svelte';
+    import { Modal, Tabs, TabItem } from "flowbite-svelte";
     import { focusTrapEnabled, officialPluginsOpen } from "./stores";
     import Updates from "./Updates.svelte";
     import Settings from "./Settings.svelte";
@@ -62,7 +61,7 @@
         <Modal class="zoomIn space-y-0 text-gray-600 min-h-[65vh]"
             size="xl" on:close={onClose} open outsideclose focusTrapEnabled={$focusTrapEnabled}>
             {#if Port.disconnected}
-                <div class="z-50 absolute top-[-16px] left-0 w-full h-full bg-gray-500
+                <div class="z-50 absolute -top-4 left-0 w-full h-full bg-gray-500
                     rounded-lg opacity-70 flex flex-col items-center justify-center">
                     <h2 class="text-3xl text-white">Connection lost with extension</h2>
                     <div class="xl text-white">
@@ -71,7 +70,7 @@
                 </div>
             {/if}
             {#if dropCallback && modalDragCounter > 0}
-                <div class="z-50 absolute top-[-16px] left-0 w-full h-full pointer-events-none
+                <div class="z-50 absolute -top-4 left-0 w-full h-full pointer-events-none
                     rounded-lg opacity-70 flex items-center justify-center
                     bg-gray-500 border-white border-4 border-dashed" role="dialog">
                     <FileUploadOutline size={128} color="white" />
