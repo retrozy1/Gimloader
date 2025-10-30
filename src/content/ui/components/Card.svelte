@@ -51,7 +51,7 @@ h-full relative bg-white min-h-[150px] rounded-xl preflight flex flex-col p-3">
     <div class="overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-base leading-4">
         {@render author?.()}
     </div>
-    <div class="flex-grow text-sm pr-7 overflow-hidden overflow-ellipsis line-clamp-6">
+    <div class="grow text-sm pr-7 overflow-hidden overflow-ellipsis line-clamp-6">
         {@render description?.()}
     </div>
     <div class="flex flex-row-reverse items-end">

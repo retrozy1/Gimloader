@@ -55,7 +55,7 @@ p-3 h-full bg-white preflight rounded-xl relative">
             <ChevronRight width={28} height={28} />
         </button>
         {@render toggle?.()}
-        <div class="flex-grow leading-3 ml-2 min-w-0">
+        <div class="grow leading-3 ml-2 min-w-0">
             {@render header?.()}
         </div>
 
@@ -75,7 +75,7 @@ p-3 h-full bg-white preflight rounded-xl relative">
             <div class="overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-base leading-4">
                 {@render author?.()}
             </div>
-            <div class="flex-grow text-sm pr-7 overflow-hidden overflow-ellipsis">
+            <div class="grow text-sm pr-7 overflow-hidden overflow-ellipsis">
                 {@render description?.()}
             </div>
         </div>

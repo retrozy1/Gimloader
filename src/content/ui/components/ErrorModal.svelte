@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Modal } from "flowbite-svelte";
+    import * as Dialog from "$shared/ui/dialog";
 
     interface Props {
         title: string;
@@ -10,6 +10,11 @@
     let { title, msg, onClose }: Props = $props();
 </script>
 
-<Modal class="preflight" {title} open outsideclose onclose={onClose}>
-    <pre>{msg}</pre>
-</Modal>
+<Dialog.Root open onOpenChange={onClose}>
+    <Dialog.Content class="block" style="max-width: min(760px, calc(100% - 32px))">
+        <Dialog.Header class="font-bold text-lg w-full border-b">
+            {title}
+        </Dialog.Header>
+        <pre>{msg}</pre>
+    </Dialog.Content>
+</Dialog.Root>

@@ -1,7 +1,7 @@
 import { domLoaded, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import { version } from "../../../package.json";
 
 interface Import {

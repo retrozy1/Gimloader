@@ -1,6 +1,6 @@
 import { splicer } from "$content/utils";
 import { defaultSettings } from "$shared/consts";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import type { PluginStorage, Settings } from "$types/state";
 import EventEmitter2 from "eventemitter2";
 

@@ -2,7 +2,7 @@ import type { State } from "$types/state";
 import type { OnceMessages, OnceResponses, StateMessages } from "$types/messages";
 import { saveDebounced } from "$bg/state";
 import Server from "$bg/server";
-import { formatDownloadUrl } from "$shared/net";
+import { formatDownloadUrl } from "$shared/net/util";
 import { parseScriptHeaders } from "$shared/parseHeader";
 
 interface MissingLib {

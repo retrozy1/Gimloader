@@ -5,7 +5,7 @@
     import Update from 'svelte-material-icons/Update.svelte';
     import { version } from "../../../package.json";
     import toast from "svelte-5-french-toast";
-    import Port from "$shared/port.svelte";
+    import Port from "$shared/net/port.svelte";
     import Rewriter from "$core/rewriter";
 
     async function checkAll() {

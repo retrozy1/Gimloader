@@ -9,7 +9,7 @@
     import ListItem from "../components/ListItem.svelte";
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
-    import { Tooltip } from "flowbite-svelte";
+    import * as Tooltip from "$shared/ui/tooltip";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
 
@@ -41,7 +41,7 @@
 <SvelteComponent {dragDisabled} {startDrag} {dragAllowed}
     deprecated={library?.headers.deprecated !== null}>
     {#snippet header()}
-        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
+        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
             {library?.headers.name}
             {#if library?.headers.version}
                 <span class="text-sm">v{library?.headers.version}</span>
@@ -72,17 +72,21 @@
             </a>
         {/if}
         {#if library?.headers.deprecated !== null}
-            <button>
-                <AlertTriangleOutline size={28} color="#faca15" />
-            </button>
-            <Tooltip trigger="hover" class="z-50">
-                {#if library?.headers.deprecated === ""}
-                    This library has been marked as deprecated.
-                {:else}
-                    This library has been marked as deprecated:
-                    {library?.headers.deprecated}
-                {/if}
-            </Tooltip>
+            <Tooltip.Provider>
+                <Tooltip.Root delayDuration={100}>
+                    <Tooltip.Trigger>
+                        <AlertTriangleOutline size={28} color="#faca15" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content class="text-base">
+                        {#if library?.headers.deprecated === ""}
+                            This library has been marked as deprecated.
+                        {:else}
+                            This library has been marked as deprecated:
+                            {library?.headers.deprecated}
+                        {/if}
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Tooltip.Provider>
         {/if}
     {/snippet}
 </SvelteComponent>

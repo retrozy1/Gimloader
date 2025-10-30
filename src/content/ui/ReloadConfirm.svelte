@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Button, Modal } from "flowbite-svelte";
+    import * as AlertDialog from "$shared/ui/alert-dialog";
     import ReloadConfirm from "$core/reloadConfirm.svelte";
 
     function ignore() {
@@ -8,8 +8,8 @@
 </script>
 
 {#if ReloadConfirm.needed.size > 0}
-    <div class="preflight topModal">
-        <Modal open dismissable={false}>
+    <AlertDialog.Root open={true}>
+        <AlertDialog.Content class="z-101">
             {#if ReloadConfirm.needed.size == 1}
                 {ReloadConfirm.names[0]} requires
             {:else if ReloadConfirm.needed.size == 2}
@@ -19,18 +19,10 @@
             {/if}
             a reload in order to function properly.
 
-            <svelte:fragment slot="footer">
-                <div class="w-full flex justify-end gap-5">
-                    <Button onclick={() => location.reload()}>Reload Now</Button>
-                    <Button onclick={ignore}>Ignore</Button>
-                </div>
-            </svelte:fragment>
-        </Modal>
-    </div>
+            <AlertDialog.Footer class="border-t pt-2">
+                <AlertDialog.Cancel onclick={ignore}>Ignore</AlertDialog.Cancel>
+                <AlertDialog.Action onclick={() => location.reload()}>Reload Now</AlertDialog.Action>
+            </AlertDialog.Footer>
+        </AlertDialog.Content>
+    </AlertDialog.Root>
 {/if}
-
-<style>
-    .topModal > :global(*) {
-        z-index: 101;
-    }
-</style>

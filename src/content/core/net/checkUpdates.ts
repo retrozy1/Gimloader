@@ -1,6 +1,6 @@
 import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
 import toast from "svelte-5-french-toast";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import type { UpdateResponse } from "$types/updater";
 import Rewriter from "../rewriter";
 

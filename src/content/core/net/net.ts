@@ -3,7 +3,7 @@ import EventEmitter2 from "eventemitter2";
 import { error, log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
-import { formatDownloadUrl } from "$shared/net";
+import { formatDownloadUrl } from "$shared/net/util";
 import Rewriter from "../rewriter";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";

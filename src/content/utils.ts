@@ -1,4 +1,4 @@
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 
 export function log(...args: any[]) {
     console.log('%c[GL]', 'color:#5030f2', ...args);
@@ -69,26 +69,6 @@ export function splicer(array: any[], obj: any) {
         let index = array.indexOf(obj);
         if(index !== -1) array.splice(index, 1);
     }
-}
-
-let keydownOverriding = false;
-let keydownCallback: (e: KeyboardEvent) => void;
-
-document.addEventListener("keydown", (e) => {
-    if(!keydownOverriding) return;
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    keydownCallback(e);
-}, true);
-
-export function overrideKeydown(callback: (e: KeyboardEvent) => void) {
-    keydownOverriding = true;
-    keydownCallback = callback;
-}
-
-export function stopOverrideKeydown() {
-    keydownOverriding = false;
 }
 
 export function readUserFile(accept: string, callback: (text: string) => void) {

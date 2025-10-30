@@ -3,14 +3,15 @@
     import { dndzone } from "svelte-dnd-action";
     import Plugin from "./Plugin.svelte";
     import { readUserFile, showEditor } from "$content/utils";
-    import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
+    import { Button } from "$shared/ui/button";
     import Search from '../components/Search.svelte';
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import Storage from "$core/storage.svelte";
-    import Port from "$shared/port.svelte";
+    import Port from "$shared/net/port.svelte";
     import { flipDurationMs } from "$shared/consts";
     import ViewControl from "../components/ViewControl.svelte";
     import { officialPluginsOpen } from "../stores";
+    import * as Select from "$shared/ui/select";
     
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
@@ -98,17 +99,25 @@
         <button onclick={importPlugin}>
             <Import size={32} />
         </button>
-        <Button class="h-7 mr-1">Bulk actions<ChevronDown class="ml-1" size={20} /></Button>
-        <Dropdown bind:open={bulkOpen}>
-            <DropdownItem on:click={deleteAll}>Delete all</DropdownItem>
-            <DropdownItem on:click={() => PluginManager.setAll(true)}>Enable all</DropdownItem>
-            <DropdownItem on:click={() => PluginManager.setAll(false)}>Disable all</DropdownItem>
-        </Dropdown>
-        <Button class="h-7">Sort by...<ChevronDown class="ml-1" size={20} /></Button>
-        <Dropdown bind:open={sortOpen}>
-            <DropdownItem on:click={sortEnabled}>Enabled</DropdownItem>
-            <DropdownItem on:click={sortAlphabetical}>Alphabetical</DropdownItem>
-        </Dropdown>
+        <Select.Root type="single">
+            <Select.Trigger class="h-7">
+                Bulk actions
+            </Select.Trigger>
+            <Select.Content>
+                <Select.Item onclick={deleteAll}>Delete all</Select.Item>
+                <Select.Item onclick={() => PluginManager.setAll(true)}>Enable all</Select.Item>
+                <Select.Item onclick={() => PluginManager.setAll(false)}>Disable all</Select.Item>
+            </Select.Content>
+        </Select.Root>
+        <Select.Root type="single">
+            <Select.Trigger class="h-7 mx-2!">
+                Sort by...
+            </Select.Trigger>
+            <Select.Content>
+                <Select.Item onclick={sortEnabled}>Enabled</Select.Item>
+                <Select.Item onclick={sortAlphabetical}>Alphabetical</Select.Item>
+            </Select.Content>
+        </Select.Root>
         <ViewControl />
         <Search bind:value={searchValue} />
     </div>
@@ -121,7 +130,7 @@
             or import or create your own.
         </h2>
     {/if}
-    <div class="overflow-y-auto grid gap-4 pb-1 flex-grow view-{Storage.settings.menuView}"
+    <div class="overflow-y-auto grid gap-4 pb-1 grow view-{Storage.settings.menuView}"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}

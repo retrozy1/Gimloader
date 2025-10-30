@@ -1,6 +1,6 @@
 import type { State } from "$types/state";
 import EventEmitter2 from "eventemitter2";
-import { algorithm, isFirefox } from "./consts";
+import { algorithm, isFirefox } from "../consts";
 import type { Messages, OnceMessages, StateMessages } from "$types/messages";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";

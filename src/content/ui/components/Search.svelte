@@ -38,10 +38,11 @@
 </script>
 
 <svelte:window onkeydown={windowKeyDown} />
+
 <button class="ml-2" onclick={openSearch}>
     <Magnify />
 </button>
-<input type="text" class="ml-1 border-t-0 border-x-0 p-0 !border-gray-500"
+<input type="text" class="ml-1 border-t-0 border-x-0 px-1 py-0 border-gray-500!"
 bind:value={value} bind:this={searchInput} onkeydown={onKeyDown}
 style="box-shadow: none; display: none;" />
 {#if searchOpen}

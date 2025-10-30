@@ -4,7 +4,7 @@ import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import { Plugin } from "./scripts.svelte";
 import Storage from "$core/storage.svelte";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import toast from "svelte-5-french-toast";
 import Rewriter from "../rewriter";
 
@@ -34,7 +34,7 @@ export default new class PluginManager {
 
         if(fails.length > 0) {
             let msg = fails.map(f => f.reason).join('\n');
-            showErrorMessage(msg, `Failed to enable ${fails.length} plugins`);
+            showErrorMessage(msg, `Failed to enable ${fails.length} plugin${fails.length > 1 ? 's' : ''}`);
         }
 
         this.loaded.resolve();
@@ -178,7 +178,7 @@ export default new class PluginManager {
                     let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
                     if(fails.length > 0) {
                         let msg = fails.map(f => f.reason).join('\n');
-                        showErrorMessage(msg, `Failed to enable ${results.length} plugins`);
+                        showErrorMessage(msg, `Failed to enable ${results.length} plugin${results.length > 1 ? 's' : ''}`);
                     }
                 });
         } else {

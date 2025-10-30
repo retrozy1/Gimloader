@@ -3,7 +3,7 @@ import Net from "$core/net/net";
 import UI from "$core/ui/ui";
 import GimkitInternals from "$core/internals";
 import { log } from "./utils";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import { version } from "../../package.json";
 import { fixRDT } from "$core/rdt";
 import StateManager from "$core/state";

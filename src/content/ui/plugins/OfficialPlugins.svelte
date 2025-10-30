@@ -2,7 +2,7 @@
     import type { OfficialScriptInfo } from "$types/scripts";
     import { onMount } from "svelte";
     import Card from "../components/Card.svelte";
-    import { Button } from "flowbite-svelte";
+    import { Button } from "$shared/ui/button";
     import { officialPluginsOpen } from "../stores";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
@@ -63,12 +63,12 @@
         </Button>
         <Search bind:value={searchValue} />
     </div>
-    <div class="overflow-y-auto grid gap-4 pb-1 flex-grow view-grid">
+    <div class="overflow-y-auto grid gap-4 pb-1 grow view-grid">
         {#each plugins as plugin}
             <div>
                 <Card dragDisabled={false} hasDrag={false}>
                     {#snippet header()}
-                        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
+                        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold">
                             {plugin.title}
                         </h2>
                     {/snippet}

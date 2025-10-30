@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { Toggle } from 'flowbite-svelte';
-    import state from '$shared/bareState.svelte';
+    import { Switch } from '$shared/ui/switch';
+    import state from '$shared/net/bareState.svelte';
     import type { PluginInfo } from '$types/state';
-    import Port from '$shared/port.svelte';
+    import Port from '$shared/net/port.svelte';
     import DeleteOutline from 'svelte-material-icons/DeleteOutline.svelte';
     import Web from 'svelte-material-icons/Web.svelte';
     import GithubIcon from '$assets/github-mark-white.svg';
@@ -33,7 +33,7 @@
 <div class="w-full h-full preflight bg-slate-900 text-white" onclick={() => deleting = null}>
     <div class="flex items-center gap-2 px-1 border-b">
         <img src="./images/icon128.png" alt="The Gimloader icon" class="w-6 h-6" />
-        <h1 class="whitespace-nowrap text-2xl font-bold flex-grow">Gimloader</h1>
+        <h1 class="whitespace-nowrap text-2xl font-bold grow">Gimloader</h1>
         <button onclick={openSite} title="Open official site"><Web width={24} height={24} /></button>
         <button onclick={openRepo} title="Open github repo">{@html GithubIcon}</button>
     </div>
@@ -45,8 +45,8 @@
         {:else}
             {#each state.plugins as plugin}
                 <div class="text-lg flex items-center px-1" class:bg-red-600={deleting === plugin}>
-                    <Toggle size="small" on:change={() => onToggle(plugin)} bind:checked={plugin.enabled} />
-                    <div class="flex-grow whitespace-nowrap overflow-ellipsis overflow-x-hidden">
+                    <Switch onCheckedChange={() => onToggle(plugin)} bind:checked={plugin.enabled} />
+                    <div class="pl-2 grow whitespace-nowrap overflow-ellipsis overflow-x-hidden">
                         {plugin.name}
                     </div>
                     <button onclick={(e) => onDeleteClick(e, plugin)}>

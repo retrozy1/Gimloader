@@ -5,7 +5,7 @@ import type { LibraryInfo, PluginInfo, State } from "$types/state";
 import type { Update } from "$types/updater";
 import Server from "./server";
 import { saveDebounced, statePromise } from "./state";
-import { formatDownloadUrl } from "../shared/net";
+import { formatDownloadUrl } from "$shared/net/util";
 
 export default class Updater {
     static updates: Update[] = [];

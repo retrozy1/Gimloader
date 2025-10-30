@@ -1,6 +1,5 @@
 import { build, BuildOptions, context, Plugin } from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
-import { sveltePreprocess } from 'svelte-preprocess';
 import postcss from 'postcss';
 import postcssLoadConfig from 'postcss-load-config';
 import fs from "node:fs";
@@ -84,7 +83,6 @@ let config: BuildOptions = {
     entryPoints,
     plugins: [
         sveltePlugin({
-            preprocess: sveltePreprocess(),
             compilerOptions: {
                 css: "injected"
             }
@@ -93,7 +91,7 @@ let config: BuildOptions = {
     ],
     loader: {
         ".svg": "text",
-        ".css": "empty"
+        ".css": "text"
     }
 }
 
@@ -103,7 +101,6 @@ let editorConfig: BuildOptions = {
     outfile: "extension/build/js/editor/index.js",
     plugins: [
         sveltePlugin({
-            preprocess: sveltePreprocess(),
             compilerOptions: {
                 css: "injected"
             }

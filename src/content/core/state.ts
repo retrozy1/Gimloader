@@ -4,7 +4,7 @@ import LibManager from "$core/scripts/libManager.svelte";
 import PluginManager from "$core/scripts/pluginManager.svelte";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import UpdateNotifier from "$core/updateNotifier.svelte";
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import { readUserFile } from "$content/utils";
 import toast from "svelte-5-french-toast";
 import Rewriter from "./rewriter";

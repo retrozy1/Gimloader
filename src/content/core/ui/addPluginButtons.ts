@@ -9,14 +9,12 @@ let open = false;
 function openPluginManager() {
     if(open) return;
     open = true;
-    document.body.style.overflow = "hidden";
 
     let component = mount(MenuUI, {
         target: document.body,
         props: {
             onClose: () => {
                 open = false;
-                document.body.style.overflow = "";
                 unmount(component)
             }
         }

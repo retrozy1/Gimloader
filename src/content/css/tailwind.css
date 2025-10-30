@@ -1,31 +1,10 @@
+@layer properties, theme, base, components, utilities;
+
 @import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
-@plugin "flowbite/plugin";
-@source "../../../node_modules/flowbite-svelte/dist";
-
-@theme {
-  --color-primary-50: #f5f0ff;
-  --color-primary-100: #f5f0ff;
-  --color-primary-200: #ebe0ff;
-  --color-primary-300: #ddccff;
-  --color-primary-400: #c9adff;
-  --color-primary-500: #925dfe;
-  --color-primary-600: #6e2eef;
-  --color-primary-700: #6928eb;
-  --color-primary-800: #5c23cd;
-  --color-primary-900: #491ba5;
-
-  --color-secondary-50: #f0f9ff;
-  --color-secondary-100: #e0f2fe;
-  --color-secondary-200: #bae6fd;
-  --color-secondary-300: #7dd3fc;
-  --color-secondary-400: #38bdf8;
-  --color-secondary-500: #0ea5e9;
-  --color-secondary-600: #0284c7;
-  --color-secondary-700: #0369a1;
-  --color-secondary-800: #075985;
-  --color-secondary-900: #0c4a6e;
-}
+@import "tailwindcss/utilities.css" layer(utilities) source("../ui");
+@import "tw-animate-css";
+@import "../../shared/vars.css";
+@source "../../shared/ui";
 
 @layer theme {
   .preflight, .preflight::after, .preflight::before, .preflight::backdrop,
@@ -34,6 +13,10 @@
     margin: 0;
     padding: 0;
     border: 0 solid;
+  }
+
+  .preflight button {
+    cursor: pointer;
   }
   
   .preflight hr {

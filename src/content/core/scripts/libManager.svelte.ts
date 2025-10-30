@@ -1,7 +1,7 @@
 import { parseScriptHeaders } from '$shared/parseHeader';
 import { Lib } from './scripts.svelte';
 import type { LibraryInfo } from '$types/state';
-import Port from '$shared/port.svelte';
+import Port from '$shared/net/port.svelte';
 import toast from 'svelte-5-french-toast';
 import Rewriter from '../rewriter';
 

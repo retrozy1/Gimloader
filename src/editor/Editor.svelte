@@ -1,10 +1,10 @@
 <script lang="ts">
-    import Port from "$shared/port.svelte";
+    import Port from "$shared/net/port.svelte";
     import ContentSaveAlertOutline from "svelte-material-icons/ContentSaveAlertOutline.svelte";
     import ContentSaveOutline from "svelte-material-icons/ContentSaveOutline.svelte";
     import Close from "svelte-material-icons/Close.svelte";
     import { defaultLibraryScript, defaultPluginScript } from "./consts";
-    import State from "$shared/bareState.svelte";
+    import State from "$shared/net/bareState.svelte";
     import { parseScriptHeaders } from "$shared/parseHeader";
     import type { CreateEditor, Editor } from "$types/editor";
 
@@ -98,8 +98,8 @@
             <div>
                 {title}
             </div>
-            <div class="flex-grow"></div>
-            <button class="bg-white rounded-full flex items-center gap-2 px-2 cursor-pointer"
+            <div class="grow"></div>
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2 cursor-pointer"
                 onclick={save}>
                 {#if saved}
                     <ContentSaveOutline size={24} />
@@ -108,7 +108,7 @@
                 {/if}
                 Save
             </button>
-            <button class="bg-white rounded-full flex items-center gap-2 px-2 cursor-pointer"
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2 cursor-pointer"
                 onclick={close}>
                 <Close size={24} />
                 Exit

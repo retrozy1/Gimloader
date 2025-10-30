@@ -1,4 +1,4 @@
-import Port from "$shared/port.svelte";
+import Port from "$shared/net/port.svelte";
 import toast from "svelte-5-french-toast";
 import { confirmToast, toasterReady } from "./toaster";
 import Rewriter from "./rewriter";

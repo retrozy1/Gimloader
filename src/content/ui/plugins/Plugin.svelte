@@ -2,12 +2,14 @@
     import type { Plugin } from "$core/scripts/scripts.svelte";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import { checkPluginUpdate } from "$core/net/checkUpdates";
-    import { Toggle, Modal, Tooltip } from "flowbite-svelte";
     import Card from "../components/Card.svelte";
     import PluginLibrariesInfo from "./PluginLibrariesInfo.svelte";
     import ListItem from '../components/ListItem.svelte'
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
+    import * as Tooltip from "$shared/ui/tooltip";
+    import { Switch } from "$shared/ui/switch";
+    import * as Dialog from "$shared/ui/dialog";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
@@ -41,7 +43,7 @@
 
     let loading = $state(false);
 
-    let enabled = $state(plugin?.enabled);
+    let enabled = $state(plugin?.enabled ?? false);
     $effect(() => {
         enabled = plugin?.enabled;
     });
@@ -61,16 +63,21 @@
 </script>
 
 {#if libInfoOpen}
-    <Modal size="lg" open outsideclose on:close={() => libInfoOpen = false}
-        title={`Libraries used by ${plugin.headers.name}`}>
-        <PluginLibrariesInfo {plugin} />
-    </Modal>
+    <Dialog.Root bind:open={() => true, () => libInfoOpen = false}>
+        <Dialog.Content class="text-gray-600 block"
+            style="max-width: min(760px, calc(100% - 32px));">
+            <Dialog.Header class="border-b w-full text-xl font-bold! mb-4">
+                Libraries used by {plugin.headers.name}
+            </Dialog.Header>
+            <PluginLibrariesInfo {plugin} />
+        </Dialog.Content>
+    </Dialog.Root>
 {/if}
 
 <SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed}
     error={plugin?.errored} deprecated={plugin?.headers.deprecated !== null}>
     {#snippet header()}
-        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap flex-grow text-xl font-bold">
+        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
             {plugin?.headers.name}
             {#if plugin?.headers.version}
                 <span class="text-sm">v{plugin?.headers.version}</span>
@@ -78,7 +85,7 @@
         </h2>
     {/snippet}
     {#snippet toggle()}
-        <Toggle class="*:me-0" bind:checked={
+        <Switch bind:checked={
             () => enabled,
             (enabled) => setEnabled(enabled)
         } />
@@ -121,25 +128,33 @@
             </a>
         {/if}
         {#if plugin?.headers.deprecated !== null}
-            <button>
-                <AlertTriangleOutline size={28} color="#faca15" />
-            </button>
-            <Tooltip trigger="hover" class="z-50">
-                {#if plugin?.headers.deprecated === ""}
-                    This plugin has been marked as deprecated.
-                {:else}
-                    This plugin has been marked as deprecated:
-                    {plugin?.headers.deprecated}
-                {/if}
-            </Tooltip>
+            <Tooltip.Provider>
+                <Tooltip.Root delayDuration={100}>
+                    <Tooltip.Trigger>
+                        <AlertTriangleOutline size={28} color="#faca15" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content class="text-base">
+                        {#if plugin?.headers.deprecated === ""}
+                            This plugin has been marked as deprecated.
+                        {:else}
+                            This plugin has been marked as deprecated:
+                            {plugin?.headers.deprecated}
+                        {/if}
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Tooltip.Provider>
         {/if}
         {#if plugin?.errored}
-            <button>
-                <AlertCircleOutline size={28} color="#f05252" />
-            </button>
-            <Tooltip trigger="hover" class="z-50">
-                An error occured when this plugin was enabling.
-            </Tooltip>
+            <Tooltip.Provider>
+                <Tooltip.Root delayDuration={100}>
+                    <Tooltip.Trigger>
+                        <AlertCircleOutline size={28} color="#f05252" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content class="text-base">
+                        An error occured when this plugin was enabling.
+                    </Tooltip.Content>
+                </Tooltip.Root>
+            </Tooltip.Provider>
         {/if}
     {/snippet}
 </SvelteComponent>
