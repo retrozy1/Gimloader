@@ -8,17 +8,11 @@
     import Storage from "$core/storage.svelte";
     import Search from "../components/Search.svelte";
     import * as Select from "$shared/ui/select";
+    import ViewControl from "../components/ViewControl.svelte";
 
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-    import ViewControl from "../components/ViewControl.svelte";
-    
-    let { onDrop }: { onDrop: (callback: (text: string) => void) => void } = $props();
-
-    onDrop((text: string) => {
-        LibManager.createLib(text);
-    });
 
     let searchValue = $state("");
     let items = $state(LibManager.libs.map((lib: Lib) => ({ id: lib.headers.name })));

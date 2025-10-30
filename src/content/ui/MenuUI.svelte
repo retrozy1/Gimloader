@@ -9,6 +9,8 @@
     import Port from "$shared/net/port.svelte";
     import { onMount } from "svelte";
     import toast from "svelte-5-french-toast";
+    import PluginManager from "$core/scripts/pluginManager.svelte";
+    import LibManager from "$core/scripts/libManager.svelte";
     import { Switch } from "$shared/ui/switch";
     import * as Dialog from "$shared/ui/dialog";
     import * as Tabs from "$shared/ui/tabs";
@@ -20,48 +22,66 @@
     import Cog from 'svelte-material-icons/Cog.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
 
-    type DropCallback = (text: string) => void;
     interface Props {
         onClose: () => void;
     }
 
     let { onClose }: Props = $props();
-
-    let dropCallback: DropCallback | null = $state(null);
-    const onDrop = (callback: DropCallback) => {
-        dropCallback = callback;
-    }
     
-    // let wrapper: HTMLDivElement;
-    // let modalDragCounter = $state(0);
-    // onMount(() => {
-    //     let modal: HTMLElement = wrapper.querySelector(".max-w-7xl");
-    //     if(!modal) return;
+    let currentTab = $state("plugins");
+    let modalDragCounter = $state(0);
+    let canDrop = $derived(currentTab === "plugins" || currentTab === "libraries");
 
-    //     modal.addEventListener("dragenter", () => modalDragCounter++);
-    //     modal.addEventListener("dragleave", () => modalDragCounter--);
-    //     modal.addEventListener("dragover", (e) => e.preventDefault());
-    //     modal.addEventListener("drop", async (e) => {
-    //         e.preventDefault();
-    //         modalDragCounter = 0;
+    function onDragover(e: DragEvent) {
+        if(!canDrop) return;
+        e.preventDefault();
+    }
 
-    //         let file = e.dataTransfer.files[0];
-    //         if(!file) return;
+    async function onDrop(e: DragEvent) {
+        if(!canDrop) return;
 
-    //         if(file.type !== "text/javascript") {
-    //             toast.error("That doesn't appear to be a script you can install");
-    //             return;
-    //         }
-    //         let text = await file.text();
-    //         dropCallback(text);
-    //     });
-    // });
+        e.preventDefault();
+        modalDragCounter = 0;
+
+        let file = e.dataTransfer.files[0];
+        if(!file) return;
+
+        if(file.type !== "text/javascript") {
+            toast.error("That doesn't appear to be a script you can install");
+            return;
+        }
+        let text = await file.text();
+
+        if(currentTab === "plugins") {
+            PluginManager.createPlugin(text);
+        } else {
+            LibManager.createLib(text);
+        }
+    }
 </script>
 
 <Dialog.Root bind:open={() => true, () => onClose()}>
     <Dialog.Content class="text-gray-600 min-h-[65vh]"
+        ondragenter={() => modalDragCounter++} ondragleave={() => modalDragCounter--}
+        ondragover={(e) => e.preventDefault()} ondrop={onDrop}
         style="max-width: min(1280px, calc(100% - 32px))">
-        <Tabs.Root value="plugins" class="w-full">
+        {#if Port.disconnected}
+            <div class="z-50 absolute left-0 top-0 w-full h-full bg-gray-500
+                rounded-lg opacity-70 flex flex-col items-center justify-center">
+                <h2 class="text-3xl text-white">Connection lost with extension</h2>
+                <div class="xl text-white">
+                    Attempting to reconnect... you can always refresh the page if this fails
+                </div>
+            </div>
+        {/if}
+        {#if canDrop && modalDragCounter > 0}
+            <div class="z-50 absolute left-0 top-0 w-full h-full pointer-events-none
+                rounded-lg opacity-70 flex items-center justify-center
+                bg-gray-500 border-white border-4 border-dashed" role="dialog">
+                <FileUploadOutline size={128} color="white" />
+            </div>
+        {/if}
+        <Tabs.Root bind:value={currentTab} class="w-full">
             <Tabs.List class="w-full">
                 <Tabs.Trigger value="plugins">
                     <Wrench size={24} />
@@ -88,11 +108,11 @@
                 {#if $officialPluginsOpen}
                     <OfficialPlugins />
                 {:else}
-                    <PluginCardsList {onDrop} />
+                    <PluginCardsList />
                 {/if}
             </Tabs.Content>
             <Tabs.Content value="libraries">
-                <LibraryCardsList {onDrop} />
+                <LibraryCardsList />
             </Tabs.Content>
             <Tabs.Content value="hotkeys">
                 <Hotkeys />
@@ -106,97 +126,3 @@
         </Tabs.Root>
     </Dialog.Content>
 </Dialog.Root>
-<!-- <Modal class="zoomIn space-y-0 text-gray-600 min-h-[65vh]"
-    size="xl" on:close={onClose} open outsideclose focusTrapEnabled={$focusTrapEnabled}>
-    {#if Port.disconnected}
-        <div class="z-50 absolute -top-4 left-0 w-full h-full bg-gray-500
-            rounded-lg opacity-70 flex flex-col items-center justify-center">
-            <h2 class="text-3xl text-white">Connection lost with extension</h2>
-            <div class="xl text-white">
-                Attempting to reconnect... you can always refresh the page if this fails
-            </div>
-        </div>
-    {/if}
-    {#if dropCallback && modalDragCounter > 0}
-        <div class="z-50 absolute -top-4 left-0 w-full h-full pointer-events-none
-            rounded-lg opacity-70 flex items-center justify-center
-            bg-gray-500 border-white border-4 border-dashed" role="dialog">
-            <FileUploadOutline size={128} color="white" />
-        </div>
-    {/if}
-    <Tabs contentClass="bg-white">
-        <TabItem open>
-            <div class="flex items-center" slot="title">
-                <Wrench size={24} />
-                <span class="ml-2">Plugins</span>
-            </div>
-            {#if $officialPluginsOpen}
-                <OfficialPlugins />
-            {:else}
-                <PluginCardsList {onDrop} />
-            {/if}
-        </TabItem>
-        <TabItem>
-            <div class="flex items-center" slot="title">
-                <Book size={24} />
-                <span class="ml-2">Libraries</span>
-            </div>
-            <LibraryCardsList {onDrop} />
-        </TabItem>
-        <TabItem on:click={() => dropCallback = null}>
-            <div class="flex items-center" slot="title">
-                <KeyboardOutline size={24} />
-                <span class="ml-2">Hotkeys</span>
-            </div>
-            <Hotkeys />
-        </TabItem>
-        <TabItem on:click={() => dropCallback = null}>
-            <div class="flex items-center" slot="title">
-                <Update size={24} />
-                <span class="ml-2">Updates</span>
-            </div>
-            <Updates />
-        </TabItem>
-        <TabItem on:click={() => dropCallback = null}>
-            <div class="flex items-center" slot="title">
-                <Cog size={24} />
-                <span class="ml-2">Settings</span>
-            </div>
-            <Settings />
-        </TabItem>
-    </Tabs>
-</Modal> -->
-
-<!-- <style global>
-    .fadeBg > div:first-child {
-        animation: fadeIn 0.3s;
-    }
-
-    .zoomIn {
-        animation: zoomIn ease-out 0.15s;
-    }
-
-    .changeStyles .h-px {
-        margin-top: 0 !important;
-    }
-
-    .changeStyles div:has(> div[role="tabpanel"]) {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .changeStyles div[role="tabpanel"] {
-        margin-top: 2px !important;
-        flex-grow: 1;
-        min-width: 0;
-        min-height: 0;
-    }
-
-    .changeStyles div[role="tabpanel"] > div {
-        height: 100%;
-    }
-
-    .changeStyles div[role="document"] > button {
-        z-index: 100;
-    }
-</style> -->

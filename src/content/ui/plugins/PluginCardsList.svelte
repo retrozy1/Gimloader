@@ -16,12 +16,6 @@
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
     import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
-
-    let { onDrop }: { onDrop: (callback: (text: string) => void) => void } = $props();
-
-    onDrop((text: string) => {
-        PluginManager.createPlugin(text);
-    });
     
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));

@@ -42,11 +42,8 @@
     }
 
     let loading = $state(false);
-
     let enabled = $state(plugin?.enabled ?? false);
-    $effect(() => {
-        enabled = plugin?.enabled;
-    });
+    $effect(() => enabled = plugin?.enabled);
 
     async function setEnabled(enabled: boolean) {
         let loadingTimeout = setTimeout(() => loading = true, 200);
