@@ -44,7 +44,7 @@ export default class Poller {
         this.sendRequest();
         let headers = parseScriptHeaders(text);
 
-        if(res.headers.get('is-library') === 'true') {
+        if(headers.isLibrary !== "false") {
             let lib = state.libraries.find(l => l.name === headers.name);
             if(lib) {
                 lib.script = text;
