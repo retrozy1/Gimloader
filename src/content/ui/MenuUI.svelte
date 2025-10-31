@@ -22,11 +22,7 @@
     import Cog from 'svelte-material-icons/Cog.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
 
-    interface Props {
-        onClose: () => void;
-    }
-
-    let { onClose }: Props = $props();
+    let { onClose }: { onClose: () => void } = $props();
     
     let currentTab = $state("plugins");
     let modalDragCounter = $state(0);
@@ -61,7 +57,7 @@
 </script>
 
 <Dialog.Root bind:open={() => true, () => onClose()}>
-    <Dialog.Content class="text-gray-600 min-h-[65vh]"
+    <Dialog.Content class="text-gray-600 min-h-[65vh]" trapFocus={false}
         ondragenter={() => modalDragCounter++} ondragleave={() => modalDragCounter--}
         ondragover={(e) => e.preventDefault()} ondrop={onDrop}
         style="max-width: min(1280px, calc(100% - 32px))">

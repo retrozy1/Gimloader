@@ -15,7 +15,8 @@ function openPluginManager() {
         props: {
             onClose: () => {
                 open = false;
-                unmount(component)
+                unmount(component);
+                (document.activeElement as HTMLElement)?.blur();
             }
         }
     });

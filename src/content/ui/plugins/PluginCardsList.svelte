@@ -124,7 +124,7 @@
             or import or create your own.
         </h2>
     {/if}
-    <div class="overflow-y-auto grid gap-4 pb-1 grow view-{Storage.settings.menuView}"
+    <div class="overflow-y-auto outline-none grid gap-4 pb-1 grow view-{Storage.settings.menuView}"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}

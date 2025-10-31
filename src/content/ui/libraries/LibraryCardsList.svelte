@@ -87,7 +87,7 @@
     {#if LibManager.libs.length === 0}
         <h2 class="text-xl">No libraries installed!</h2>
     {/if}
-    <div class="overflow-y-auto grid gap-4 view-{Storage.settings.menuView} pb-1 grow"
+    <div class="overflow-y-auto outline-none grid gap-4 view-{Storage.settings.menuView} pb-1 grow"
     use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
     onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
         {#key searchValue}

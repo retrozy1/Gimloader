@@ -68,7 +68,7 @@
             <div>
                 <Card dragDisabled={false} hasDrag={false}>
                     {#snippet header()}
-                        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold">
+                        <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
                             {plugin.title}
                         </h2>
                     {/snippet}
