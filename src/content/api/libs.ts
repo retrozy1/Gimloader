@@ -1,5 +1,6 @@
 import LibManager from "$core/scripts/libManager.svelte";
 import { validate } from "$content/utils";
+import type { Lib, Plugin } from '$core/scripts/scripts.svelte';
 
 class LibsApi {
     /** A list of all the libraries installed */
@@ -22,6 +23,13 @@ class LibsApi {
     /** Gets the exported values of a library */
     get(name: string) {
         return LibManager.get(name);
+    }
+
+    /**
+     * Makes a utility that can use the context of the plugin/lib that uses it.
+     */
+    contextUtil(util: (script: Plugin | Lib) => any) {
+        return LibManager.contextUtil(util);
     }
 }
 

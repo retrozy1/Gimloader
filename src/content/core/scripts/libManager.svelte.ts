@@ -1,9 +1,13 @@
 import { parseScriptHeaders } from '$shared/parseHeader';
-import { Lib } from './scripts.svelte';
+import { Plugin, Lib } from './scripts.svelte';
 import type { LibraryInfo } from '$types/state';
 import Port from '$shared/net/port.svelte';
 import toast from 'svelte-5-french-toast';
 import Rewriter from '../rewriter';
+
+export class ContextUtil {
+    constructor(public util: (script: Plugin | Lib) => any) {}
+}
 
 export default new class LibManagerClass {
     libs: Lib[] = $state([]);
@@ -171,5 +175,9 @@ export default new class LibManagerClass {
         this.libs = newOrder;
 
         if(emit) Port.send("librariesArrange", { order });
+    }
+
+    contextUtil(util: (script: Plugin | Lib) => any) {
+        return new ContextUtil(util);
     }
 }

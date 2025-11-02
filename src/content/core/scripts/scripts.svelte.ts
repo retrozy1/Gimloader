@@ -2,7 +2,7 @@ import { log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import type { ScriptHeaders } from "$types/scripts";
 import Net from "$core/net/net";
-import LibManager from "./libManager.svelte";
+import LibManager, { ContextUtil } from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
@@ -61,6 +61,13 @@ abstract class BaseScript {
             import(url)
                 .then((returnVal) => {
                     if(!initial) this.checkReloadNeeded();
+                    for(const key in returnVal) {
+                        const val = returnVal[key]
+                        if(val instanceof ContextUtil) {
+                            returnVal[key] = val.util(this as unknown as Plugin | Lib)
+                        }
+                    }
+
                     res(returnVal);
                 })
                 .catch(rej)
