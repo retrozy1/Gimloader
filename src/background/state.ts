@@ -8,6 +8,7 @@ export let statePromise = new Promise<State>(async (res) => {
         plugins: [],
         libraries: [],
         pluginStorage: {},
+        pluginSettings: {},
         settings: defaultSettings,
         hotkeys: {},
         cacheInvalid: false
@@ -17,6 +18,7 @@ export let statePromise = new Promise<State>(async (res) => {
         plugins: sanitizePlugins(savedState.plugins),
         libraries: sanitizeLibraries(savedState.libraries),
         pluginStorage: sanitizePluginStorage(savedState.pluginStorage),
+        pluginSettings: sanitizePluginStorage(savedState.pluginSettings),
         settings: sanitizeSettings(savedState.settings),
         hotkeys: sanitizeHotkeys(savedState.hotkeys),
         cacheInvalid: sanitizeCacheInvalid(savedState.cacheInvalid),

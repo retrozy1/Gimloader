@@ -16,11 +16,12 @@ export default class StateHandler {
     }
 
     static onSetState(state: State, newState: OnceMessages["setState"], respond: () => void) {
-        let { plugins, libraries, pluginStorage, settings, hotkeys } = newState;
+        let { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys } = newState;
 
         if(plugins) state.plugins = sanitizePlugins(plugins);
         if(libraries) state.libraries = sanitizeLibraries(libraries);
         if(pluginStorage) state.pluginStorage = sanitizePluginStorage(pluginStorage);
+        if(pluginSettings) state.pluginSettings = sanitizePluginStorage(pluginSettings);
         if(settings) state.settings = sanitizeSettings(settings);
         if(hotkeys) state.hotkeys = sanitizeHotkeys(hotkeys);
         state.cacheInvalid = true;

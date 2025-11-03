@@ -24,8 +24,9 @@ let match: RegExpExecArray | null;
 const addDeclaration = () => {
     if(!match) return;
 
-    if(declarations.has(match[2])) console.log("Duplicate declaration for", match[2]);
-    declarations.set(match[2], match[1]);
+    const name = match[2].replace("<T>", "");
+    if(declarations.has(name)) console.log("Duplicate declaration for", name);
+    declarations.set(name, match[1]);
 }
 
 while(match = interfaceDeclaration.exec(types)) addDeclaration();

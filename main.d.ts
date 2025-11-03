@@ -11,6 +11,12 @@ declare module '*.svg' {
 declare module '*.svelte' {
     const component: import('svelte').Component;
     export default component;
+
+    // To get typescript to shut up about some components
+    export const buttonVariants;
+    export const ButtonProps;
+    export const ButtonVariant;
+    export const ButtonSize;
 }
 
 declare const GL: typeof import('./src/content/api/api').default;

@@ -47,7 +47,7 @@ class StorageApi {
     offAllChanges(pluginName: string) {
         if(!validate("storage.offAllChanges", arguments, ['pluginName', 'string'])) return;
 
-        Storage.removeUpdateListeners(pluginName);
+        Storage.removeValueListeners(pluginName);
     }
 }
 

@@ -71,6 +71,15 @@ export function splicer(array: any[], obj: any) {
     }
 }
 
+export function clearId<T extends { id: string }>(array: T[], id: string) {
+    for(let i = 0; i < array.length; i++) {
+        if(array[i].id === id) {
+            array.splice(i, 1);
+            i--;
+        }
+    }
+}
+
 export function readUserFile(accept: string, callback: (text: string) => void) {
     let input = document.createElement('input');
     input.type = 'file';

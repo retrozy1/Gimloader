@@ -1,3 +1,5 @@
+import type { PluginSettings } from "$types/settings";
+import type { Plugin } from "$core/scripts/scripts.svelte";
 import { HotkeysApi, ScopedHotkeysApi } from "./hotkeys";
 import { ParcelApi, ScopedParcelApi } from "./parcel";
 import { NetApi, ScopedNetApi } from "./net";
@@ -15,6 +17,7 @@ import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
 import Rewriter from "$core/rewriter";
+import createSettingsApi from "./settings";
 
 class Api {
     /**
@@ -122,7 +125,10 @@ class Api {
         this.UI = Object.freeze(new ScopedUIApi(scoped.id));
         this.storage = Object.freeze(new ScopedStorageApi(scoped.id));
         this.patcher = Object.freeze(new ScopedPatcherApi(scoped.id));
-        
+        if(scoped.script.type === "Plugin") {
+            this.settings = createSettingsApi(scoped.script as Plugin);
+        }
+
         const netOnAny = (channel: string, ...args: any[]) => {
             this.net.emit(channel, ...args);
         }
@@ -140,7 +146,8 @@ class Api {
             Net.pluginOffLoad(scoped.id);
             UI.removeStyles(scoped.id);
             Patcher.unpatchAll(scoped.id);
-            Storage.removeUpdateListeners(scoped.id);
+            Storage.removeValueListeners(scoped.id);
+            Storage.removeSettingListeners(scoped.id);
         }
         
         this.onStop(cleanup);
@@ -171,7 +178,10 @@ class Api {
     storage: Readonly<ScopedStorageApi>;
 
     /** Functions for intercepting the arguments and return values of functions */
-    patcher: Readonly<ScopedPatcherApi>
+    patcher: Readonly<ScopedPatcherApi>;
+
+    /** A utility for creating persistent settings menus, only available to plugins */
+    settings: PluginSettings;
 
     /** Methods for getting info on libraries */
     libs = Api.libs;

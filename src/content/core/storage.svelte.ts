@@ -1,6 +1,7 @@
-import { splicer } from "$content/utils";
+import { clearId, splicer } from "$content/utils";
 import { defaultSettings } from "$shared/consts";
 import Port from "$shared/net/port.svelte";
+import type { SettingsChangeCallback } from "$types/settings";
 import type { PluginStorage, Settings } from "$types/state";
 import EventEmitter2 from "eventemitter2";
 
@@ -13,14 +14,23 @@ interface ValueChangeListener {
     callback: ValueChangeCallback;
 }
 
+interface SettingsChangeListener {
+    id: string;
+    key: string;
+    callback: SettingsChangeCallback;
+}
+
 export default new class Storage extends EventEmitter2 {
     settings: Settings = $state(defaultSettings);
     values: PluginStorage;
-    updateListeners: ValueChangeListener[] = [];
+    pluginSettings: PluginStorage = $state();
+    valueListeners: ValueChangeListener[] = [];
+    settingsListeners: SettingsChangeListener[] = [];
 
-    init(values: PluginStorage, settings: Settings) {
+    init(values: PluginStorage, settings: Settings, pluginSettings: PluginStorage) {
         this.values = values;
         this.settings = settings;
+        this.pluginSettings = pluginSettings;
 
         if(this.settings.showPluginButtons) {
             document.documentElement.classList.remove("noPluginButtons");
@@ -29,7 +39,8 @@ export default new class Storage extends EventEmitter2 {
         Port.on("settingUpdate", ({ key, value }) => this.updateSetting(key, value, false));
         Port.on("pluginValueUpdate", ({ id, key, value }) => this.setPluginValue(id, key, value, false));
         Port.on("pluginValueDelete", ({ id, key }) => this.deletePluginValue(id, key, false));
-        Port.on("pluginValuesDelete", ({ id }) => this.deletePluginValues(id, false));
+        Port.on("pluginSettingUpdate", ({ id, key, value }) => this.setPluginSetting(id, key, value, false));
+        Port.on("clearPluginStorage", ({ id }) => this.deletePluginStorage(id, false));
     }
 
     updateState(values: PluginStorage, settings: Settings) {
@@ -61,7 +72,7 @@ export default new class Storage extends EventEmitter2 {
         if(!this.values[id]) this.values[id] = {};
         this.values[id][key] = value;
 
-        for(let listener of this.updateListeners) {
+        for(let listener of this.valueListeners) {
             if(listener.id === id && listener.key === key) {
                 // if we are emitting it's not remote, and vice versa
                 listener.callback(value, !emit);
@@ -71,6 +82,20 @@ export default new class Storage extends EventEmitter2 {
         if(emit) Port.send("pluginValueUpdate", { id, key, value });
     }
 
+    setPluginSetting(id: string, key: string, value: any, emit = true) {
+        const oldValue = this.pluginSettings[id]?.[key] ?? null;        
+        if(!this.pluginSettings[id]) this.pluginSettings[id] = {};
+        this.pluginSettings[id][key] = value;
+
+        for(let listener of this.settingsListeners) {
+            if(listener.id === id && listener.key === key) {
+                listener.callback(value, oldValue, !emit);
+            }
+        }
+
+        if(emit) Port.send("pluginSettingUpdate", { id, key, value });
+    }
+
     deletePluginValue(id: string, key: string, emit = true) {
         let plugin = this.values[id];
         if(!plugin) return;
@@ -78,34 +103,35 @@ export default new class Storage extends EventEmitter2 {
         if(emit) Port.send("pluginValueDelete", { id, key });
     }
     
-    deletePluginValues(id: string, emit = true) {
+    deletePluginStorage(id: string, emit = true) {
         delete this.values[id];
-        if(emit) Port.send("pluginValuesDelete", { id });
+        if(emit) Port.send("clearPluginStorage", { id });
     }
 
     onPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback) {
         let obj: ValueChangeListener = { id, key, callback };
-        this.updateListeners.push(obj);
+        this.valueListeners.push(obj);
 
-        return splicer(this.updateListeners, obj);
+        return splicer(this.valueListeners, obj);
+    }
+
+    onPluginSettingUpdate(id: string, key: string, callback: SettingsChangeCallback) {
+        let obj: SettingsChangeListener = { id, key, callback };
+        this.settingsListeners.push(obj);
+
+        return splicer(this.settingsListeners, obj);
     }
 
     offPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback) {
-        for(let i = 0; i < this.updateListeners.length; i++) {
-            let listener = this.updateListeners[i];
+        for(let i = 0; i < this.valueListeners.length; i++) {
+            let listener = this.valueListeners[i];
             if(listener.id === id && listener.key === key && listener.callback === callback) {
-                this.updateListeners.splice(i, 1);
+                this.valueListeners.splice(i, 1);
                 return;
             }
         }
     }
 
-    removeUpdateListeners(id: string) {
-        for(let i = 0; i < this.updateListeners.length; i++) {
-            if(this.updateListeners[i].id === id) {
-                this.updateListeners.splice(i, 1);
-                i--;
-            }
-        }
-    }
+    removeValueListeners(id: string) { clearId(this.valueListeners, id); }
+    removeSettingListeners(id: string) { clearId(this.settingsListeners, id); }
 }

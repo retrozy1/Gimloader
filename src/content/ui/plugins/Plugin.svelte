@@ -100,7 +100,7 @@
         <button onclick={() => showEditor("plugin", plugin.headers.name)}>
             <Pencil size={28} />
         </button>
-        {#if plugin?.openSettingsMenu?.length != 0}
+        {#if plugin?.openSettingsMenu?.length !== 0}
             <button onclick={() => plugin.openSettingsMenu.forEach(c => c())}>
                 <Cog size={28} />
             </button>

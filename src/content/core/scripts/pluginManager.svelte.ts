@@ -1,5 +1,5 @@
 import type { PluginInfo } from "$types/state";
-import showErrorMessage from "$content/ui/showErrorMessage";
+import { showErrorMessage } from "$content/ui/showModals";
 import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import { Plugin } from "./scripts.svelte";
@@ -154,7 +154,7 @@ export default new class PluginManager {
             Rewriter.invalidate();
         }
         
-        Storage.deletePluginValues(plugin.headers.name);
+        Storage.deletePluginStorage(plugin.headers.name);
         log(`Deleted plugin: ${plugin.headers.name}`);
     }
 

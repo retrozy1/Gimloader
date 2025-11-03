@@ -1,6 +1,6 @@
 import Internals from "$core/internals";
 import EventEmitter2 from "eventemitter2";
-import { error, log, splicer } from "$content/utils";
+import { clearId, error, log, splicer } from "$content/utils";
 import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net/util";
@@ -240,14 +240,7 @@ export default new class Net extends EventEmitter2 {
         return splicer(this.loadCallbacks, obj);
     }
 
-    pluginOffLoad(id: string) {
-        for(let i = 0; i < this.loadCallbacks.length; i++) {
-            if(this.loadCallbacks[i].id === id) {
-                this.loadCallbacks.splice(i, 1);
-                i--;
-            }
-        }
-    }
+    pluginOffLoad(id: string) { clearId(this.loadCallbacks, id); }
 
     get isHost() {
         return location.pathname === "/host";

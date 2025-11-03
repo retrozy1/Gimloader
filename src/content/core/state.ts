@@ -18,7 +18,7 @@ export default class StateManager {
     }
 
     static initState(state: State) {
-        Storage.init(state.pluginStorage, state.settings);
+        Storage.init(state.pluginStorage, state.settings, state.pluginSettings);
         LibManager.init(state.libraries);
         PluginManager.init(state.plugins);
         Hotkeys.init(state.hotkeys);
@@ -56,10 +56,10 @@ export default class StateManager {
         readUserFile(".json", (text) => {
             try {
                 let state = JSON.parse(text);
-                let { plugins, libraries, pluginStorage, settings, hotkeys, ...rest } = state;
+                let { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys, ...rest } = state;
 
                 // confirm that at least one of the keys is present
-                if(!plugins && !libraries && !pluginStorage && !settings && !hotkeys) {
+                if(!plugins && !libraries && !pluginStorage && !pluginSettings && !settings && !hotkeys) {
                     toast.error("That config appears to be invalid!");
                     return;
                 }
@@ -69,7 +69,7 @@ export default class StateManager {
                     toast("That config may be invalid, attempting to load anyways...");
                 }
 
-                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, settings, hotkeys, cacheInvalid: true });
+                Port.sendAndRecieve("setState", { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys, cacheInvalid: true });
             } catch {
                 toast.error("That config appears to be invalid!");
             }

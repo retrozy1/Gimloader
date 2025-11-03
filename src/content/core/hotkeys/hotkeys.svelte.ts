@@ -1,7 +1,7 @@
 import type { ConfigurableHotkeyOptions, HotkeyCallback, HotkeyOptions, HotkeyTrigger } from "$types/hotkeys";
 import type { ConfigurableHotkeysState } from "$types/state";
 import ConfigurableHotkey from "./configurable.svelte";
-import { splicer } from "$content/utils";
+import { clearId, splicer } from "$content/utils";
 import Port from "$shared/net/port.svelte";
 
 type DefaultHotkey = HotkeyOptions & { callback: HotkeyCallback, id: string };
@@ -50,14 +50,7 @@ export default new class Hotkeys {
         return splicer(this.hotkeys, obj);
     }
 
-    removeHotkeys(id: any) {
-        for(let i = 0; i < this.hotkeys.length; i++) {
-            if(this.hotkeys[i].id === id) {
-                this.hotkeys.splice(i, 1);
-                i--;
-            }
-        }
-    }
+    removeHotkeys(id: any) { clearId(this.hotkeys, id); }
     
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: HotkeyCallback, pluginName?: string) {
         let obj = new ConfigurableHotkey(id, callback, options, pluginName);

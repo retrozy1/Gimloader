@@ -4,6 +4,7 @@ import type { ScriptHeaders } from "$types/scripts";
 import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
 import ReloadConfirm from "../reloadConfirm.svelte";
+import type { PluginSettingsDescription } from "$types/settings";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -157,6 +158,7 @@ export class Plugin extends BaseScript {
     openSettingsMenu: (() => void)[] = $state([]);
     enablePromise: Promise<void> | null = null;
     errored = $state(false);
+    settingsDescription?: PluginSettingsDescription;
 
     constructor(script: string, enabled = true) {
         super(script);

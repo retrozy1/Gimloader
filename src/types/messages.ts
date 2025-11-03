@@ -24,7 +24,8 @@ export interface StateMessages {
 
     pluginValueUpdate: { id: string, key: string, value: string };
     pluginValueDelete: { id: string, key: string };
-    pluginValuesDelete: { id: string };
+    pluginSettingUpdate: { id: string, key: string, value: string };
+    clearPluginStorage: { id: string };
 
     cacheInvalid: { invalid: boolean };
 }

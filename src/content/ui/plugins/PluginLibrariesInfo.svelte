@@ -3,7 +3,7 @@
     import LibManager from "$core/scripts/libManager.svelte";
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import Net from "$core/net/net";
-    import showErrorMessage from "../showErrorMessage";
+    import { showErrorMessage } from "../showModals";
     import * as Table from "$shared/ui/table";
 
     import OpenInNew from "svelte-material-icons/OpenInNew.svelte";

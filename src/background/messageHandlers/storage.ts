@@ -7,7 +7,8 @@ export default class StorageHandler {
     static init() {
         Server.on("pluginValueUpdate", this.onPluginValueUpdate.bind(this));
         Server.on("pluginValueDelete", this.onPluginValueDelete.bind(this));
-        Server.on("pluginValuesDelete", this.onPluginValuesDelete.bind(this));
+        Server.on("pluginSettingUpdate", this.onPluginSettingUpdate.bind(this));
+        Server.on("clearPluginStorage", this.onClearPluginStorage.bind(this));
     }
     
     static save() {
@@ -25,8 +26,15 @@ export default class StorageHandler {
         this.save();
     }
 
-    static onPluginValuesDelete(state: State, message: StateMessages["pluginValuesDelete"]) {
+    static onPluginSettingUpdate(state: State, message: StateMessages["pluginSettingUpdate"]) {
+        if(!state.pluginSettings[message.id]) state.pluginSettings[message.id] = {};
+        state.pluginSettings[message.id][message.key] = message.value;
+        this.save();
+    }
+
+    static onClearPluginStorage(state: State, message: StateMessages["clearPluginStorage"]) {
         delete state.pluginStorage[message.id];
+        delete state.pluginSettings[message.id];
         this.save();
     }
 }
