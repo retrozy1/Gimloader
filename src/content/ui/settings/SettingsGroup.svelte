@@ -1,10 +1,28 @@
 <script lang="ts">
     import type { SettingGroup } from "$types/settings";
     import Setting from "./Setting.svelte";
+    import ChevronDown from "svelte-material-icons/ChevronDown.svelte";
+    import ChevronUp from "svelte-material-icons/ChevronUp.svelte";
 
-    let { group }: { group: SettingGroup } = $props();
+    let { pluginName, group }: { pluginName: string, group: SettingGroup } = $props();
+
+    let expanded = $state(true);
 </script>
 
-{#each group.settings as setting}
-    <Setting {setting} />
-{/each}
+<div class="text-xl flex items-center font-bold {expanded ? "" : "border-b-2"}">
+    <button onclick={() => expanded = !expanded}>
+        {#if expanded}
+            <ChevronDown size={28} />
+        {:else}
+            <ChevronUp size={28} />
+        {/if}
+    </button>
+    {group.title}
+</div>
+{#if expanded}
+    <div class="pl-2 border-l-3 flex flex-col gap-2">
+        {#each group.settings as setting}
+            <Setting {pluginName} {setting} />
+        {/each}
+    </div>
+{/if}

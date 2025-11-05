@@ -2271,12 +2271,20 @@ interface Stores {
 }
 }
 
-type SettingsChangeCallback = (newValue: any, oldValue: any, remote: boolean) => void;
+type SettingsChangeCallback = (value: any, remote: boolean) => void;
 
+
+interface CustomSection {
+    type: "customsection";
+    id: string;
+    default?: any;
+    onChange?: (value: any, remote: boolean) => void;
+    render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => (() => void) | void;
+}
 
 interface CustomSetting extends BaseSetting<any> {
     type: "custom";
-    render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => void;
+    render: (container: HTMLElement, currentValue: any, update: (newValue: any) => void) => (() => void) | void;
 }
 
 interface ColorSetting extends BaseSetting<string> {
@@ -2297,6 +2305,8 @@ interface SliderSetting extends BaseSetting<number> {
     min: number;
     max: number;
     step?: number;
+    ticks?: number[];
+    formatter?: (value: number) => string;
 }
 
 interface TextSetting extends BaseSetting<string> {
@@ -2316,12 +2326,20 @@ interface NumberSetting extends BaseSetting<number> {
     step?: number;
 }
 
+interface MultiselectSetting extends BaseSetting<string[]> {
+    type: "multiselect";
+    options: {
+        label: string;
+        value: string;
+    }[];
+}
+
 interface BaseSetting<T> {
     id: string;
     default?: T;
-    label: string;
+    title: string;
     description?: string;
-    disabled?: boolean;
+    onChange?: (value: T, remote: boolean) => void;
 }
 
 interface DropdownSetting extends BaseSetting<string> {
@@ -2333,12 +2351,12 @@ interface DropdownSetting extends BaseSetting<string> {
     allowNone?: boolean;
 }
 
-type PluginSetting = DropdownSetting | NumberSetting | ToggleSetting | TextSetting | SliderSetting | RadioSetting | ColorSetting | CustomSetting;
+type PluginSetting = DropdownSetting | MultiselectSetting | NumberSetting | ToggleSetting | TextSetting | SliderSetting | RadioSetting | ColorSetting | CustomSetting | CustomSection;
 
 
 interface SettingGroup {
     type: "group";
-    label: string;
+    title: string;
     settings: PluginSetting[];
 }
 

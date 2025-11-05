@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Plugin } from "$core/scripts/scripts.svelte";
-    import Storage from "$core/storage.svelte";
     import * as Dialog from "$shared/ui/dialog";
     import Setting from "./Setting.svelte";
     import SettingsGroup from "./SettingsGroup.svelte";
@@ -11,18 +10,21 @@
     }
 
     let { plugin, onClose }: Props = $props();
+
+    const pluginName = plugin.headers.name;
 </script>
 
 <Dialog.Root open onOpenChange={onClose}>
-    <Dialog.Content class="flex flex-col gap-2" style="max-width: min(760px, calc(100% - 32px))">
-        <Dialog.Header class="text-xl font-bold!">
-            Settings for {plugin.headers.name}
+    <Dialog.Content class="flex flex-col gap-2 text-gray-600"
+        style="max-width: min(760px, calc(100% - 32px))">
+        <Dialog.Header class="text-2xl font-bold! border-b-2">
+            Settings for {pluginName}
         </Dialog.Header>
         {#each plugin.settingsDescription as setting}
             {#if setting.type === "group"}
-                <SettingsGroup group={setting} />
+                <SettingsGroup {pluginName} group={setting} />
             {:else}
-                <Setting {setting} />
+                <Setting {pluginName} {setting} />
             {/if}
         {/each}
     </Dialog.Content>

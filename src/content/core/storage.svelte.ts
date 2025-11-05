@@ -83,13 +83,12 @@ export default new class Storage extends EventEmitter2 {
     }
 
     setPluginSetting(id: string, key: string, value: any, emit = true) {
-        const oldValue = this.pluginSettings[id]?.[key] ?? null;        
         if(!this.pluginSettings[id]) this.pluginSettings[id] = {};
         this.pluginSettings[id][key] = value;
 
         for(let listener of this.settingsListeners) {
             if(listener.id === id && listener.key === key) {
-                listener.callback(value, oldValue, !emit);
+                listener.callback(value, !emit);
             }
         }
 

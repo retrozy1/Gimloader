@@ -1,15 +1,20 @@
 export interface BaseSetting<T> {
     id: string;
     default?: T;
-    label: string;
+    title: string;
     description?: string;
-    disabled?: boolean;
+    onChange?: (value: T, remote: boolean) => void;
 }
 
 export interface DropdownSetting extends BaseSetting<string> {
     type: "dropdown";
     options: { label: string; value: string }[];
     allowNone?: boolean;
+}
+
+export interface MultiselectSetting extends BaseSetting<string[]> {
+    type: "multiselect";
+    options: { label: string; value: string }[];
 }
 
 export interface NumberSetting extends BaseSetting<number> {
@@ -34,6 +39,8 @@ export interface SliderSetting extends BaseSetting<number> {
     min: number;
     max: number;
     step?: number;
+    ticks?: number[];
+    formatter?: (value: number) => string;
 }
 
 export interface RadioSetting extends BaseSetting<string> {
@@ -48,21 +55,28 @@ export interface ColorSetting extends BaseSetting<string> {
 
 export interface CustomSetting extends BaseSetting<any> {
     type: "custom";
-    render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => void;
+    render: (container: HTMLElement, currentValue: any, update: (newValue: any) => void) => (() => void) | void;
 }
 
-export type PluginSetting = DropdownSetting | NumberSetting | ToggleSetting | TextSetting
-    | SliderSetting | RadioSetting | ColorSetting | CustomSetting;
+export interface CustomSection {
+    type: "customsection";
+    id: string;
+    default?: any;
+    onChange?: (value: any, remote: boolean) => void;
+    render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => (() => void) | void;
+}
+
+export type PluginSetting = DropdownSetting | MultiselectSetting | NumberSetting | ToggleSetting
+    | TextSetting | SliderSetting | RadioSetting | ColorSetting | CustomSetting | CustomSection;
 
 export interface SettingGroup {
     type: "group";
-    label: string;
+    title: string;
     settings: PluginSetting[];
 }
 
 export type PluginSettingsDescription = (PluginSetting | SettingGroup)[];
-
-export type SettingsChangeCallback = (newValue: any, oldValue: any, remote: boolean) => void;
+export type SettingsChangeCallback = (value: any, remote: boolean) => void;
 
 export interface SettingsMethods {
     create: (description: PluginSettingsDescription) => void;
