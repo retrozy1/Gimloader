@@ -1,6 +1,6 @@
 # Gimloader
 
-This is a Gimkit plugin loader and manager, based on a trick first used in [Gimhook](https://codeberg.org/gimhook/gimhook) with an API inspired by [BetterDiscord](https://docs.betterdiscord.app/api/).
+Gimloader is a Gimkit plugin loader and manager, which allows you to modify the game to improve your experience. Gimloader comes with a variety of official plugins for things like freely moving your camera, timing speedruns, in-game chat, and much more.
 
 ## Installation
 
@@ -11,9 +11,9 @@ This is a Gimkit plugin loader and manager, based on a trick first used in [Gimh
 
 ## Usage
 
-At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. Once in the Gimloader menu, you can create or import plugins with the two buttons at the top. You can also easily download official plugins [here](https://gimloader.github.io/plugins) with a single click.
+At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. The Gimloader menu allows you to manage your plugins, and configure any hotkeys or settings that they may have. At any point, you can browse the official plugins with the "Official Plugins" button on the top right of the plugins tab, or you can look through the [List of Plugins](https://gimloader.github.io/plugins/).
 
-The Gimloader menu also allows you to manage libraries, which are bits of code that multiple plugins rely on, as well as configure hotkeys for certain plugins.
+You can also install plugins from other developers or create your own.
 
 ## Development
 
