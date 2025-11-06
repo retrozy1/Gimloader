@@ -14,7 +14,7 @@
     const pluginName = plugin.headers.name;
 </script>
 
-<Dialog.Root open onOpenChange={onClose}>
+<Dialog.Root open onOpenChangeComplete={onClose}>
     <Dialog.Content class="flex flex-col gap-2 text-gray-600"
         style="max-width: min(760px, calc(100% - 32px))">
         <Dialog.Header class="text-2xl font-bold! border-b-2">

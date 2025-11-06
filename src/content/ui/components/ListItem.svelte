@@ -16,7 +16,7 @@
         description?: Snippet;
         border?: string;
         hasDrag?: boolean;
-        deprecated?: string | null;
+        deprecated?: boolean;
     }
 
     let {

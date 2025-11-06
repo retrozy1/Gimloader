@@ -1,9 +1,9 @@
-import type { Plugin } from "$core/scripts/scripts.svelte";
-import type { PluginSettingsDescription } from "$types/settings";
+import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
 import { domLoaded } from "$content/utils";
 import ErrorModal from "./components/ErrorModal.svelte";
 import PluginSettings from "./settings/PluginSettings.svelte";
 import { mount, unmount } from "svelte";
+import ScriptLibraries from "./components/ScriptLibraries.svelte";
 
 export function showErrorMessage(msg: string, title: string = "Error") {
     const showError = () => {
@@ -25,6 +25,18 @@ export function showPluginSettings(plugin: Plugin) {
         target: document.body,
         props: {
             plugin,
+            onClose: () => unmount(component)
+        }
+    });
+}
+
+export function showScriptLibs(script: Plugin | Lib) {
+    let component = mount(ScriptLibraries, {
+        target: document.body,
+        props: {
+            name: script.headers.name,
+            needsLib: script.headers.needsLib,
+            optionalLib: script.headers.optionalLib,
             onClose: () => unmount(component)
         }
     });

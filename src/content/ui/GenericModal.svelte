@@ -28,7 +28,7 @@
     }
 </script>
 
-<Dialog.Root open={true} onOpenChange={onClose}>
+<Dialog.Root open={true} onOpenChangeComplete={onClose}>
     <Dialog.Content class="w-auto h-auto flex flex-col {options.className}" style={options.style}
         interactOutsideBehavior={options.closeOnBackgroundClick === false ? "ignore" : "close"}>
         {#if options.title}

@@ -3,13 +3,12 @@
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import { checkPluginUpdate } from "$core/net/checkUpdates";
     import Card from "../components/Card.svelte";
-    import PluginLibrariesInfo from "./PluginLibrariesInfo.svelte";
     import ListItem from '../components/ListItem.svelte'
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
     import * as Tooltip from "$shared/ui/tooltip";
     import { Switch } from "$shared/ui/switch";
-    import * as Dialog from "$shared/ui/dialog";
+    import { showScriptLibs } from "../showModals";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
@@ -43,7 +42,7 @@
 
     let loading = $state(false);
     let enabled = $state(plugin?.enabled ?? false);
-    $effect(() => enabled = plugin?.enabled);
+    $effect(() => { enabled = plugin?.enabled });
 
     async function setEnabled(enabled: boolean) {
         let loadingTimeout = setTimeout(() => loading = true, 200);
@@ -53,23 +52,9 @@
         loading = false;
     }
 
-    let libInfoOpen = $state(false);
-
     let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
     const SvelteComponent = $derived(component);
 </script>
-
-{#if libInfoOpen}
-    <Dialog.Root bind:open={() => true, () => libInfoOpen = false}>
-        <Dialog.Content class="text-gray-600 block"
-            style="max-width: min(760px, calc(100% - 32px));">
-            <Dialog.Header class="border-b w-full text-xl font-bold! mb-4">
-                Libraries used by {plugin.headers.name}
-            </Dialog.Header>
-            <PluginLibrariesInfo {plugin} />
-        </Dialog.Content>
-    </Dialog.Root>
-{/if}
 
 <SvelteComponent {dragDisabled} {startDrag} {loading} {dragAllowed}
     error={plugin?.errored} deprecated={plugin?.headers.deprecated !== null}>
@@ -115,7 +100,7 @@
             </button>
         {/if}
         {#if plugin?.headers.needsLib?.length || plugin?.headers.optionalLib?.length}
-            <button onclick={() => libInfoOpen = true}>
+            <button onclick={() => showScriptLibs(plugin)}>
                 <BookSettings size={24} />
             </button>
         {/if}

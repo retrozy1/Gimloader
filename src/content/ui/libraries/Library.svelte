@@ -10,8 +10,10 @@
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
     import * as Tooltip from "$shared/ui/tooltip";
+    import BookSettings from "svelte-material-icons/BookSettings.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
+    import { showScriptLibs } from "../showModals";
 
     function deleteLib() {
         let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
@@ -64,6 +66,11 @@
         {#if library?.headers.downloadUrl}
             <button onclick={() => checkLibUpdate(library)}>
                 <Update size={28} />
+            </button>
+        {/if}
+        {#if library?.headers.needsLib?.length || library?.headers.optionalLib?.length}
+            <button onclick={() => showScriptLibs(library)}>
+                <BookSettings size={24} />
             </button>
         {/if}
         {#if library?.headers.webpage}

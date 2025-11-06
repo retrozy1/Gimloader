@@ -10,7 +10,7 @@
     let { title, msg, onClose }: Props = $props();
 </script>
 
-<Dialog.Root open onOpenChange={onClose}>
+<Dialog.Root open onOpenChangeComplete={onClose}>
     <Dialog.Content class="block" style="max-width: min(760px, calc(100% - 32px))">
         <Dialog.Header class="font-bold text-lg w-full border-b">
             {title}
