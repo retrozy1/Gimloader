@@ -57,7 +57,6 @@
     }
 
     function onOpenChange(open: boolean, hotkey: ConfigurableHotkey) {
-        console.log("OPEN FCHANGED", open)
         if(open) configuring = hotkey;
         else stopConfigure();
     }

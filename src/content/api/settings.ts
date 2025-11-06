@@ -72,8 +72,7 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
                 return false;
             }
 
-            if(!Storage.pluginSettings[id]) Storage.pluginSettings[id] = {};
-            Storage.pluginSettings[id][prop] = value;
+            Storage.setPluginSetting(id, prop, value);
             return true;
         }
     });
