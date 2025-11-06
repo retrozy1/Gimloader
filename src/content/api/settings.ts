@@ -47,7 +47,6 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
             plugin.settingsDescription = description;
             plugin.openSettingsMenu.push(() => showPluginSettings(plugin));
             
-            console.log("HERE")
             Storage.pluginSettings[id] ??= {};
             applyDefaults(id, description);
             registerListeners(id, description);            

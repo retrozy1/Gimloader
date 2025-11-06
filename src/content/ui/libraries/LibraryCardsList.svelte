@@ -7,12 +7,12 @@
     import LibManager from "$core/scripts/libManager.svelte";
     import Storage from "$core/storage.svelte";
     import Search from "../components/Search.svelte";
-    import * as Select from "$shared/ui/select";
+    import * as DropdownMenu from "$shared/ui/dropdown-menu";
+    import { Button } from "$shared/ui/button";
     import ViewControl from "../components/ViewControl.svelte";
 
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
-    import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
 
     let searchValue = $state("");
     let items = $state(LibManager.libs.map((lib: Lib) => ({ id: lib.headers.name })));
@@ -73,14 +73,16 @@
         <button onclick={importLib}>
             <Import size={32} />
         </button>
-        <Select.Root type="single">
-            <Select.Trigger class="h-7 mr-2!">
-                Bulk actions
-            </Select.Trigger>
-            <Select.Content>
-                <Select.Item onclick={deleteAll}>Delete all</Select.Item>
-            </Select.Content>
-        </Select.Root>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger class="mr-2!">
+                <Button class="h-7">
+                    Bulk actions
+                </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+                <DropdownMenu.Item onclick={deleteAll}>Delete all</DropdownMenu.Item>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
         <ViewControl />
         <Search bind:value={searchValue} />
     </div>

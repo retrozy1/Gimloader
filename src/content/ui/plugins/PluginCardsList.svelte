@@ -11,11 +11,10 @@
     import { flipDurationMs } from "$shared/consts";
     import ViewControl from "../components/ViewControl.svelte";
     import { officialPluginsOpen } from "../stores";
-    import * as Select from "$shared/ui/select";
+    import * as DropdownMenu from "$shared/ui/dropdown-menu";
     
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
-    import ChevronDown from 'svelte-material-icons/ChevronDown.svelte';
     
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
@@ -93,25 +92,29 @@
         <button onclick={importPlugin}>
             <Import size={32} />
         </button>
-        <Select.Root type="single">
-            <Select.Trigger class="h-7">
-                Bulk actions
-            </Select.Trigger>
-            <Select.Content>
-                <Select.Item onclick={deleteAll}>Delete all</Select.Item>
-                <Select.Item onclick={() => PluginManager.setAll(true)}>Enable all</Select.Item>
-                <Select.Item onclick={() => PluginManager.setAll(false)}>Disable all</Select.Item>
-            </Select.Content>
-        </Select.Root>
-        <Select.Root type="single">
-            <Select.Trigger class="h-7 mx-2!">
-                Sort by...
-            </Select.Trigger>
-            <Select.Content>
-                <Select.Item onclick={sortEnabled}>Enabled</Select.Item>
-                <Select.Item onclick={sortAlphabetical}>Alphabetical</Select.Item>
-            </Select.Content>
-        </Select.Root>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+                <Button class="h-7">
+                    Bulk actions
+                </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+                <DropdownMenu.Item onclick={deleteAll}>Delete all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.setAll(true)}>Enable all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.setAll(false)}>Disable all</DropdownMenu.Item>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger class="mx-1.5!">
+                <Button class="h-7">
+                    Sort by...
+                </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+                <DropdownMenu.Item onclick={sortEnabled}>Enabled</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={sortAlphabetical}>Alphabetical</DropdownMenu.Item>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
         <ViewControl />
         <Search bind:value={searchValue} />
     </div>
