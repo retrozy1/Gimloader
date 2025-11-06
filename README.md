@@ -11,9 +11,9 @@ Gimloader is a Gimkit plugin loader and manager, which allows you to modify the 
 
 ## Usage
 
-At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. The Gimloader menu allows you to manage your plugins, and configure any hotkeys or settings that they may have. At any point, you can browse the official plugins with the "Official Plugins" button on the top right of the plugins tab, or you can look through the [List of Plugins](https://gimloader.github.io/plugins/).
+At any point, you can open the Gimloader menu by pressing `Alt + P` when in Gimkit or by clicking the wrench icon that is added to most pages. The Gimloader menu allows you to manage your plugins, and configure any hotkeys or settings that they may have.
 
-You can also install plugins from other developers or create your own.
+At any point, you can browse the official plugins with the "Official Plugins" button on the top left of the plugins tab, or you can look through the [List of Plugins](https://gimloader.github.io/plugins/). You can also install plugins from other developers or create your own.
 
 ## Development
 
