@@ -66,7 +66,7 @@ function importStyles(): Plugin {
     }
 }
 
-let entryPoints = ["src/content/index.ts", "src/background/index.ts", "src/popup/index.ts"];
+let entryPoints = ["src/content/gimloader.ts", "src/background/index.ts", "src/popup/index.ts"];
 if(isFirefox) entryPoints.push("src/relay/index.ts");
 
 let base: BuildOptions = {

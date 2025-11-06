@@ -16,7 +16,7 @@
     },
     "content_scripts": [
         {
-            "js": ["js/content/index.js"],
+            "js": ["js/content/gimloader.js"],
             "matches": [
                 "https://www.gimkit.com/*"
             ],
