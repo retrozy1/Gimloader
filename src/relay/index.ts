@@ -57,7 +57,7 @@ function connect() {
             // this probably will never come up since I think firefox
             // straight up nukes the content script when the extension is disabled/reloaded
             // but hey better safe than sorry
-            setTimeout(() => connect(), 10000);
+            setTimeout(() => connect(), 1000);
         } else {
             connect();
         }
