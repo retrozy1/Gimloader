@@ -180,9 +180,7 @@ export default class Rewriter {
 
     static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
         let object: ParseHook = { prefix, callback };
-        
         if(pluginName) object.pluginName = pluginName;
-        this.parseHooks.push(object);
 
         return splicer(this.parseHooks, object);
     }

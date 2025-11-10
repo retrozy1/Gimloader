@@ -64,7 +64,8 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
     return true;
 }
 
-export function splicer(array: any[], obj: any) {
+export function splicer<T>(array: T[], obj: T) {
+    array.push(obj);
     return () => {
         let index = array.indexOf(obj);
         if(index !== -1) array.splice(index, 1);

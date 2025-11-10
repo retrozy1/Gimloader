@@ -108,17 +108,11 @@ export default new class Storage extends EventEmitter2 {
     }
 
     onPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback) {
-        let obj: ValueChangeListener = { id, key, callback };
-        this.valueListeners.push(obj);
-
-        return splicer(this.valueListeners, obj);
+        return splicer(this.valueListeners, { id, key, callback });
     }
 
     onPluginSettingUpdate(id: string, key: string, callback: SettingsChangeCallback) {
-        let obj: SettingsChangeListener = { id, key, callback };
-        this.settingsListeners.push(obj);
-
-        return splicer(this.settingsListeners, obj);
+        return splicer(this.settingsListeners, { id, key, callback });
     }
 
     offPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback) {

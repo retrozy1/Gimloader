@@ -2618,6 +2618,10 @@ class ScopedNetApi extends BaseNetApi {
      * @returns A function to cancel waiting for load
      */
     onLoad(callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]): () => void;
+    /** Runs a callback when a request is made that matches a certain path (can have wildcards) */
+    modifyFetchRequest(path: string, callback: (options: RequesterOptions) => any): () => void;
+    /** Runs a callback when a response is recieved for a request under a certain path (can have wildcards) */
+    modifyFetchResponse(path: string, callback: (response: any) => any): () => void;
 }
 
 type ConnectionType = "None" | "Colyseus" | "Blueboat";
@@ -2637,6 +2641,16 @@ class BaseNetApi extends EventEmitter2 {
     send(channel: string, message: any): void;
 }
 
+interface RequesterOptions {
+    url: string;
+    method?: string;
+    data?: any;
+    cacheKey?: string;
+    success?: (response: any, cached: boolean) => void;
+    both?: () => void;
+    error?: (error: any) => void;
+}
+
 class NetApi extends BaseNetApi {
     constructor();
     /**
@@ -2646,6 +2660,14 @@ class NetApi extends BaseNetApi {
     onLoad(id: string, callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]): () => void;
     /** Cancels any calls to {@link onLoad} with the same id */
     offLoad(id: string): void;
+    /** Runs a callback when a request is made that matches a certain path (can have wildcards) */
+    modifyFetchRequest(id: string, path: string, callback: (options: RequesterOptions) => any): () => void;
+    /** Runs a callback when a response is recieved for a request under a certain path (can have wildcards) */
+    modifyFetchResponse(id: string, path: string, callback: (response: any) => any): () => void;
+    /** Stops any modifications made by {@link modifyFetchRequest} with the same id */
+    stopModifyRequest(id: string): void;
+    /** Stops any modifications made by {@link modifyFetchResponse} with the same id */
+    stopModifyResponse(id: string): void;
     /**
      * @deprecated Methods for both transports are now on the base net api
      * @hidden

@@ -5,6 +5,7 @@ import Patcher from "../patcher";
 import LibManager from "$core/scripts/libManager.svelte";
 import { formatDownloadUrl } from "$shared/net/util";
 import Rewriter from "../rewriter";
+import wildcardMatch from "wildcard-match";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
@@ -14,11 +15,37 @@ interface LoadCallback {
     gamemodes: string[];
 }
 
+export interface RequesterOptions {
+    url: string;
+    method?: string;
+    data?: any;
+    cacheKey?: string;
+    success?: (response: any, cached: boolean) => void;
+    both?: () => void;
+    error?: (error: any) => void;
+}
+
+type Requester = (options: RequesterOptions) => void;
+
+interface RequestCallback {
+    id: string | null;
+    match: (url: string) => boolean;
+    callback: (options: RequesterOptions) => any;
+}
+
+interface ResponseCallback {
+    id: string | null;
+    match: (url: string) => boolean;
+    callback: (response: any, url: string) => any;
+}
+
 export default new class Net extends EventEmitter2 {
     type: ConnectionType = "None";
     room: any = null;
     loaded = false;
     loadCallbacks: LoadCallback[] = [];
+    requestCallbacks: RequestCallback[] = [];
+    responseCallbacks: ResponseCallback[] = [];
     gamemode: string | null = null;
 
     constructor() {
@@ -26,6 +53,10 @@ export default new class Net extends EventEmitter2 {
             wildcard: true,
             delimiter: ':'
         });
+    }
+
+    get isHost() {
+        return location.pathname === "/host";
     }
 
     init() {
@@ -52,8 +83,72 @@ export default new class Net extends EventEmitter2 {
             }
         });
 
+        const wrapRequester = Rewriter.createShared(null, "wrapRequester", (requester: Requester) => {
+            let requestCallbacks = this.requestCallbacks;
+            let responseCallbacks = this.responseCallbacks;
+
+            return (options: RequesterOptions) => {
+                let cancelled = false;
+
+                for(let callback of requestCallbacks) {
+                    console.log(callback);
+                    if(!callback.match(options.url)) continue;
+                    const result = callback.callback(options);
+
+                    if(result === null) {
+                        cancelled = true;
+                        break;
+                    }
+
+                    if(result) options = result;
+                }
+
+                const originalSuccess = options.success;
+                options.success = function(data: any, cached: boolean) {
+                    for(let callback of responseCallbacks) {
+                        if(!callback.match(options.url)) continue;
+
+                        const result = callback.callback(data, options.url);
+                        if(result !== undefined) data = result;
+                    }
+
+                    originalSuccess?.(data, cached);
+                }
+                
+                return requester(options);
+            }
+        });
+
+        Rewriter.addParseHook(null, true, (code) => {
+            const index = code.indexOf("JSON.stringify({url");
+            if(index === -1) return code;
+
+            const start = code.indexOf("=", code.lastIndexOf(",", index)) + 1;
+            const end = code.indexOf("})}})}", index) + 6;
+            const func = code.slice(start, end);
+
+            code = code.slice(0, start) + `${wrapRequester}(${func});` + code.slice(end);
+            return code;
+        });
+
         Internals.events.once("stores", () => {
             this.waitForColyseusLoad();
+        });
+    }
+
+    modifyFetchRequest(id: string | null, path: string, callback: RequestCallback['callback']) {
+        return splicer(this.requestCallbacks, {
+            id,
+            match: wildcardMatch(path),
+            callback
+        });
+    }
+
+    modifyFetchResponse(id: string | null, path: string, callback: ResponseCallback['callback']) {
+        return splicer(this.responseCallbacks, {
+            id,
+            match: wildcardMatch(path),
+            callback
         });
     }
 
@@ -181,9 +276,7 @@ export default new class Net extends EventEmitter2 {
     }
 
     send(channel: string, message?: any) {
-        if(this.room.type !== "None") {
-            this.room.send(channel, message);
-        }
+        this.room?.send(channel, message);
     }
 
     downloadLibrary(url: string) {
@@ -236,13 +329,10 @@ export default new class Net extends EventEmitter2 {
             gamemodes: gamemode.map(g => g.toLowerCase())
         };
         
-        this.loadCallbacks.push(obj);
         return splicer(this.loadCallbacks, obj);
     }
 
     pluginOffLoad(id: string) { clearId(this.loadCallbacks, id); }
-
-    get isHost() {
-        return location.pathname === "/host";
-    }
+    stopModifyRequest(id: string) { clearId(this.requestCallbacks, id); }
+    stopModifyResponse(id: string) { clearId(this.responseCallbacks, id); }
 }

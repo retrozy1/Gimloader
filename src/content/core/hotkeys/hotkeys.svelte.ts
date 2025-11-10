@@ -44,17 +44,13 @@ export default new class Hotkeys {
     }
 
     addHotkey(id: any, options: HotkeyOptions, callback: HotkeyCallback) {
-        let obj = { ...options, id, callback };
-        this.hotkeys.push(obj);
-
-        return splicer(this.hotkeys, obj);
+        return splicer(this.hotkeys, { ...options, id, callback });
     }
 
     removeHotkeys(id: any) { clearId(this.hotkeys, id); }
     
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: HotkeyCallback, pluginName?: string) {
         let obj = new ConfigurableHotkey(id, callback, options, pluginName);
-        this.configurableHotkeys.push(obj);
 
         return splicer(this.configurableHotkeys, obj);
     }

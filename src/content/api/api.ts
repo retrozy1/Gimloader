@@ -144,6 +144,8 @@ class Api {
             Hotkeys.removeHotkeys(scoped.id);
             Hotkeys.removeConfigurableFromPlugin(scoped.id);
             Net.pluginOffLoad(scoped.id);
+            Net.stopModifyRequest(scoped.id);
+            Net.stopModifyResponse(scoped.id);
             UI.removeStyles(scoped.id);
             Patcher.unpatchAll(scoped.id);
             Storage.removeValueListeners(scoped.id);
