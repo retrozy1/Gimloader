@@ -1,9 +1,8 @@
-import type { RoomCache } from 'colyseus';
 import type { CodeInfoFailure, CodeInfoSuccess, Experience, Hook, LiveGameOptions, MapCreationOptions, MatchmakerOptions, PublicGame } from './matchmaker';
 import type { OpenedCosmetic, OwnedCosmetic, Pack, PackCosmetic, PackCosmeticItem, Shop, STCosmetic } from './cosmos';
 import type { Creator, Folder, Game, QuestionAdded, QuestionEdit } from './kits';
 import type { FullGroup, HubItem } from './groups';
-import type { CreatedMap, PublicMapSection } from './maps';
+import type { CreatedMap, PublicMap, PublicMapSection } from './maps';
 import type { InformationUpdate, UserData } from './users';
 
 interface NewsPost {
@@ -13,6 +12,69 @@ interface NewsPost {
 }
 
 export interface EndpointRequests {
+    "/api/games/gallery": undefined;
+    "/api/games/summary/me": undefined;
+    "/api/games/search": {
+        language?: string;
+        query: string;
+        sort: "relevant" | "recent";
+        page: number;
+        subject?: string;
+    };
+    "/api/games/archived": {
+        archived: boolean;
+        id: string;
+    }
+    "/api/folders/new": {
+        title: string;
+    };
+    "/api/folders/addGame": {
+        folderId: string;
+        gameId: string;
+    };
+    "/pages/general": undefined;
+    [key: `/api/hub/hub-items${string}`]: undefined;
+    "/api/v1/groups": undefined;
+    [key: `/api/games/fetch/${string}`]: undefined;
+    "/api/experiences": undefined;
+    "/api/experience/map/hooks": undefined;
+    "/api/matchmaker/find-info-from-code": {
+        code: string;
+    };
+    [key: `/api/matchmaker/intent/fetch-source/${string}`]: undefined;
+    [key: `/api/matchmaker/intent/map/summary/${string}`]: undefined;
+    "/api/matchmaker/instant-join": undefined;
+    "/api/v1/editor/questions/add": {
+        questions: QuestionEdit[];
+    };
+    "/api/created-maps": undefined;
+    "/api/created-map/basics": undefined;
+    "/api/created-map/create": {
+        mapStyle: "topDown" | "platformer"
+    };
+    "/api/created-map/rename": {
+        id: string;
+        name: string;
+    };
+    "/api/created-map/delete": {
+        id: string;
+    }
+    "/api/cosmos/shop": undefined;
+    "/api/cosmos/basics": undefined;
+    "/api/cosmos/owned-cosmetics": undefined;
+    [key: `/api/cosmos/pack/details/${string}`]: undefined;
+    "/api/cosmos/pack/open": {
+        count: number;
+        pack: string;
+    };
+    "/api/cosmos/season-ticket": undefined;
+    "/api/cosmos/select-cosmetic": {
+        cosmeticId: string;
+        cosmeticType: string;
+    };
+
+
+
     "/api/news/fetch": {
         isStudent: boolean;
     };
@@ -26,67 +88,20 @@ export interface EndpointRequests {
         gameId: string;
         gameOptions: LiveGameOptions;
         matchmakerOptions: MatchmakerOptions;
-    }
-    "/api/games/delete": {
-        id: string;
-    };
-    "/api/games/search": {
-        language?: string;
-        query: string;
-        sort: "relevant" | "recent";
-        page: number;
-        subject?: string;
-    };
-    "/api/folders/new": {
-        title: string;
-    };
-    "/api/folders/addGame": {
-        folderId: string;
-        gameId: string;
-    };
-    "/api/matchmaker/find-info-from-code": {
-        code: string;
     };
     "/api/matchmaker/join": {
         clientType: string;
         name: string;
         roomId: string;
     };
-    "/matchmake/create/MapRoom": {
-        authToken: string;
-        intentId: string;
-    };
-    "/api/v1/editor/edit-session": {
-        kitId: string;
-    };
-    "/api/v1/editor/questions/add": {
-        questions: QuestionEdit[];
-    };
-    "/api/games/archived": {
-        archived: boolean;
+    "/api/games/delete": {
         id: string;
     };
-    "/api/created-map/create": {
-        mapStyle: "topDown" | "platformer"
-    };
-    "/api/created-map/rename": {
-        id: string;
-        name: string;
-    };
-    "/api/created-map/delete": {
-        id: string;
-    }
     "/api/created-map/listing/discovery/search": {
         query: string;
     }
-    "/api/cosmos/pack/open": {
-        count: number;
-        pack: string;
-    };
-    "/api/cosmos/select-cosmetic": {
-        cosmeticId: string;
-        cosmeticType: string;
-    }
+    "/api/cosmos/owned-stickers": undefined;
+    "/api/created-map/listing/discovery": undefined;
     "/api/v1/givekit/apply": {
         comments: string;
         dateNeeded: string;
@@ -97,9 +112,14 @@ export interface EndpointRequests {
         projectLink: string;
         role: string;
     };
+    [key: `/api/content/${string}`]: undefined;
     "/api/users/update-information": {
         changes: InformationUpdate[];
-    }
+    };
+    "/api/v1/groups/part-of": undefined;
+    "/api/v1/editor/edit-session": {
+        kitId: string;
+    };
 }
 
 export interface EndpointResponses {
@@ -113,7 +133,10 @@ export interface EndpointResponses {
         hasMore: boolean;
         page: number;
     };
+    "/api/games/archived": "OK";
+
     "/api/folders/new": string;
+    "/api/folders/addGame": "OK";
     "/pages/general": {
         userData: UserData;
     };
@@ -134,11 +157,16 @@ export interface EndpointResponses {
     [key: `/api/matchmaker/intent/map/summary/${string}`]: {
         mapId: string;
     };
-    "/api/matchmaker/instant-join": any;
-    "/matchmake/create/MapRoom": {
-        room: Omit<RoomCache, "publicAddress" | "metadata">;
-        sessionId: string;
+    "/api/matchmaker/intent/map/play/create": string;
+    "/api/matchmaker/intent/live-game/create": string;
+    "/api/games/delete": "OK";
+    "/api/matchmaker/join": {
+        source: string;
+        serverUrl: string;
+        roomId: string;
+        intentId: string;
     }
+    "/api/matchmaker/instant-join": any;
     "/api/v1/editor/questions/add": QuestionAdded[];
     "/api/created-maps": CreatedMap[];
     "/api/created-map/basics": {
@@ -148,6 +176,7 @@ export interface EndpointResponses {
     "/api/created-map/create": string;
     "/api/created-map/rename": string;
     "/api/created-map/delete": string;
+    "/api/created-map/listing/discovery/search": PublicMap[];
     "/api/cosmos/shop": {
         shop: Shop;
         packs: Pack[];
@@ -186,4 +215,6 @@ export interface EndpointResponses {
     // This seems to be some complex type of something called "crdt"
     [key: `/api/content/${string}`]: Record<string, any>;
     "/api/users/update-information": "OK";
+    "/api/v1/editor/edit-session": "OK";
+
 }

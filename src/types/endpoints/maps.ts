@@ -3,7 +3,7 @@ export interface CreatedMap {
     name: string;
 }
 
-interface PublicMap {
+export interface PublicMap {
     _id: string;
     title: string;
     image: string;
