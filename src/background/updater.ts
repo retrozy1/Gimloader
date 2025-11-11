@@ -130,36 +130,37 @@ export default class Updater {
     }
 
     static async applyUpdate(state: State, update: Update) {
-        let { type, ...message } = update;
+        const { type, name, newName, script } = update;
+        const message = { name, newName, script, updated: true };
     
         if(type === "plugin") {
             // if a plugin with the new name exists, just overwrite it
             // not the best solution but this should almost never happen and the consequences are bad if it's not adressed
-            if(update.name !== update.newName) {
-                let existing = state.plugins.find(p => p.name === update.newName);
+            if(name !== newName) {
+                let existing = state.plugins.find(p => p.name === newName);
                 if(existing) {
-                    await Server.executeAndSend("pluginDelete", { name: update.newName });
+                    await Server.executeAndSend("pluginDelete", { name: newName });
                 }
             }
 
-            let plugin = state.plugins.find(p => p.name === update.name);
+            let plugin = state.plugins.find(p => p.name === name);
             if(!plugin) return;
-            plugin.name = update.newName;
+            plugin.name = newName;
             plugin.script = update.script;
 
             saveDebounced("plugins");
             Server.send("pluginEdit", message);
         } else {
-            if(update.name !== update.newName) {
-                let existing = state.libraries.find(l => l.name === update.newName);
+            if(name !== newName) {
+                let existing = state.libraries.find(l => l.name === newName);
                 if(existing) {
-                    await Server.executeAndSend("libraryDelete", { name: update.newName });
+                    await Server.executeAndSend("libraryDelete", { name: newName });
                 }
             }
 
-            let library = state.libraries.find(l => l.name === update.name);
+            let library = state.libraries.find(l => l.name === name);
             if(!library) return;
-            library.name = update.newName;
+            library.name = newName;
             library.script = update.script;
 
             saveDebounced("libraries");

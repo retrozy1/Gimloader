@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { focusTrapEnabled } from "$content/ui/stores";
-import GenericModal from "$content/ui/GenericModal.svelte";
+import GenericModal from "$content/ui/modals/Generic.svelte";
 import { mount, unmount } from "svelte";
 
 export interface ModalButton {

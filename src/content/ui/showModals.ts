@@ -1,6 +1,6 @@
 import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
 import { domLoaded } from "$content/utils";
-import ErrorModal from "./components/ErrorModal.svelte";
+import ErrorModal from "./modals/Error.svelte";
 import PluginSettings from "./settings/PluginSettings.svelte";
 import { mount, unmount } from "svelte";
 import ScriptLibraries from "./components/ScriptLibraries.svelte";

@@ -3,7 +3,7 @@ import { parseScriptHeaders } from "$shared/parseHeader";
 import type { ScriptHeaders } from "$types/scripts";
 import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
-import ReloadConfirm from "../reloadConfirm.svelte";
+import Modals from "../modals.svelte";
 import type { PluginSettingsDescription } from "$types/settings";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
@@ -75,7 +75,7 @@ abstract class BaseScript {
             this.headers.reloadRequired === '' ||
             (this.headers.reloadRequired === 'ingame' && Net.type !== "None")
         ) {
-            ReloadConfirm.addNeeded(this.headers.name);
+            Modals.addReloadNeeded(this.headers.name);
         }
     }
 

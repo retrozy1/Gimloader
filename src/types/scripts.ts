@@ -12,6 +12,7 @@ export interface ScriptHeaders {
     syncEval: string;
     deprecated: string | null;
     gamemode: string[];
+    changelog: string[];
     /** Only available for plugins */
     hasSettings: string;
 }

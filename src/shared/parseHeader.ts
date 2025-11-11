@@ -15,7 +15,8 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         syncEval: "false",
         webpage: null,
         deprecated: null,
-        gamemode: []
+        gamemode: [],
+        changelog: []
     };
 
     return parseHeader<ScriptHeaders>(code, baseHeaders);

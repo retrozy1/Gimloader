@@ -7,6 +7,7 @@ import Storage from "$core/storage.svelte";
 import Port from "$shared/net/port.svelte";
 import toast from "svelte-5-french-toast";
 import Rewriter from "../rewriter";
+import Modals from "../modals.svelte";
 
 export default new class PluginManager {
     plugins: Plugin[] = $state([]);
@@ -20,7 +21,7 @@ export default new class PluginManager {
             this.plugins.push(pluginObj);
         }
 
-        Port.on("pluginEdit", ({ name, script }) => this.editPlugin(name, script, false));
+        Port.on("pluginEdit", ({ name, script, updated }) => this.editPlugin(name, script, false, updated));
         Port.on("pluginCreate", ({ script }) => this.createPlugin(script, false));
         Port.on("pluginDelete", ({ name }) => this.deletePlugin(name, false));
         Port.on("pluginToggled", ({ name, enabled }) => this.setEnabled(name, enabled, false));
@@ -205,11 +206,14 @@ export default new class PluginManager {
         return this.plugins.map(p => p.headers.name);
     }
 
-    async editPlugin(name: Plugin | string, script: string, emit = true) {
+    async editPlugin(name: Plugin | string, script: string, emit = true, updated = false) {
         let plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
 
         let headers = parseScriptHeaders(script);
+        if(updated && headers.changelog.length > 0) {
+            Modals.addUpdated(headers.name, headers.version, headers.changelog);
+        }
 
         if(plugin.enabled) plugin.stop();
 

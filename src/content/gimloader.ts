@@ -7,7 +7,7 @@ import Port from "$shared/net/port.svelte";
 import { version } from "../../package.json";
 import { fixRDT } from "$core/rdt";
 import StateManager from "$core/state";
-import ReloadConfirm from "$core/reloadConfirm.svelte";
+import Modals from "$content/core/modals.svelte";
 
 Object.defineProperty(window, "GL", {
     value: Api,
@@ -19,7 +19,7 @@ UI.init();
 Net.init();
 GimkitInternals.init();
 StateManager.init();
-ReloadConfirm.init();
+Modals.init();
 
 Port.init((state) => {
     StateManager.initState(state);

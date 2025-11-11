@@ -4,6 +4,7 @@ import type { LibraryInfo } from '$types/state';
 import Port from '$shared/net/port.svelte';
 import toast from 'svelte-5-french-toast';
 import Rewriter from '../rewriter';
+import Modals from '../modals.svelte';
 
 export default new class LibManagerClass {
     libs: Lib[] = $state([]);
@@ -15,7 +16,7 @@ export default new class LibManagerClass {
             this.libs.push(lib);
         }
 
-        Port.on("libraryEdit", ({ name, script }) => this.editLib(name, script, false));
+        Port.on("libraryEdit", ({ name, script, updated }) => this.editLib(name, script, false, true));
         Port.on("libraryDelete", ({ name }) => this.deleteLib(this.getLib(name), false));
         Port.on("librariesDeleteAll", () => this.deleteAll());
         Port.on("libraryCreate", ({ script }) => this.createLib(script, true, false));
@@ -133,11 +134,15 @@ export default new class LibManagerClass {
         return this.libs.map(lib => lib.headers.name);
     }
 
-    async editLib(library: Lib | string, script: string, emit = true) {
+    async editLib(library: Lib | string, script: string, emit = true, updated = false) {
         let lib = typeof library === "string" ? this.getLib(library) : library;
         if(!lib) return;
 
         let headers = parseScriptHeaders(script);
+        if(updated && headers.changelog.length > 0) {
+            Modals.addUpdated(headers.name, headers.version, headers.changelog);
+        }
+
         if(emit) {
             Port.send("libraryEdit", { name: lib.headers.name, script, newName: headers.name });
             Rewriter.invalidate();

@@ -1,21 +1,21 @@
 <script lang="ts">
     import * as AlertDialog from "$shared/ui/alert-dialog";
-    import ReloadConfirm from "$core/reloadConfirm.svelte";
+    import Modals from "$content/core/modals.svelte";
 
     function ignore() {
-        ReloadConfirm.needed.clear();
+        Modals.reloadNeeded.clear();
     }
 </script>
 
-{#if ReloadConfirm.needed.size > 0}
+{#if Modals.reloadNeeded.size > 0}
     <AlertDialog.Root open={true}>
         <AlertDialog.Content class="z-101">
-            {#if ReloadConfirm.needed.size == 1}
-                {ReloadConfirm.names[0]} requires
-            {:else if ReloadConfirm.needed.size == 2}
-                {ReloadConfirm.names[0]} and {ReloadConfirm.names[1]} require
+            {#if Modals.reloadNeeded.size == 1}
+                {Modals.reloadNames[0]} requires
+            {:else if Modals.reloadNeeded.size == 2}
+                {Modals.reloadNames[0]} and {Modals.reloadNames[1]} require
             {:else}
-                {ReloadConfirm.names.slice(0, -1).join(", ")}, and {ReloadConfirm.names.at(-1)} require
+                {Modals.reloadNames.slice(0, -1).join(", ")}, and {Modals.reloadNames.at(-1)} require
             {/if}
             a reload in order to function properly.
 

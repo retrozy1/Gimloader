@@ -20,12 +20,14 @@
         <Dialog.Header class="text-2xl font-bold! border-b-2">
             Settings for {pluginName}
         </Dialog.Header>
-        {#each plugin.settingsDescription as setting}
-            {#if setting.type === "group"}
-                <SettingsGroup {pluginName} group={setting} />
-            {:else}
-                <Setting {pluginName} {setting} />
-            {/if}
-        {/each}
+        <div class="min-h-0 overflow-auto">
+            {#each plugin.settingsDescription as setting}
+                {#if setting.type === "group"}
+                    <SettingsGroup {pluginName} group={setting} />
+                {:else}
+                    <Setting {pluginName} {setting} />
+                {/if}
+            {/each}
+        </div>
     </Dialog.Content>
 </Dialog.Root>

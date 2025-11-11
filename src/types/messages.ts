@@ -6,13 +6,13 @@ export interface StateMessages {
     hotkeyUpdate: { id: string, trigger: HotkeyTrigger };
     hotkeysUpdate: { hotkeys: ConfigurableHotkeysState };
 
-    libraryEdit: { name: string, newName: string, script: string };
+    libraryEdit: { name: string, newName: string, script: string, updated?: boolean };
     libraryDelete: { name: string };
     librariesDeleteAll: void;
     libraryCreate: { name: string, script: string };
     librariesArrange: { order: string[] };
 
-    pluginEdit: { name: string, newName: string, script: string };
+    pluginEdit: { name: string, newName: string, script: string, updated?: boolean };
     pluginDelete: { name: string };
     pluginsDeleteAll: void;
     pluginCreate: { name: string, script: string };

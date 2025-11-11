@@ -4,7 +4,6 @@
     import Storage from "$core/storage.svelte";
     import { isFirefox } from "$shared/consts";
     import StateManager from "$core/state";
-    import { onDestroy, onMount } from "svelte";
 
     function saveAutoUpdate() {
         Storage.updateSetting('autoUpdate', Storage.settings.autoUpdate);

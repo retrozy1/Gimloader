@@ -8,6 +8,9 @@ import Port from "$shared/net/port.svelte";
 import { readUserFile } from "$content/utils";
 import toast from "svelte-5-french-toast";
 import Rewriter from "./rewriter";
+import { version } from "../../../package.json";
+import Modals from "./modals.svelte";
+import changelog from "../../../release-notes.txt";
 
 export default class StateManager {
     static init() {
@@ -18,12 +21,23 @@ export default class StateManager {
     }
 
     static initState(state: State) {
+        const lastVersion = localStorage.getItem("gl-version");
+        localStorage.setItem("gl-version", version);
+
+        const versionChanged = version !== lastVersion;
+        const updated = lastVersion && versionChanged;
+
+        if(updated) {
+            const changes = changelog.split("\n").filter(line => line);
+            Modals.addUpdated("Gimloader", version, changes);
+        }
+
         Storage.init(state.pluginStorage, state.settings, state.pluginSettings);
         LibManager.init(state.libraries);
         PluginManager.init(state.plugins);
         Hotkeys.init(state.hotkeys);
         UpdateNotifier.init(state.availableUpdates);
-        Rewriter.init(state.cacheInvalid);
+        Rewriter.init(state.cacheInvalid || versionChanged);
     }
 
     static syncWithState(state: State) {
