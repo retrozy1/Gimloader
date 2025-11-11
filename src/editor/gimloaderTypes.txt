@@ -2393,6 +2393,7 @@ class PluginsApi {
         syncEval: string;
         deprecated: string | null;
         gamemode: string[];
+        changelog: string[];
         hasSettings: string;
     };
     /** Gets the exported values of a plugin, if it has been enabled */
@@ -2426,6 +2427,7 @@ class LibsApi {
         syncEval: string;
         deprecated: string | null;
         gamemode: string[];
+        changelog: string[];
         hasSettings: string;
     };
     /** Gets the exported values of a library */

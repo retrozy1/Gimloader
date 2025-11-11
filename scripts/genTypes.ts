@@ -9,6 +9,7 @@ let types = fs.readFileSync("types.d.ts").toString();
 fs.rmSync("types.d.ts");
 
 types = types.replaceAll(`import("$types/stores/stores").`, "")
+    .replaceAll(`import("types/stores/stores").`, "")
     .replaceAll("Input.Pointer", "import(\"phaser\").Input.Pointer")
     .replaceAll("Types.Tweens", "import(\"phaser\").Types.Tweens")
     .replaceAll(" Tweens.Tween", " import(\"phaser\").Tweens.Tween")
@@ -54,6 +55,7 @@ const process = (name: string, inStores: boolean) => {
     for(let [otherName, regex] of useRegexes) {
         if(code.match(regex)) {
             useRegexes.delete(otherName);
+            console.log(otherName);
             if(otherName === "Stores") process(otherName, true);
             else process(otherName, inStores);
         }
