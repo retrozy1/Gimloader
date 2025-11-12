@@ -40,22 +40,6 @@ abstract class BaseScript {
             // Only create the api automatically if the plugin doesn't call new GL() itself for backwards compatibility
             const apiDeclaration = this.script.match(apiCreatedRegex) ? "" : `const api = new GL("${host}", "${this.headers.name}");\n`;
     
-            if(this.headers.syncEval !== "false") {
-                try {
-                    // append code for module.exports syntax
-                    let code = "const module = { exports: {} };\n" + apiDeclaration + this.script + "\nmodule" + sourceUrl;
-                    let returned = eval.apply(window, [code]);
-                    returned = returned?.exports;
-                    if(!returned) returned = {};
-
-                    if(!initial) this.checkReloadNeeded();
-                    res(Object.freeze(returned));
-                } catch(e) {
-                    rej(e);
-                }
-                return;
-            }
-    
             const blob = new Blob([apiDeclaration, this.script, sourceUrl], { type: "application/javascript" });
             const url = URL.createObjectURL(blob);
     

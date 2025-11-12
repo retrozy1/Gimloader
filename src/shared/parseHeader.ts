@@ -12,7 +12,6 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         needsLib: [],
         optionalLib: [],
         hasSettings: "false",
-        syncEval: "false",
         webpage: null,
         deprecated: null,
         gamemode: [],

@@ -55,7 +55,6 @@ const process = (name: string, inStores: boolean) => {
     for(let [otherName, regex] of useRegexes) {
         if(code.match(regex)) {
             useRegexes.delete(otherName);
-            console.log(otherName);
             if(otherName === "Stores") process(otherName, true);
             else process(otherName, inStores);
         }

@@ -9,7 +9,6 @@ export interface ScriptHeaders {
     webpage: string | null;
     needsLib: string[];
     optionalLib: string[];
-    syncEval: string;
     deprecated: string | null;
     gamemode: string[];
     changelog: string[];
