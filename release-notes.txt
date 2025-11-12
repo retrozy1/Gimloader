@@ -1,2 +1,1 @@
-Added api for plugins to modify fetch requests
-Added modals for gimloader/plugin updates
+Fixed updates tab looking strange

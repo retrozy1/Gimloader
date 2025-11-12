@@ -23,17 +23,17 @@
 </script>
 
 <div class="h-full overflow-y-auto">
-    <div class="flex names-center">
+    <div class="flex items-center">
         <button onclick={checkAll}>
             <Update size={25} />
         </button>
         Check all updates
     </div>
-    <h1 class="font-bold text-xl">Gimloader</h1>
+    <div class="font-bold text-xl mt-2">Gimloader</div>
     <div class="flex items-center">
         Gimloader v{version}
     </div>
-    <h1 class="font-bold text-xl">Plugins</h1>
+    <div class="font-bold text-xl mt-2">Plugins</div>
     {#if PluginManager.plugins.length === 0}
         <h2 class="text-lg">No plugins installed</h2>
     {:else}
@@ -48,7 +48,7 @@
             </div>
         {/each}
     {/if}
-    <h1 class="font-bold text-xl">Libraries</h1>
+    <div class="font-bold text-xl mt-2">Libraries</div>
     {#if LibManager.libs.length === 0}
         <h2 class="text-lg">No libraries installed</h2>
     {:else}
