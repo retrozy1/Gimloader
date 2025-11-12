@@ -15,6 +15,7 @@
     border: 0 solid;
   }
 
+  button.preflight,
   .preflight button {
     cursor: pointer;
   }
@@ -103,6 +104,7 @@
     height: auto;
   }
   
+  button.preflight, input.preflight, select.preflight, optgroup.preflight, textarea.preflight,
   .preflight button, .preflight input, .preflight select, .preflight optgroup, .preflight textarea, .preflight ::file-selector-button {
     font: inherit;
     font-feature-settings: inherit;
@@ -168,6 +170,7 @@
     box-shadow: none;
   }
   
+  button.preflight,
   .preflight button, .preflight input:where([type=button], [type=reset], [type=submit]), .preflight ::file-selector-button {
     appearance: button;
   }
