@@ -73,7 +73,8 @@ abstract class BaseScript {
         if(
             this.headers.reloadRequired === 'true' || 
             this.headers.reloadRequired === '' ||
-            (this.headers.reloadRequired === 'ingame' && Net.type !== "None")
+            (this.headers.reloadRequired === 'ingame' && Net.type !== "None") ||
+            (this.headers.reloadRequired === 'notingame' && Net.type === "None")
         ) {
             Modals.addReloadNeeded(this.headers.name);
         }

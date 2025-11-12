@@ -1,2 +1,3 @@
 Fixed updates tab looking strange
 Fixed modals for certain plugins looking strange
+Added notingame option for reloadRequired header
