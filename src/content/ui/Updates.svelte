@@ -7,18 +7,15 @@
     import toast from "svelte-5-french-toast";
     import Port from "$shared/net/port.svelte";
     import Rewriter from "$core/rewriter";
+    import { englishList } from "$content/utils";
 
     async function checkAll() {
         if(!confirm("Do you want to try to update all plugins and all libraries?")) return;
         Rewriter.invalidate();
         let names: string[] = await Port.sendAndRecieve("updateAll");
         
-        let namesFmt: string;
         if(names.length === 0) return toast.success("All scripts are up to date!");
-        else if(names.length === 1) namesFmt = names[0];
-        else if(names.length === 2) namesFmt = `${names[0]} and ${names[1]}`;
-        else namesFmt = `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`; 
-        toast.success(`Updated ${namesFmt}`);
+        toast.success(`Updated ${englishList(names)}`);
     }
 </script>
 

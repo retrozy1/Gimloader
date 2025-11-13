@@ -3,3 +3,4 @@ Fixed modals for certain plugins looking strange
 Added notingame option for reloadRequired header
 Removed syncEval header
 Added button to copy debug information in popup
+Greatly improved error handling when scripts fail to load

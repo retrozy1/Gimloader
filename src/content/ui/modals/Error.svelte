@@ -15,6 +15,6 @@
         <Dialog.Header class="font-bold text-lg w-full border-b">
             {title}
         </Dialog.Header>
-        <pre>{msg}</pre>
+        <pre class="whitespace-pre-wrap">{msg}</pre>
     </Dialog.Content>
 </Dialog.Root>

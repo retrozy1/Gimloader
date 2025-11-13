@@ -1,7 +1,8 @@
-import { domLoaded, splicer } from "$content/utils";
+import { domLoaded, englishList, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
+import { showErrorMessage } from "$content/ui/showModals";
 
 interface Import {
     text: string;
@@ -81,20 +82,20 @@ export default class Rewriter {
     }
 
     static loadingSrcs = new Map<string, Promise<string>>();
-    static getBlobUrl(name: string, root: boolean) {
+    static getBlobUrl(name: string, root: boolean, skipPluginHooks = false) {
         const existing = this.loadingSrcs.get(name);
         if(existing) return existing;
 
         const promise = new Promise<string>(async (res) => {
             let parsed: ParsedJs;
-            if(!this.cleared) parsed = await get(name);
+            if(!this.cleared && !skipPluginHooks) parsed = await get(name);
 
             if(!parsed) {
                 const resp = await fetch(`https://www.gimkit.com/gimloader/assets/${name}`);
                 const js = await resp.text();
-                parsed = this.parse(js, name, root);
+                parsed = this.parse(js, name, root, skipPluginHooks);
                 
-                set(name, parsed);
+                if(!skipPluginHooks) set(name, parsed);
             }
             
             const code = await this.prepareJs(parsed);
@@ -106,23 +107,52 @@ export default class Rewriter {
         return promise;
     }
 
-    static import(src: string, root: boolean) {
-        return new Promise<any>(async (res, rej) => {
-            const url = new URL(src, this.base);
-            const name = this.getName(url.pathname);
-            const blobUrl = await this.getBlobUrl(name, root);
+    static async import(src: string, root: boolean) {
+        const url = new URL(src, this.base);
+        const name = this.getName(url.pathname);
+        const blobUrl = await this.getBlobUrl(name, root);
+        
+        // Negligible impact on load time
+        await PluginManager.loaded;
 
-            // Negligible impact on load time
-            await PluginManager.loaded;
+        try {
+            const imported = await import(blobUrl);
+            URL.revokeObjectURL(blobUrl);
+            return imported;
+        } catch(e) {
+            console.error("Error importing", src, e);
 
-            import(blobUrl)
-                .then(res, rej);
-        });
+            // Create an error message that lists plugins that might be causing the issue
+            const usedHooks = this.getHooks(name, root, false)
+                .map(hook => hook.pluginName).filter(name => name);
+
+            // If no hooks were used, just give up
+            if(usedHooks.length === 0) {
+                const message = `Critical error loading script ${name}.\n\n`
+                    + "This error is likely caused by Gimloader itself. Please open an issue at https://github.com/Gimloader/Gimloader.";
+                showErrorMessage(message, "Error loading script");
+                return;
+            }
+
+            const message = `Error loading script ${name}. Gimloader may still be intact, but some plugins may not work as expected.\n\n`
+                + `This error is likely caused by ${englishList(usedHooks, "or")}. `
+                + `Try disabling ${usedHooks.length > 1 ? "these plugins" : "this plugin"} and reloading.`;
+            showErrorMessage(message, "Error loading script");
+            
+            // Load it again without hooks
+            this.loadingSrcs.delete(name);
+            const newUrl = await this.getBlobUrl(name, root, true);
+
+            // If this fails, whatever
+            const imported = await import(newUrl);
+            URL.revokeObjectURL(newUrl);
+            return imported;
+        }
     }
 
     static importRegex = /(import(?:.+?from)?)"([^"]+)";/g;
     static parseHooks: ParseHook[] = [];
-    static parse(js: string, name: string, root: boolean): ParsedJs {
+    static parse(js: string, name: string, root: boolean, skipPluginHooks: boolean): ParsedJs {
         // Remove dependency preloading
         if(js.startsWith("const __vite__mapDeps")) {
             const start = js.indexOf(";");
@@ -141,13 +171,9 @@ export default class Rewriter {
         js = js.replace(this.importRegex, "");
 
         // Run parse hooks
-        for(let hook of this.parseHooks) {
+        const hooks = this.getHooks(name, root, skipPluginHooks);
+        for(let hook of hooks) {
             try {
-                if(hook.prefix !== false) {
-                    if(hook.prefix === true && !root) continue;
-                    if(hook.prefix !== true && !name.startsWith(hook.prefix)) continue;
-                }
-                
                 let edited = hook.callback(js);
                 if(edited) js = edited;
             } catch(e) {
@@ -171,6 +197,15 @@ export default class Rewriter {
         }));
 
         return imports.join("") + parsed.code;
+    }
+
+    static getHooks(name: string, root: boolean, skipPluginHooks: boolean) {
+        return this.parseHooks.filter((hook) => {
+            if(skipPluginHooks && hook.pluginName) return false;
+            if(hook.prefix === false) return true;
+            if(hook.prefix === true) return root;
+            return name.startsWith(hook.prefix);
+        });
     }
 
     static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
