@@ -99,7 +99,7 @@
                 {title}
             </div>
             <div class="grow"></div>
-            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2 cursor-pointer"
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2"
                 onclick={save}>
                 {#if saved}
                     <ContentSaveOutline size={24} />
@@ -108,7 +108,7 @@
                 {/if}
                 Save
             </button>
-            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2 cursor-pointer"
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2"
                 onclick={close}>
                 <Close size={24} />
                 Exit
