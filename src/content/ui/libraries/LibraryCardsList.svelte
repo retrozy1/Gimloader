@@ -42,18 +42,6 @@
         dragDisabled = false;
     }
 
-    let bulkOpen = $state(false);
-
-    function deleteAll() {
-        bulkOpen = false;
-        
-        if(LibManager.libs.length === 0) return;
-        const conf = confirm(`Are you sure you want to delete all libraries?`);
-        if(!conf) return;
-
-        LibManager.deleteAll();
-    }
-
     function importLib() {
         readUserFile(".js", (code) => {
             code = code.replaceAll("\r\n", "\n");
@@ -80,7 +68,9 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={deleteAll}>Delete all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => LibManager.deleteAllConfirm(false)}>
+                    Delete all
+                </DropdownMenu.Item>
             </DropdownMenu.Content>
         </DropdownMenu.Root>
         <ViewControl />

@@ -7,17 +7,21 @@ import ScriptLibraries from "./components/ScriptLibraries.svelte";
 import MenuUI from "./MenuUI.svelte";
 import Command from "./Command.svelte";
 
-let menuOpen = false;
-export function showMenu() {
-    if(menuOpen) return;
-    menuOpen = true;
+let menuComponent: MenuUI | null = null;
+export function showMenu(tab = "plugins", officialOpen = false) {
+    if(menuComponent) {
+        menuComponent.setTab(tab, officialOpen);
+        return;
+    }
 
-    let component = mount(MenuUI, {
+    menuComponent = mount(MenuUI, {
         target: document.body,
         props: {
+            tab,
+            officialOpen,
             onClose: () => {
-                menuOpen = false;
-                unmount(component);
+                menuComponent = null;
+                unmount(menuComponent);
                 (document.activeElement as HTMLElement)?.blur();
             }
         }

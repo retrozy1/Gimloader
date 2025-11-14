@@ -1,17 +1,15 @@
 <script lang="ts">
     import LibraryCardsList from "./libraries/LibraryCardsList.svelte";
     import PluginCardsList from "./plugins/PluginCardsList.svelte";
-    import { focusTrapEnabled, officialPluginsOpen } from "./stores";
+    import { officialPluginsOpen } from "./stores";
     import Updates from "./Updates.svelte";
     import Settings from "./Settings.svelte";
     import Hotkeys from "./Hotkeys.svelte";
     import OfficialPlugins from "./plugins/OfficialPlugins.svelte";
     import Port from "$shared/net/port.svelte";
-    import { onMount } from "svelte";
     import toast from "svelte-5-french-toast";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import LibManager from "$core/scripts/libManager.svelte";
-    import { Switch } from "$shared/ui/switch";
     import * as Dialog from "$shared/ui/dialog";
     import * as Tabs from "$shared/ui/tabs";
     
@@ -22,16 +20,24 @@
     import Cog from 'svelte-material-icons/Cog.svelte';
     import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
 
-    let { onClose }: { onClose: () => void } = $props();
+    interface Props {
+        onClose: () => void;
+        tab: string;
+        officialOpen: boolean;
+    }
+
+    let { onClose, tab, officialOpen }: Props = $props();
     
-    let currentTab = $state("plugins");
+    let currentTab = $state(tab);
+    officialPluginsOpen.set(officialOpen);
+    
+    export const setTab = (tab: string, officialOpen: boolean) => {
+        currentTab = tab;
+        officialPluginsOpen.set(officialOpen);
+    }
+
     let modalDragCounter = $state(0);
     let canDrop = $derived(currentTab === "plugins" || currentTab === "libraries");
-
-    function onDragover(e: DragEvent) {
-        if(!canDrop) return;
-        e.preventDefault();
-    }
 
     async function onDrop(e: DragEvent) {
         if(!canDrop) return;

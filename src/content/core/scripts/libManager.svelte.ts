@@ -5,6 +5,7 @@ import Port from '$shared/net/port.svelte';
 import toast from 'svelte-5-french-toast';
 import Rewriter from '../rewriter';
 import Modals from '../modals.svelte';
+import Commands from '../commands.svelte';
 
 export default new class LibManagerClass {
     libs: Lib[] = $state([]);
@@ -16,11 +17,17 @@ export default new class LibManagerClass {
             this.libs.push(lib);
         }
 
-        Port.on("libraryEdit", ({ name, script, updated }) => this.editLib(name, script, false, true));
+        Port.on("libraryEdit", ({ name, script, updated }) => this.editLib(name, script, false, updated));
         Port.on("libraryDelete", ({ name }) => this.deleteLib(this.getLib(name), false));
         Port.on("librariesDeleteAll", () => this.deleteAll());
         Port.on("libraryCreate", ({ script }) => this.createLib(script, true, false));
         Port.on("librariesArrange", ({ order }) => this.arrangeLibs(order, false));
+
+        Commands.addCommand(null, {
+            group: "Libraries",
+            text: "Delete All Libraries",
+            keywords: ["remove all", "uninstall all"]
+        }, () => this.deleteAllConfirm());
     }
 
     updateState(libInfo: LibraryInfo[]) {
@@ -96,7 +103,9 @@ export default new class LibManagerClass {
 
     deleteLib(lib: Lib, emit = true) {
         if(!lib) return;
+        
         lib.stop();
+        lib.onDelete();
         this.libs.splice(this.libs.indexOf(lib), 1);
 
         if(emit) {
@@ -176,5 +185,17 @@ export default new class LibManagerClass {
         this.libs = newOrder;
 
         if(emit) Port.send("librariesArrange", { order });
+    }
+
+    deleteAllConfirm(shouldToast = true) {
+        if(this.libs.length === 0) {
+            toast.error("No libraries to delete");
+            return;
+        }
+
+        if(!confirm("Are you sure you want to delete all libraries?")) return;
+
+        this.deleteAll();
+        if(shouldToast) toast.success("Deleted all libraries");
     }
 }

@@ -5,6 +5,9 @@ import Net from "$core/net/net";
 import LibManager from "./libManager.svelte";
 import Modals from "../modals.svelte";
 import type { PluginSettingsDescription } from "$types/settings";
+import Commands from "../commands.svelte";
+import PluginManager from "./pluginManager.svelte";
+import toast from "svelte-5-french-toast";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -15,6 +18,7 @@ abstract class BaseScript {
     script: string;
     headers: ScriptHeaders = $state();
     usedLibs: Lib[] = [];
+    cleanupDeleteCommand: () => void;
 
     constructor(script: string, headers?: ScriptHeaders) {
         this.script = script;
@@ -133,6 +137,10 @@ abstract class BaseScript {
             lib.removeUsed(this.id);
         }
     }
+
+    onDelete() {
+        this.cleanupDeleteCommand?.();
+    }
 }
 
 export class Plugin extends BaseScript {
@@ -147,10 +155,39 @@ export class Plugin extends BaseScript {
 
     constructor(script: string, enabled = true) {
         super(script);
+        this.setEnabled(enabled);
 
-        this.enabled = enabled;
+        this.cleanupDeleteCommand = Commands.addCommand(null, {
+            group: "Plugins",
+            text: `Delete ${this.headers.name}`,
+            keywords: ["remove", "uninstall"]
+        }, () => this.confirmDelete());
     }
 
+    confirmDelete() {
+        if(!confirm(`Are you sure you want to delete ${this.headers.name}?`)) return;
+        PluginManager.deletePlugin(this);
+        toast.success(`Deleted plugin ${this.headers.name}`);
+    }
+
+    cleanupToggleCommand: () => void;
+    setEnabled(enabled: boolean) {
+        if(this.enabled === enabled) return;
+        
+        this.enabled = enabled;
+        this.cleanupToggleCommand?.();
+
+        const action = enabled ? "Disable" : "Enable";
+        this.cleanupToggleCommand = Commands.addCommand(null, {
+            group: "Plugins",
+            text: `${action} ${this.headers.name}`,
+            keywords: ["toggle"]
+        }, () => {
+            PluginManager.setEnabled(this, !enabled);
+            toast.success(`${action}d ${this.headers.name}`);
+        });
+    }
+    
     start(initial = false) {
         if(this.enablePromise) return this.enablePromise;
 
@@ -196,6 +233,11 @@ export class Plugin extends BaseScript {
         this.errored = false;
         this.unloadLibs();
     }
+
+    onDelete() {
+        this.cleanupDeleteCommand?.();
+        this.cleanupToggleCommand?.();
+    }
 }
 
 export class Lib extends BaseScript {
@@ -204,6 +246,22 @@ export class Lib extends BaseScript {
     usedBy = new Set<string>();
     onStop: (() => void)[] = [];
     enablePromise: Promise<void> | null = null;
+
+    constructor(script: string, headers?: ScriptHeaders) {
+        super(script, headers);
+
+        this.cleanupDeleteCommand = Commands.addCommand(null, {
+            group: "Libraries",
+            text: `Delete ${this.headers.name}`,
+            keywords: ["remove", "uninstall"]
+        }, () => this.confirmDelete());
+    }
+
+    confirmDelete() {
+        if(!confirm(`Are you sure you want to delete ${this.headers.name}?`)) return;
+        LibManager.deleteLib(this);
+        toast.success(`Deleted library ${this.headers.name}`);
+    }
 
     start(starter?: string, initial: boolean = false, alreadyStartedLibs: string[] = []) {
         if(this.enablePromise) return this.enablePromise;

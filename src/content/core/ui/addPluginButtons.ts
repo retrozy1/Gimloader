@@ -3,6 +3,15 @@ import UI from "$core/ui/ui";
 import Hotkeys from '$core/hotkeys/hotkeys.svelte';
 import Rewriter from "../rewriter";
 import { showMenu } from "$content/ui/mount";
+import Commands from "../commands.svelte";
+
+function addTabCommand(text: string, tab: string, keywords?: string[], officialOpen?: boolean) {
+    Commands.addCommand(null, {
+        group: "Gimloader",
+        text,
+        keywords
+    }, () => showMenu(tab, officialOpen));
+}
 
 export function addPluginButtons() {
     document.documentElement.classList.add("noPluginButtons");
@@ -14,6 +23,14 @@ export function addPluginButtons() {
         shift: false,
         ctrl: false
     }, () => showMenu());
+
+    addTabCommand("Open Gimloader Menu", "plugins", ["manager"]);
+    addTabCommand("View Plugins", "plugins");
+    addTabCommand("View Official Plugins", "plugins", [], true);
+    addTabCommand("View Libraries", "libraries", ["libs"]);
+    addTabCommand("View Hotkeys", "hotkeys", ["binds"]);
+    addTabCommand("View Updates", "updates", ["versions"]);
+    addTabCommand("View Settings", "settings", ["options", "prefs"]);
 
     const whiteWrench = Rewriter.createMemoized("whiteWrenchSvg", () => {
         const wrenchBlob = new Blob([whiteWrenchSvg], { type: "image/svg+xml" });

@@ -8,6 +8,7 @@ import Port from "$shared/net/port.svelte";
 import toast from "svelte-5-french-toast";
 import Rewriter from "../rewriter";
 import Modals from "../modals.svelte";
+import Commands from "../commands.svelte";
 
 export default new class PluginManager {
     plugins: Plugin[] = $state([]);
@@ -37,6 +38,22 @@ export default new class PluginManager {
             let msg = fails.map(f => f.reason).join('\n');
             showErrorMessage(msg, `Failed to enable ${fails.length} plugin${fails.length > 1 ? 's' : ''}`);
         }
+
+        Commands.addCommand(null, {
+            group: "Plugins",
+            text: "Delete All Plugins",
+            keywords: ["remove all", "uninstall all"]
+        }, () => this.confirmDeleteAll());
+        Commands.addCommand(null, {
+            group: "Plugins",
+            text: "Enable All Plugins",
+            keywords: ["turn on all"]
+        }, () => this.toastSetAll(true));
+        Commands.addCommand(null, {
+            group: "Plugins",
+            text: "Disable All Plugins",
+            keywords: ["turn off all"]
+        }, () => this.toastSetAll(false));
 
         this.loaded.resolve();
         log('All plugins loaded');
@@ -148,6 +165,7 @@ export default new class PluginManager {
         if(!plugin) return;
 
         plugin.stop();
+        plugin.onDelete();
         this.plugins = this.plugins.filter(p => p !== plugin);
 
         if(emit) {
@@ -171,10 +189,12 @@ export default new class PluginManager {
 
     setAll(enabled: boolean, emit = true) {
         if(emit) Port.send("pluginsSetAll", { enabled });
-        for(let plugin of this.plugins) plugin.enabled = enabled;
+
+        const togglePlugins = this.plugins.filter(p => p.enabled !== enabled);
+        for(let plugin of togglePlugins) plugin.setEnabled(enabled);
 
         if(enabled) {
-            Promise.allSettled(this.plugins.filter(p => !p.enabled).map(p => p.start()))
+            Promise.allSettled(togglePlugins.map(p => p.start()))
                 .then(results => {
                     let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
                     if(fails.length > 0) {
@@ -183,12 +203,13 @@ export default new class PluginManager {
                     }
                 });
         } else {
-            for(let plugin of this.plugins) {
-                if(plugin.enabled) plugin.stop();
+            for(let plugin of togglePlugins) {
+                plugin.stop();
             }
         }
 
         if(emit) Rewriter.invalidate();
+        return togglePlugins.length;
     }
 
     getExports(pluginName: string) {
@@ -262,7 +283,7 @@ export default new class PluginManager {
         if(!plugin) return;
         
         if(enabled) {
-            plugin.enabled = true;
+            plugin.setEnabled(true);
             if(emit) Port.send("pluginToggled", { name: plugin.headers.name, enabled: true });
             await plugin.start()
                 .catch((e) => {
@@ -271,10 +292,28 @@ export default new class PluginManager {
                 });
         } else {
             plugin.stop();
-            plugin.enabled = false;
+            plugin.setEnabled(false);
             if(emit) Port.send("pluginToggled", { name: plugin.headers.name, enabled: false });
         }
 
         if(emit) Rewriter.invalidate();
+    }
+
+    confirmDeleteAll(shouldToast = true) {
+        if(this.plugins.length === 0) {
+            toast.error("No plugins to delete");
+            return;    
+        }
+
+        if(!confirm("Are you sure you want to delete all plugins?")) return;
+
+        this.deleteAll();
+        if(shouldToast) toast.success("Deleted all plugins");
+    }
+
+    toastSetAll(enabled: boolean) {
+        const changed = this.setAll(enabled);
+        const action = enabled ? "Enabled" : "Disabled";
+        toast.success(`${action} ${changed} plugin${changed !== 1 ? 's' : ''}`);
     }
 }

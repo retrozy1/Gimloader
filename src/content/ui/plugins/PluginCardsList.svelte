@@ -67,18 +67,6 @@
         PluginManager.plugins = sorted;
         Port.send("pluginsArrange", { order: sorted.map(p => p.headers.name) });
     }
-
-    let bulkOpen = $state(false);
-
-    function deleteAll() {
-        bulkOpen = false;
-
-        if(PluginManager.plugins.length === 0) return;
-        const conf = confirm("Are you sure you want to delete all plugins?");
-        if (!conf) return;
-
-        PluginManager.deleteAll();
-    }
 </script>
 
 <div class="flex flex-col max-h-full">
@@ -99,7 +87,7 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={deleteAll}>Delete all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.confirmDeleteAll(false)}>Delete all</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={() => PluginManager.setAll(true)}>Enable all</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={() => PluginManager.setAll(false)}>Disable all</DropdownMenu.Item>
             </DropdownMenu.Content>

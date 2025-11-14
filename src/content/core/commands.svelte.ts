@@ -1,5 +1,10 @@
 import { mountCommand } from "$content/ui/mount";
-import { splicer } from "$content/utils";
+
+interface CommandOptions {
+    text: string;
+    group: string;
+    keywords?: string[];
+}
 
 interface Command {
     id: string | null;
@@ -20,19 +25,36 @@ export default new class Commands {
         this.callbacks[value]?.();
     }
 
-    addCommand(id: string | null, group: string, text: string, callback: () => void) {
+    addCommand(id: string | null, options: CommandOptions, callback: () => void) {
         // Find a unique value
-        let value = text;
+        let value = options.text;
         let index = 2;
         while(this.callbacks[value]) {
-            value = `${text} ${index}`;
+            value = `${options.text} ${index}`;
             index++;
         }
 
         this.callbacks[value] = callback;
-        this.groups[group] ??= [];
 
-        return splicer(this.groups[group], { id, text, value });
+        const command: Command = {
+            id, value,
+            text: options.text,
+            keywords: options.keywords
+        }
+        this.groups[options.group] ??= [];
+        this.groups[options.group].push(command);
+
+        return () => {
+            const index = this.groups[options.group].findIndex(c => c.value === value);
+            if(index !== -1) this.groups[options.group].splice(index, 1);
+
+            delete this.callbacks[value];
+
+            // If the group is empty, remove it
+            if(this.groups[options.group].length === 0) {
+                delete this.groups[options.group];
+            }
+        }
     }
 
     removeCommands(id: string) {
