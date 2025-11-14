@@ -8,7 +8,7 @@
     import { showEditor } from "$content/utils";
     import * as Tooltip from "$shared/ui/tooltip";
     import { Switch } from "$shared/ui/switch";
-    import { showScriptLibs } from "../showModals";
+    import { showScriptLibs } from "../mount";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";

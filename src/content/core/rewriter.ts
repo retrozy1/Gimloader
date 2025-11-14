@@ -2,7 +2,7 @@ import { domLoaded, englishList, splicer } from "$content/utils";
 import { get, set, clear } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
-import { showErrorMessage } from "$content/ui/showModals";
+import { showErrorMessage } from "$content/ui/mount";
 
 interface Import {
     text: string;

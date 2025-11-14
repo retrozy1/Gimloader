@@ -1,26 +1,8 @@
 import whiteWrenchSvg from "$assets/wrench-light.svg";
-import { mount, unmount } from "svelte";
-import MenuUI from "$content/ui/MenuUI.svelte";
 import UI from "$core/ui/ui";
 import Hotkeys from '$core/hotkeys/hotkeys.svelte';
 import Rewriter from "../rewriter";
-
-let open = false;
-function openPluginManager() {
-    if(open) return;
-    open = true;
-
-    let component = mount(MenuUI, {
-        target: document.body,
-        props: {
-            onClose: () => {
-                open = false;
-                unmount(component);
-                (document.activeElement as HTMLElement)?.blur();
-            }
-        }
-    });
-}
+import { showMenu } from "$content/ui/mount";
 
 export function addPluginButtons() {
     document.documentElement.classList.add("noPluginButtons");
@@ -28,15 +10,17 @@ export function addPluginButtons() {
     // add a hotkey shift+p to open the plugin manager
     Hotkeys.addHotkey(null, {
         key: "KeyP",
-        alt: true
-    }, () => openPluginManager());
+        alt: true,
+        shift: false,
+        ctrl: false
+    }, () => showMenu());
 
     const whiteWrench = Rewriter.createMemoized("whiteWrenchSvg", () => {
         const wrenchBlob = new Blob([whiteWrenchSvg], { type: "image/svg+xml" });
         return URL.createObjectURL(wrenchBlob);
     });
 
-    const openUI = Rewriter.createShared(null, "openPluginManager", openPluginManager);
+    const openUI = Rewriter.createShared(null, "openPluginManager", showMenu);
     const createElement = `window.GL.React.createElement`;
 
     // Add the wrench button the homescreen
@@ -102,7 +86,7 @@ export function addPluginButtons() {
             let newButton = UI.React.createElement('button', {
                 className: 'openPlugins',
                 dangerouslySetInnerHTML: { __html: whiteWrenchSvg },
-                onClick: () => openPluginManager()
+                onClick: () => showMenu()
             });
 
             return UI.React.createElement('div', { className: 'gl-join' }, [element, newButton]);

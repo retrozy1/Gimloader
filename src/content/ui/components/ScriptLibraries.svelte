@@ -2,7 +2,7 @@
     import LibManager from "$core/scripts/libManager.svelte";
     import { checkLibUpdate } from "$core/net/checkUpdates";
     import Net from "$core/net/net";
-    import { showErrorMessage } from "../showModals";
+    import { showErrorMessage } from "../mount";
     import * as Table from "$shared/ui/table";
     import * as Dialog from "$shared/ui/dialog";
 

@@ -105,9 +105,11 @@ export default new class Hotkeys {
             }
         }
 
-        return (!(trigger.ctrl && !e.ctrlKey) &&
-        !(trigger.alt && !e.altKey) &&
-        !(trigger.shift && !e.shiftKey));
+        return (
+            (trigger.ctrl === undefined || trigger.ctrl === e.ctrlKey) &&
+            (trigger.shift === undefined || trigger.shift === e.shiftKey) &&
+            (trigger.alt === undefined || trigger.alt === e.altKey)
+        );
     }
 
     saveConfigurable(id: string, trigger: HotkeyTrigger | null) {

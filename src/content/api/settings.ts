@@ -2,7 +2,7 @@ import type { Plugin } from "$core/scripts/scripts.svelte";
 import type { PluginSetting, PluginSettings, SettingGroup, SettingsMethods } from "$types/settings";
 import { error } from "$content/utils";
 import Storage from "$core/storage.svelte";
-import { showPluginSettings } from "$content/ui/showModals";
+import { showPluginSettings } from "$content/ui/mount";
 
 function applyDefaults(id: string, settings: (PluginSetting | SettingGroup)[]) {
     for(let setting of settings) {

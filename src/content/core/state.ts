@@ -11,6 +11,7 @@ import Rewriter from "./rewriter";
 import { version } from "../../../package.json";
 import Modals from "./modals.svelte";
 import changelog from "../../../release-notes.txt";
+import Commands from "./commands.svelte";
 
 export default class StateManager {
     static init() {
@@ -38,6 +39,7 @@ export default class StateManager {
         Hotkeys.init(state.hotkeys);
         UpdateNotifier.init(state.availableUpdates);
         Rewriter.init(state.cacheInvalid || versionChanged);
+        Commands.init();
     }
 
     static syncWithState(state: State) {

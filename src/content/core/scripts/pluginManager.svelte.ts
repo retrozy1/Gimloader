@@ -1,5 +1,5 @@
 import type { PluginInfo } from "$types/state";
-import { showErrorMessage } from "$content/ui/showModals";
+import { showErrorMessage } from "$content/ui/mount";
 import { Deferred, log } from "$content/utils";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import { Plugin } from "./scripts.svelte";

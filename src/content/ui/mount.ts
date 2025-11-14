@@ -4,20 +4,42 @@ import ErrorModal from "./modals/Error.svelte";
 import PluginSettings from "./settings/PluginSettings.svelte";
 import { mount, unmount } from "svelte";
 import ScriptLibraries from "./components/ScriptLibraries.svelte";
+import MenuUI from "./MenuUI.svelte";
+import Command from "./Command.svelte";
 
-export function showErrorMessage(msg: string, title: string = "Error") {
-    const showError = () => {
-        let component = mount(ErrorModal, {
-            target: document.body,
-            props: {
-                title,
-                msg,
-                onClose: () => unmount(component)
+let menuOpen = false;
+export function showMenu() {
+    if(menuOpen) return;
+    menuOpen = true;
+
+    let component = mount(MenuUI, {
+        target: document.body,
+        props: {
+            onClose: () => {
+                menuOpen = false;
+                unmount(component);
+                (document.activeElement as HTMLElement)?.blur();
             }
-        });
-    }
+        }
+    });
+}
 
-    domLoaded.then(showError);
+export async function mountCommand() {
+    await domLoaded;
+    mount(Command, { target: document.body });
+}
+
+export async function showErrorMessage(msg: string, title: string = "Error") {
+    await domLoaded;
+    
+    let component = mount(ErrorModal, {
+        target: document.body,
+        props: {
+            title,
+            msg,
+            onClose: () => unmount(component)
+        }
+    });
 }
 
 export function showPluginSettings(plugin: Plugin) {

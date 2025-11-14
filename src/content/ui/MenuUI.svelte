@@ -56,7 +56,7 @@
     }
 </script>
 
-<Dialog.Root bind:open={() => true, () => onClose()}>
+<Dialog.Root open={true} onOpenChangeComplete={onClose}>
     <Dialog.Content class="text-gray-600 min-h-[65vh]" trapFocus={false}
         ondragenter={() => modalDragCounter++} ondragleave={() => modalDragCounter--}
         ondragover={(e) => e.preventDefault()} ondrop={onDrop}

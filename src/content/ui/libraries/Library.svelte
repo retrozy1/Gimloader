@@ -13,7 +13,7 @@
     import BookSettings from "svelte-material-icons/BookSettings.svelte";
     import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
     import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
-    import { showScriptLibs } from "../showModals";
+    import { showScriptLibs } from "../mount";
 
     function deleteLib() {
         let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
