@@ -1,31 +1,99 @@
+import type { Command, CommandOptions, CommandCallback, CommandAction, CommandContext } from "$types/commands";
 import { mountCommand } from "$content/ui/mount";
+import Hotkeys from "./hotkeys/hotkeys.svelte";
 
-interface CommandOptions {
-    text: string;
-    group: string;
-    keywords?: string[];
-}
-
-interface Command {
-    id: string | null;
-    text: string;
-    value: string;
-    keywords?: string[];
+class CancelError extends Error {
+    constructor() {
+        super("Command cancelled by user");
+    }
 }
 
 export default new class Commands {
     groups: Record<string, Command[]> = $state({});
-    callbacks: Record<string, () => void> = {};
+    callbacks: Record<string, CommandCallback> = {};
+    action: CommandAction | null = $state(null);
+    context: CommandContext;
+    open = $state(false);
 
     init() {
         mountCommand();
+
+        Hotkeys.addConfigurableHotkey("openCommandPalette", {
+            category: "Gimloader",
+            title: "Open Command Palette",
+            preventDefault: true,
+            default: {
+                key: "KeyP",
+                ctrl: true,
+                shift: true,
+                alt: false
+            }
+        }, () => this.startOpen());
+
+        const createAction = <T extends CommandAction, R>(type: T["type"], options: T["options"]) => {
+            this.startOpen();
+
+            return new Promise<R>((res, rej) => {
+                this.action = {
+                    type,
+                    options,
+                    callback: (value: R) => {
+                        this.startClose();
+                        res(value);
+                    },
+                    cancel: () => {
+                        rej(new CancelError());
+                    }
+                } as T;
+            });
+        }
+
+        this.context = {
+            select: (options) => createAction("select", options),
+            number: (options) => createAction("number", options),
+            string: (options) => createAction("string", options)
+        }
     }
 
-    onSelect(value: string) {
-        this.callbacks[value]?.();
+    closeTimeout?: ReturnType<typeof setTimeout>;
+    startClose() {
+        this.closeTimeout = setTimeout(() => {
+            this.open = false;
+        }, 20);
     }
 
-    addCommand(id: string | null, options: CommandOptions, callback: () => void) {
+    startOpen() {
+        if(this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+            this.closeTimeout = undefined;
+        }
+
+        this.open = true;
+    }
+
+    onSelect(value: string) {        
+        const action = this.action;
+        if(action?.type === "select") {
+            const selected = action.options.options.find(o => o.label === value);
+            if(!selected) return;
+
+            action.callback(selected.value);
+            return;
+        }
+
+        this.startClose();
+        const returned = this.callbacks[value]?.(this.context);
+
+        // Automatically catch errors caused by the user cancelling
+        if(returned instanceof Promise) {
+            returned.catch((err) => {
+                if(err instanceof CancelError) return;
+                console.error("Error executing command:", err);
+            });
+        }
+    }
+
+    addCommand(id: string | null, options: CommandOptions, callback: CommandCallback) {
         // Find a unique value
         let value = options.text;
         let index = 2;
