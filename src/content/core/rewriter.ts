@@ -50,7 +50,7 @@ export default class Rewriter {
         });
 
         await domLoaded;
-        let index = document.querySelector<HTMLScriptElement>("script[src]");
+        let index = document.querySelector<HTMLScriptElement>('script[type="module"][src^="/assets/index"]');
 
         // Invalidate the database if the index script has changed
         const name = this.getName(index.src);

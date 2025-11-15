@@ -1,6 +1,1 @@
-Fixed updates tab looking strange
-Fixed modals for certain plugins looking strange
-Added notingame option for reloadRequired header
-Removed syncEval header
-Added button to copy debug information in popup
-Greatly improved error handling when scripts fail to load
+Fixed crash when used on Firefox together with some other extensions
