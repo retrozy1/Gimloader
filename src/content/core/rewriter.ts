@@ -128,8 +128,10 @@ export default class Rewriter {
 
             // If no hooks were used, just give up
             if(usedHooks.length === 0) {
+                this.invalidate();
                 const message = `Critical error loading script ${name}.\n\n`
-                    + "This error is likely caused by Gimloader itself. Please open an issue at https://github.com/Gimloader/Gimloader.";
+                    + "This error is likely caused by Gimloader itself. Please try reloading the page. "
+                    + "If this issue persists open an issue at https://github.com/Gimloader/Gimloader.";
                 showErrorMessage(message, "Error loading script");
                 return;
             }
