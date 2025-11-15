@@ -9,7 +9,7 @@ declare module '*.svg' {
 }
 
 declare module '*.svelte' {
-    const component: import('svelte').Component;
+    const component: import('svelte').SvelteComponent;
     export default component;
 
     // To get typescript to shut up about some components

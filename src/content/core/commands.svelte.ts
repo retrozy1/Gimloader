@@ -111,6 +111,7 @@ export default new class Commands {
         }
         this.groups[options.group] ??= [];
         this.groups[options.group].push(command);
+        console.log($state.snapshot(this.groups));
 
         return () => {
             const index = this.groups[options.group].findIndex(c => c.value === value);

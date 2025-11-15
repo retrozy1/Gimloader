@@ -7,6 +7,7 @@ import { UIApi, ScopedUIApi } from "./ui";
 import { StorageApi, ScopedStorageApi } from "./storage";
 import { PatcherApi, ScopedPatcherApi } from "./patcher";
 import { RewriterApi, ScopedRewriterApi } from "./rewriter";
+import { CommandsApi, ScopedCommandsApi } from "./commands";
 import GimkitInternals from "$core/internals";
 import Net from "$core/net/net";
 import UI from "$core/ui/ui";
@@ -18,6 +19,7 @@ import Patcher from "$core/patcher";
 import Storage from "$core/storage.svelte";
 import Rewriter from "$core/rewriter";
 import createSettingsApi from "./settings";
+import Commands from "$content/core/commands.svelte";
 
 class Api {
     /**
@@ -46,6 +48,9 @@ class Api {
 
     /** Functions for intercepting the arguments and return values of functions */
     static patcher = Object.freeze(new PatcherApi());
+
+    /** Functions for adding commands to the command palette */
+    static commands = Object.freeze(new CommandsApi());
 
     /** Methods for getting info on libraries */
     static libs = Object.freeze(new LibsApi());
@@ -125,6 +130,7 @@ class Api {
         this.UI = Object.freeze(new ScopedUIApi(scoped.id));
         this.storage = Object.freeze(new ScopedStorageApi(scoped.id));
         this.patcher = Object.freeze(new ScopedPatcherApi(scoped.id));
+        this.commands = Object.freeze(new ScopedCommandsApi(scoped.id));
         if(scoped.script.type === "Plugin") {
             this.settings = createSettingsApi(scoped.script as Plugin);
         }
@@ -150,6 +156,7 @@ class Api {
             Patcher.unpatchAll(scoped.id);
             Storage.removeValueListeners(scoped.id);
             Storage.removeSettingListeners(scoped.id);
+            Commands.removeCommands(scoped.id);
         }
         
         this.onStop(cleanup);
@@ -181,6 +188,9 @@ class Api {
 
     /** Functions for intercepting the arguments and return values of functions */
     patcher: Readonly<ScopedPatcherApi>;
+
+    /** Functions for adding commands to the command palette */
+    commands: Readonly<ScopedCommandsApi>;
 
     /** A utility for creating persistent settings menus, only available to plugins */
     settings: PluginSettings;

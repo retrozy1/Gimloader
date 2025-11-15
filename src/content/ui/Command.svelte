@@ -87,7 +87,7 @@
             {#each commandsList as [group, commands], i}
                 <Command.Group heading={group}>
                     {#each commands as command}
-                        <Command.Item {onSelect} value={command.id} keywords={command.keywords}>
+                        <Command.Item {onSelect} value={command.value} keywords={command.keywords}>
                             {command.text}
                         </Command.Item>
                     {/each}

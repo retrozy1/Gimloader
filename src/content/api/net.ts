@@ -41,13 +41,10 @@ class BaseNetApi extends EventEmitter2 {
  * 
  * ```ts
  * // fired when data is recieved on a certain channel
- * net.on(CHANNEL, (data, editFn) => {})
+ * net.on("CHANNEL", (data, editFn) => {})
  * 
  * // fired when data is sent on a certain channel
- * net.on(send:CHANNEL, (data, editFn) => {})
- * 
- * // fired when the game loads with a certain type
- * net.on(load:TYPE, (type) => {})
+ * net.on("send:CHANNEL", (data, editFn) => {})
  * 
  * // you can also use wildcards, eg
  * net.on("send:*", () => {})
@@ -157,13 +154,10 @@ class NetApi extends BaseNetApi {
  * 
  * ```ts
  * // fired when data is recieved on a certain channel
- * net.on(CHANNEL, (data, editFn) => {})
+ * net.on("CHANNEL", (data, editFn) => {})
  * 
  * // fired when data is sent on a certain channel
- * net.on(send:CHANNEL, (data, editFn) => {})
- * 
- * // fired when the game loads with a certain type
- * net.on(load:TYPE, (type) => {})
+ * net.on("send:CHANNEL", (data, editFn) => {})
  * 
  * // you can also use wildcards, eg
  * net.on("send:*", () => {})

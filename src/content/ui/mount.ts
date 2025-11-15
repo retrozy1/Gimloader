@@ -25,7 +25,7 @@ export function showMenu(tab = "plugins", officialOpen = false) {
                 (document.activeElement as HTMLElement)?.blur();
             }
         }
-    });
+    }) as MenuUI;
 }
 
 export async function mountCommand() {

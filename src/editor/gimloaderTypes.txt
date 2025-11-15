@@ -2432,6 +2432,56 @@ class LibsApi {
     get(name: string): any;
 }
 
+class ScopedCommandsApi {
+    private readonly id;
+    constructor(id: string);
+    /** Adds a command to the user's command palette. Can request additional input within the callback. */
+    addCommand(options: CommandOptions, callback: CommandCallback): () => void;
+}
+
+interface CommandStringOptions extends BaseCommandOptions {
+    maxLength?: number;
+}
+
+interface CommandNumberOptions extends BaseCommandOptions {
+    min?: number;
+    max?: number;
+    decimal?: boolean;
+}
+
+interface BaseCommandOptions {
+    title: string;
+}
+
+interface CommandSelectOptions extends BaseCommandOptions {
+    options: {
+        label: string;
+        value: string;
+    }[];
+}
+
+interface CommandContext {
+    select(options: CommandSelectOptions): Promise<string>;
+    number(options: CommandNumberOptions): Promise<number>;
+    string(options: CommandStringOptions): Promise<string>;
+}
+
+type CommandCallback = (context: CommandContext) => void | Promise<void>;
+
+
+interface CommandOptions {
+    text: string;
+    group: string;
+    keywords?: string[];
+}
+
+class CommandsApi {
+    /** Adds a command to the user's command palette. Can request additional input within the callback. */
+    addCommand(id: string, options: CommandOptions, callback: CommandCallback): () => void;
+    /** Removes all commands that were added with the same id */
+    removeCommands(id: string): void;
+}
+
 class ScopedRewriterApi {
     private readonly id;
     constructor(id: string);
@@ -2860,6 +2910,8 @@ class Api {
     static storage: Readonly<StorageApi>;
     /** Functions for intercepting the arguments and return values of functions */
     static patcher: Readonly<PatcherApi>;
+    /** Functions for adding commands to the command palette */
+    static commands: Readonly<CommandsApi>;
     /** Methods for getting info on libraries */
     static libs: Readonly<LibsApi>;
     /** Gets the exported values of a library */
@@ -2929,6 +2981,8 @@ class Api {
     storage: Readonly<ScopedStorageApi>;
     /** Functions for intercepting the arguments and return values of functions */
     patcher: Readonly<ScopedPatcherApi>;
+    /** Functions for adding commands to the command palette */
+    commands: Readonly<ScopedCommandsApi>;
     /** A utility for creating persistent settings menus, only available to plugins */
     settings: PluginSettings;
     /** Methods for getting info on libraries */
