@@ -35,8 +35,6 @@
             }
 
             Commands.action.callback(parsed);
-        } else {
-            onSelect();
         }
     }
 

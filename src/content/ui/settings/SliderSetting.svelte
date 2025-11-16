@@ -3,7 +3,6 @@
 
     let { value = $bindable(), setting }: { value: number, setting: SliderSetting } = $props();
     const ticks = $derived(setting.ticks ?? [setting.min, setting.max]);
-    $effect(() => console.log(ticks));
     let thumbLeft = $derived((value - setting.min) / (setting.max - setting.min) * 100);
 
     let dragging = $state(false);
@@ -49,12 +48,15 @@
         if(setting.formatter) return setting.formatter(val);
         return val;
     }
+
+    const margin = $derived(4.4 * formatValue(ticks.at(-1)).toString().length + 8);
 </script>
 
 <svelte:window onpointerup={stopDragging} onpointermove={onPointermove} />
 
 <!-- I wasn't able to find any slider components that did what I wanted -->
-<div class="w-[250px] relative h-1 bg-gray-300 rounded-full mt-3 mb-10" class:dragging={dragging} bind:this={track}>
+<div class="w-[250px] relative h-1 bg-gray-300 rounded-full mt-3 mr-1 mb-10 font-mono" class:dragging={dragging} bind:this={track}
+    style="margin-right: {margin}px;">
     <div class="absolute top-1/2 -translate-1/2 size-5 rounded-full bg-primary-400 hover:bg-primary-500 z-20 cursor-ew-resize thumb"
         style="left: {thumbLeft}%" onpointerdown={startDragging}></div>
     <div class="absolute -translate-x-1/2 left-0 bottom-4 bg-accent rounded-md px-2 py-1 select-none value hidden z-30"
