@@ -1,4 +1,5 @@
 import Port from "$shared/net/port.svelte";
+import * as z from "zod";
 
 export function log(...args: any[]) {
     console.log('%c[GL]', 'color:#5030f2', ...args);
@@ -8,21 +9,12 @@ export function error(...args: any[]) {
     console.error('%c[GL]', 'color:#5030f2', ...args);
 }
 
-function typeMatches(val: any, type: string) {
-    if(type.endsWith("?")) {
-        type = type.slice(0, -1);
-        if(val === undefined) return true;
-    }
-
-    return type.split("|").includes(typeof val);
-}
-
-export function validate(fnName: string, args: IArguments, ...schema: [string, string | object][]) {
+export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
     for(let i = 0; i < schema.length; i++) {
         let [ name, type ] = schema[i];
-
-        if(typeof type === "string" && type.endsWith("?") && args[i] === undefined) {
-            continue;
+        if(name.endsWith("?")) {
+            name = name.slice(0, -1);
+            if(args[i] === undefined) continue;
         }
 
         // check whether the key argument is present
@@ -30,32 +22,17 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
             error(fnName, 'called without argument', name);
             return false;
         }
+        
         if(type === "any") continue;
-
-        if(typeof type === "object") {
-            if(typeof args[i] !== "object") {
-                error(fnName, 'recieved', args[i], `for argument ${name}, expected type object`);
+        if(type instanceof z.ZodType) {
+            const parsed = type.safeParse(args[i]);
+            if(!parsed.success) {
+                error(`Error in ${fnName} argument ${name}:\n`, z.prettifyError(parsed.error));
                 return false;
             }
-
-            for(let key in type) {
-                if(args[i][key] === undefined) {
-                    if(type[key].endsWith("?")) {
-                        continue;
-                    } else {
-                        error(fnName, `called without argument ${name}.${key}`);
-                        return false;
-                    }
-                }
-
-                if(!typeMatches(args[i][key], type[key])) {
-                    error(fnName, 'recieved', args[i][key], `for argument ${name}.${key}, expected type ${type[key]}`);
-                    return false;
-                }
-            }
         } else {
-            if(!typeMatches(args[i], type)) {
-                error(fnName, 'recieved', args[i], `for argument ${name}, expected type ${type}`);
+            if(!type.split("|").includes(typeof args[i])) {
+                error(fnName, 'received', args[i], `for argument ${name}, expected type ${type}`);
                 return false;
             }
         }

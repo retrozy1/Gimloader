@@ -21,6 +21,8 @@ class LibsApi {
 
     /** Gets the exported values of a library */
     get(name: string) {
+        if(!validate("libs.get", arguments, ['name', 'string'])) return;
+
         return LibManager.get(name);
     }
 }

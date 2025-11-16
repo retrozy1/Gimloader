@@ -11,18 +11,18 @@ export interface ModalButton {
 
 /** @inline */
 export interface ModalOptions {
-    id: string;
-    title: string;
-    style: string;
-    className: string;
-    closeOnBackgroundClick: boolean;
-    buttons: ModalButton[];
-    onClosed: () => void;
+    id?: string;
+    title?: string;
+    style?: string;
+    className?: string;
+    closeOnBackgroundClick?: boolean;
+    buttons?: ModalButton[];
+    onClosed?: () => void;
 }
 
 let openModals = new Map<string, () => void>();
 
-export default function showModal(content: HTMLElement | ReactElement, options: Partial<ModalOptions> = {}) {
+export default function showModal(content: HTMLElement | ReactElement, options: ModalOptions = {}) {
     focusTrapEnabled.set(false);
 
     if(options.id) {

@@ -1,6 +1,13 @@
 import Commands from "$content/core/commands.svelte";
 import { validate } from "$content/utils";
 import type { CommandCallback, CommandOptions } from "$types/commands";
+import * as z from "zod";
+
+const CommandOptionsSchema = z.object({
+    text: z.string(),
+    group: z.string(),
+    keywords: z.array(z.string()).optional()
+});
 
 /**
  * An API for adding commands to the command palette
@@ -36,8 +43,8 @@ import type { CommandCallback, CommandOptions } from "$types/commands";
 export class CommandsApi {
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(id: string, options: CommandOptions, callback: CommandCallback) {
-        if(!validate("commands.addCommand", arguments,
-            ["id", "string"], ["options", "object"], ["callback", "function"])) return;
+        if(!validate("commands.addCommand", arguments, ["id", "string"],
+            ["options", CommandOptionsSchema], ["callback", "function"])) return;
 
         return Commands.addCommand(id, options, callback);
     }
@@ -87,7 +94,7 @@ export class ScopedCommandsApi {
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(options: CommandOptions, callback: CommandCallback) {
         if(!validate("commands.addCommand", arguments,
-            ["options", "object"], ["callback", "function"])) return;
+            ["options", CommandOptionsSchema], ["callback", "function"])) return;
 
         return Commands.addCommand(this.id, options, callback);
     }

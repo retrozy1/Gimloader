@@ -1,6 +1,9 @@
 import Net, { type ConnectionType, type RequesterOptions } from "$core/net/net";
 import { validate } from "$content/utils";
 import EventEmitter2 from "eventemitter2";
+import * as z from "zod";
+
+const GamemodeSchema = z.union([z.string(), z.array(z.string())]);
 
 class BaseNetApi extends EventEmitter2 {
     constructor() {
@@ -26,7 +29,7 @@ class BaseNetApi extends EventEmitter2 {
     get isHost() { return Net.isHost };
 
     /** Sends a message to the server on a specific channel */
-    send(channel: string, message: any) {
+    send(channel: string, message?: any) {
         if(!validate("net.send", arguments, ['channel', 'string'])) return;
         
         Net.send(channel, message);
@@ -64,7 +67,7 @@ class NetApi extends BaseNetApi {
      * @returns A function to cancel waiting for load
      */
     onLoad(id: string, callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
-        if(!validate('Net.onLoad', arguments, ['id', 'string'], ['callback', 'function'], ['gamemode', 'string|object?'])) return;
+        if(!validate('Net.onLoad', arguments, ['id', 'string'], ['callback', 'function'], ['gamemode?', GamemodeSchema])) return;
 
         return Net.pluginOnLoad(id, callback, gamemode);
     }
@@ -172,7 +175,7 @@ class ScopedNetApi extends BaseNetApi {
      * @returns A function to cancel waiting for load
      */
     onLoad(callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
-        if(!validate('Net.onLoad', arguments, ['callback', 'function'], ['gamemode', 'string|object?'])) return;
+        if(!validate('Net.onLoad', arguments, ['callback', 'function'], ['gamemode?', GamemodeSchema])) return;
         if(gamemode === undefined) gamemode = this.defaultGamemode;
 
         return Net.pluginOnLoad(this.id, callback, gamemode);

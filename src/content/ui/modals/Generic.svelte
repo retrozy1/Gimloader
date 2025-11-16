@@ -8,7 +8,7 @@
 
     interface Props {
         content: HTMLElement | ReactElement;
-        options: Partial<ModalOptions>;
+        options: ModalOptions;
         onClose: () => void;
     }
 

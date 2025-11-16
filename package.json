@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@dimforge/rapier2d-compat": "^0.19.1",
-    "@internationalized/date": "^3.8.1",
     "@lucide/svelte": "^0.544.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/bun": "^1.2.4",
@@ -73,6 +72,7 @@
     "svelte-awesome-color-picker": "^4.1.0",
     "svelte-dnd-action": "^0.9.66",
     "svelte-material-icons": "^3.0.5",
-    "wildcard-match": "^5.1.4"
+    "wildcard-match": "^5.1.4",
+    "zod": "^4.1.12"
   }
 }

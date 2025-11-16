@@ -21,6 +21,8 @@ class PluginsApi {
 
     /** Gets the exported values of a plugin, if it has been enabled */
     get(name: string) {
+        if(!validate("plugins.get", arguments, ['name', 'string'])) return;
+
         return PluginManager.getExports(name);
     }
 

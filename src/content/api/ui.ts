@@ -3,11 +3,28 @@ import showModal from "$core/ui/modal";
 import UI from "$core/ui/ui";
 import { validate } from "$content/utils";
 import type { ReactElement } from "react";
+import * as z from "zod";
+
+const ButtonSchema = z.object({
+    text: z.string(),
+    style: z.enum(["primary", "danger", "close"]).optional(),
+    onClick: z.function({ output: z.any() })
+});
+
+const ModalOptionsSchema = z.object({
+    id: z.string().optional(),
+    title: z.string().optional(),
+    style: z.string().optional(),
+    className: z.string().optional(),
+    closeOnBackgroundClick: z.boolean().optional(),
+    buttons: z.array(ButtonSchema).optional(),
+    onClosed: z.function().optional()
+});
 
 class BaseUIApi {
     /** Shows a customizable modal to the user */
-    showModal(element: HTMLElement | ReactElement, options: Partial<ModalOptions> = {}) {
-        if(!validate("UI.showModal", arguments, ['element', 'any'])) return;
+    showModal(element: HTMLElement | ReactElement, options: ModalOptions = {}) {
+        if(!validate("UI.showModal", arguments, ['element', 'any'], ['options?', ModalOptionsSchema])) return;
 
         showModal(element, options);
     }

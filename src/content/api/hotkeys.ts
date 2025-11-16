@@ -1,6 +1,7 @@
 import type { HotkeyOptions, ConfigurableHotkeyOptions } from "$types/hotkeys";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import { error, validate } from "$content/utils";
+import * as z from "zod";
 
 interface OldConfigurableOptions {
     category: string;
@@ -11,15 +12,6 @@ interface OldConfigurableOptions {
 
 /** @inline */
 type KeyboardCallback = (e: KeyboardEvent) => void;
-
-function validateHotkeyOptions(name: string, path: string, options: HotkeyOptions) {
-    if(!options.key && !options.keys) {
-        error(name, `requires either ${path}.key or ${path}.keys to be present`);
-        return false;
-    }
-
-    return true;
-}
 
 function keySetToCodes(keys: Set<string>) {
     let newKeys: string[] = [];
@@ -47,6 +39,26 @@ function keySetToCodes(keys: Set<string>) {
     return newKeys;
 }
 
+const HotkeyTriggerSchema = z.union([
+    z.object({ key: z.string() }),
+    z.object({ keys: z.array(z.string()).min(1) })
+]).and(z.object({
+    ctrl: z.boolean().optional(),
+    shift: z.boolean().optional(),
+    alt: z.boolean().optional()
+}));
+
+const HotkeyOptionsSchema = HotkeyTriggerSchema.and(z.object({
+    preventDefault: z.boolean().optional()
+}));
+
+const ConfigurableHotkeyOptionsSchema = z.object({
+    category: z.string(),
+    title: z.string(),
+    preventDefault: z.boolean().optional(),
+    default: HotkeyTriggerSchema.optional()
+});
+
 class BaseHotkeysApi {
     /**
      * Releases all keys, needed if a hotkey opens something that will
@@ -73,8 +85,7 @@ class HotkeysApi extends BaseHotkeysApi {
      */
     addHotkey(id: string, options: HotkeyOptions, callback: KeyboardCallback) {
         if(!validate("hotkeys.addHotkey", arguments, ['id', 'string'],
-            ['options', 'object'], ['callback', 'function'])) return;
-        if(!validateHotkeyOptions("hotkeys.addHotkey", "options", options)) return;
+            ['options', HotkeyOptionsSchema], ['callback', 'function'])) return;
 
         return Hotkeys.addHotkey(id, options, callback);
     }
@@ -93,10 +104,7 @@ class HotkeysApi extends BaseHotkeysApi {
      */
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
         if(!validate("hotkeys.addConfigurableHotkey", arguments, ['id', 'string'],
-            ['options', { category: 'string', title: 'string', preventDefault: 'boolean?' }],
-            ['callback', 'function'])) return;
-        if(options.default && !validateHotkeyOptions("hotkeys.addConfigurableHotkey",
-            "options.default", options.default)) return;
+            ['options', ConfigurableHotkeyOptionsSchema], ['callback', 'function'])) return;
 
         return Hotkeys.addConfigurableHotkey(id, options, callback);
     }
@@ -160,7 +168,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
      */
     addHotkey(options: HotkeyOptions, callback: KeyboardCallback) {
         if(!validate("hotkeys.addHotkey", arguments,
-            ['options', 'object'], ['callback', 'function'])) return;
+            ['options', HotkeyOptionsSchema], ['callback', 'function'])) return;
 
         return Hotkeys.addHotkey(this.id, options, callback);
     }
@@ -171,10 +179,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
      */
     addConfigurableHotkey(options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
         if(!validate("hotkeys.addConfigurableHotkey", arguments,
-            ['options', { category: 'string', title: 'string', preventDefault: 'boolean?' }],
-            ['callback', 'function'])) return;
-        if(options.default && !validateHotkeyOptions("hotkeys.addConfigurableHotkey",
-            "options.default", options.default)) return;
+            ['options', ConfigurableHotkeyOptionsSchema], ['callback', 'function'])) return;
 
         return Hotkeys.addConfigurableHotkey(`${this.id}-${options.category}-${options.title}`, options, callback, this.id);
     }
