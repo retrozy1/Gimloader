@@ -8,6 +8,7 @@ import type { PluginSettingsDescription } from "$types/settings";
 import Commands from "../commands.svelte";
 import PluginManager from "./pluginManager.svelte";
 import toast from "svelte-5-french-toast";
+import { showMenu } from "$content/ui/mount";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -152,6 +153,7 @@ export class Plugin extends BaseScript {
     enablePromise: Promise<void> | null = null;
     errored = $state(false);
     settingsDescription?: PluginSettingsDescription;
+    cleanupConfigureCommand?: () => void;
 
     constructor(script: string, enabled = true) {
         super(script);
@@ -202,7 +204,16 @@ export class Plugin extends BaseScript {
                     if(returnVal.openSettingsMenu && typeof returnVal.openSettingsMenu === "function") {
                         this.openSettingsMenu.push(returnVal.openSettingsMenu);
                     }
-            
+
+                    if (this.openSettingsMenu.length > 0) this.cleanupConfigureCommand = Commands.addCommand(null, {
+                        group: "Plugins",
+                        text: `Configure ${this.headers.name}`,
+                        keywords: ["settings"]
+                    }, () => {
+                        if (this.openSettingsMenu.length === 0) return;
+                        this.openSettingsMenu.forEach(c => c());
+                    });
+
                     log(`Loaded plugin: ${this.headers.name}`);
 
                     res();
@@ -237,6 +248,7 @@ export class Plugin extends BaseScript {
     onDelete() {
         this.cleanupDeleteCommand?.();
         this.cleanupToggleCommand?.();
+        this.cleanupConfigureCommand?.();
     }
 }
 
