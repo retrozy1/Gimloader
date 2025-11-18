@@ -38,8 +38,8 @@
 
     // Workaround for https://github.com/g-plane/markup_fmt/issues/82
     let classes = $derived(
-        error ? "border-2 border-red-500" : deprecated ? "border-2 border-yellow-300" : "border border-gray-500"
-            + "h-full relative bg-white min-h-[150px] rounded-xl preflight flex flex-col p-3"
+        (error ? "border-2 border-red-500" : deprecated ? "border-2 border-yellow-300" : "border border-gray-500")
+            + " h-full relative bg-white min-h-[150px] rounded-xl preflight flex flex-col p-3"
     );
 </script>
 

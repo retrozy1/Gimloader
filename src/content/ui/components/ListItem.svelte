@@ -41,8 +41,8 @@
 
     let expanded = $state(false);
     let classes = $derived(
-        error ? "border-2 border-red-500" : deprecated ? "border-2 border-yellow-300" : "border border-gray-500"
-            + "p-3 h-full bg-white preflight rounded-xl relative"
+        (error ? "border-2 border-red-500" : deprecated ? "border-2 border-yellow-300" : "border border-gray-500")
+            + " p-3 h-full bg-white preflight rounded-xl relative"
     );
 </script>
 
