@@ -40,18 +40,23 @@
     }
 
     let expanded = $state(false);
+    let classes = $derived(
+        error ? "border-2 border-red-500" : deprecated ? "border-2 border-yellow-300" : "border border-gray-500"
+            + "p-3 h-full bg-white preflight rounded-xl relative"
+    );
 </script>
 
-<div class="{error ? 'border-2 border-red-500' : deprecated ? 'border-2 border-yellow-300' : "border border-gray-500"}
-p-3 h-full bg-white preflight rounded-xl relative">
+<div class={classes}>
     <div class="flex items-center">
         {#if loading}
             <div class="absolute bottom-0 left-0 z-0 overflow-hidden w-full rounded-bl-xl rounded-br-xl h-6 animWrap">
                 <div class="loadAnim w-40 bg-primary-500 h-1 z-0 mt-5"></div>
             </div>
         {/if}
-        <button class="transition-transform" style={expanded ? 'transform: rotate(90deg)' : ''}
-        onclick={() => expanded = !expanded}>
+        <button
+            class="transition-transform"
+            style={expanded ? "transform: rotate(90deg)" : ""}
+            onclick={() => expanded = !expanded}>
             <ChevronRight width={28} height={28} />
         </button>
         {@render toggle?.()}
@@ -63,9 +68,11 @@ p-3 h-full bg-white preflight rounded-xl relative">
             {@render buttons?.()}
         </div>
         {#if hasDrag}
-            <div style='cursor: {dragAllowed ? dragDisabled ? 'grab' : 'grabbing' : 'not-allowed'}'
-            title={dragAllowed ? '' : 'Cannot rearrange while searching'}
-            class:opacity-50={!dragAllowed} onpointerdown={checkDrag}>
+            <div
+                style:cursor={dragAllowed ? dragDisabled ? "grab" : "grabbing" : "not-allowed"}
+                title={dragAllowed ? "" : "Cannot rearrange while searching"}
+                class:opacity-50={!dragAllowed}
+                onpointerdown={checkDrag}>
                 <DotsGrid size={28} />
             </div>
         {/if}

@@ -18,7 +18,7 @@
     }
 
     let { name, needsLib, optionalLib, onClose }: Props = $props();
-    
+
     interface ILibInfo {
         name: string;
         url?: string;
@@ -28,12 +28,12 @@
     let libsInitial: ILibInfo[] = [];
 
     for(let lib of needsLib) {
-        let parts = lib.split('|').map((p: string) => p.trim());
+        let parts = lib.split("|").map((p: string) => p.trim());
         libsInitial.push({ name: parts[0], url: parts[1], required: true });
     }
 
     for(let lib of optionalLib) {
-        let parts = lib.split('|').map((p: string) => p.trim());
+        let parts = lib.split("|").map((p: string) => p.trim());
         libsInitial.push({ name: parts[0], url: parts[1], required: false });
     }
 
@@ -47,8 +47,7 @@
 </script>
 
 <Dialog.Root open={true} onOpenChangeComplete={onClose}>
-    <Dialog.Content class="text-gray-600 block"
-        style="max-width: min(760px, calc(100% - 32px));">
+    <Dialog.Content class="text-gray-600 block" style="max-width: min(760px, calc(100% - 32px))">
         <Dialog.Header class="border-b w-full text-xl font-bold! mb-4">
             Libraries used by {name}
         </Dialog.Header>
@@ -67,15 +66,18 @@
                     {@const lib = LibManager.getLib(libInfo.name)}
                     <Table.Row>
                         <Table.Cell>
-                            {lib ? 'Yes' : 'No'}
+                            {lib ? "Yes" : "No"}
                         </Table.Cell>
                         <Table.Cell>
                             {libInfo.name}
                         </Table.Cell>
                         <Table.Cell>
                             {#if libInfo.url}
-                                <a class="hover:underline block max-w-80 text-wrap" 
-                                href={libInfo.url} target="_blank" rel="noopener noreferrer">
+                                <a
+                                    class="hover:underline block max-w-80 text-wrap"
+                                    href={libInfo.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer">
                                     {libInfo.url}
                                     <OpenInNew class="inline-block" size={16} />
                                 </a>
@@ -84,7 +86,7 @@
                             {/if}
                         </Table.Cell>
                         <Table.Cell>
-                            {libInfo.required ? 'Yes' : 'No'}
+                            {libInfo.required ? "Yes" : "No"}
                         </Table.Cell>
                         <Table.Cell>
                             {#if lib && lib.headers.downloadUrl}

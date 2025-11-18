@@ -6,7 +6,7 @@ import Rewriter from "../rewriter";
 
 export async function checkPluginUpdate(plugin: Plugin) {
     Rewriter.invalidate();
-    let updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
+    const updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
         type: "plugin",
         name: plugin.headers.name
     });
@@ -16,7 +16,7 @@ export async function checkPluginUpdate(plugin: Plugin) {
 
 export async function checkLibUpdate(lib: Lib) {
     Rewriter.invalidate();
-    let updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
+    const updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
         type: "library",
         name: lib.headers.name
     });

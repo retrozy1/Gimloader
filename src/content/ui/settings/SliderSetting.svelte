@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { SliderSetting } from "$types/settings";
 
-    let { value = $bindable(), setting }: { value: number, setting: SliderSetting } = $props();
+    let { value = $bindable(), setting }: { value: number; setting: SliderSetting } = $props();
     const ticks = $derived(setting.ticks ?? [setting.min, setting.max]);
     let thumbLeft = $derived((value - setting.min) / (setting.max - setting.min) * 100);
 
@@ -34,7 +34,7 @@
         // Clamp, just in case
         value = Math.min(Math.max(newValue, setting.min), setting.max);
     }
-    
+
     function roundValue(val: number) {
         // Clamp at three decimal places because of floating point issues
         const string = val.toString();
@@ -55,16 +55,27 @@
 <svelte:window onpointerup={stopDragging} onpointermove={onPointermove} />
 
 <!-- I wasn't able to find any slider components that did what I wanted -->
-<div class="w-[250px] relative h-1 bg-gray-300 rounded-full mt-3 mr-1 mb-10 font-mono" class:dragging={dragging} bind:this={track}
-    style="margin-right: {margin}px;">
-    <div class="absolute top-1/2 -translate-1/2 size-5 rounded-full bg-primary-400 hover:bg-primary-500 z-20 cursor-ew-resize thumb"
-        style="left: {thumbLeft}%" onpointerdown={startDragging}></div>
-    <div class="absolute -translate-x-1/2 left-0 bottom-4 bg-accent rounded-md px-2 py-1 select-none value hidden z-30"
-        style="left: {thumbLeft}%">{formatValue(roundValue(value))}</div>
+<div
+    class="w-[250px] relative h-1 bg-gray-300 rounded-full mt-3 mr-1 mb-10 font-mono"
+    class:dragging={dragging}
+    bind:this={track}
+    style:margin-right="{margin}px;">
+    <div
+        class="absolute top-1/2 -translate-1/2 size-5 rounded-full bg-primary-400 hover:bg-primary-500 z-20 cursor-ew-resize thumb"
+        style:left="{thumbLeft}%"
+        onpointerdown={startDragging}>
+    </div>
+    <div
+        class="absolute -translate-x-1/2 left-0 bottom-4 bg-accent rounded-md px-2 py-1 select-none value hidden z-30"
+        style:left="{thumbLeft}%">
+        {formatValue(roundValue(value))}
+    </div>
     {#each ticks as tick}
         {@const left = ((tick - setting.min) / (setting.max - setting.min)) * 100}
-        <div style="left: {left}%" class="absolute top-1/2 w-0.5 h-8 bg-gray-300 z-10 -translate-1/2"></div>
-        <div style="left: {left}%" class="absolute -translate-x-1/2 text-center top-5 select-none">{formatValue(tick)}</div>
+        <div style:left="{left}%" class="absolute top-1/2 w-0.5 h-8 bg-gray-300 z-10 -translate-1/2"></div>
+        <div style:left="{left}%" class="absolute -translate-x-1/2 text-center top-5 select-none">
+            {formatValue(tick)}
+        </div>
     {/each}
 </div>
 

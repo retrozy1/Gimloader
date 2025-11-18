@@ -66,8 +66,7 @@ export interface CustomSection {
     render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => (() => void) | void;
 }
 
-export type PluginSetting = DropdownSetting | MultiselectSetting | NumberSetting | ToggleSetting
-    | TextSetting | SliderSetting | RadioSetting | ColorSetting | CustomSetting | CustomSection;
+export type PluginSetting = DropdownSetting | MultiselectSetting | NumberSetting | ToggleSetting | TextSetting | SliderSetting | RadioSetting | ColorSetting | CustomSetting | CustomSection;
 
 export interface SettingGroup {
     type: "group";

@@ -15,8 +15,7 @@
 </script>
 
 <Dialog.Root open onOpenChangeComplete={onClose}>
-    <Dialog.Content class="flex flex-col gap-2 text-gray-600"
-        style="max-width: min(760px, calc(100% - 32px))">
+    <Dialog.Content class="flex flex-col gap-2 text-gray-600" style="max-width: min(760px, calc(100% - 32px))">
         <Dialog.Header class="text-2xl font-bold! border-b-2">
             Settings for {pluginName}
         </Dialog.Header>

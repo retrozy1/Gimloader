@@ -52,12 +52,12 @@ export default class StateManager {
     }
 
     static async downloadState() {
-        let state = await Port.sendAndRecieve("getState");
+        const state = await Port.sendAndRecieve("getState");
         delete state.availableUpdates;
 
-        let blob = new Blob([ JSON.stringify(state, null, 4) ], { type: "application/json" });
-        let url = URL.createObjectURL(blob);
-        let link = document.createElement("a");
+        const blob = new Blob([JSON.stringify(state, null, 4)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
         link.download = "gimloader_config.json";
         link.href = url;
         link.click();
@@ -71,8 +71,8 @@ export default class StateManager {
 
         readUserFile(".json", (text) => {
             try {
-                let state = JSON.parse(text);
-                let { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys, ...rest } = state;
+                const state = JSON.parse(text);
+                const { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys, ...rest } = state;
 
                 // confirm that at least one of the keys is present
                 if(!plugins && !libraries && !pluginStorage && !pluginSettings && !settings && !hotkeys) {

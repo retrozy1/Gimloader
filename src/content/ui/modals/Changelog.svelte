@@ -9,8 +9,7 @@
 
 {#if Modals.updated.length > 0}
     <Dialog.Root open={true} {onOpenChangeComplete}>
-        <Dialog.Content class="flex flex-col gap-2 text-gray-600"
-            style="max-width: min(760px, calc(100% - 32px))">
+        <Dialog.Content class="flex flex-col gap-2 text-gray-600" style="max-width: min(760px, calc(100% - 32px))">
             <Dialog.Header class="text-2xl font-bold! border-b-2">
                 New Updates
             </Dialog.Header>

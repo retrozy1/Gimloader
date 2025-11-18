@@ -1,4 +1,4 @@
-import type { Command, CommandOptions, CommandCallback, CommandAction, CommandContext } from "$types/commands";
+import type { Command, CommandAction, CommandCallback, CommandContext, CommandOptions } from "$types/commands";
 import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
 
@@ -46,13 +46,13 @@ export default new class Commands {
                     }
                 } as T;
             });
-        }
+        };
 
         this.context = {
             select: (options) => createAction("select", options),
             number: (options) => createAction("number", options),
             string: (options) => createAction("string", options)
-        }
+        };
     }
 
     closeTimeout?: ReturnType<typeof setTimeout>;
@@ -71,7 +71,7 @@ export default new class Commands {
         this.open = true;
     }
 
-    onSelect(value: string) {        
+    onSelect(value: string) {
         const action = this.action;
         if(action?.type === "select") {
             const selected = action.options.options.find(o => o.label === value);
@@ -105,10 +105,11 @@ export default new class Commands {
         this.callbacks[value] = callback;
 
         const command: Command = {
-            id, value,
+            id,
+            value,
             text: options.text,
             keywords: options.keywords
-        }
+        };
         this.groups[options.group] ??= [];
         this.groups[options.group].push(command);
 
@@ -122,14 +123,14 @@ export default new class Commands {
             if(this.groups[options.group].length === 0) {
                 delete this.groups[options.group];
             }
-        }
+        };
     }
 
     removeCommands(id: string) {
-        for(let group in this.groups) {
+        for(const group in this.groups) {
             // Remove all commands with the given id
             for(let j = this.groups[group].length - 1; j >= 0; j--) {
-                let command = this.groups[group][j];
+                const command = this.groups[group][j];
                 if(command.id !== id) continue;
 
                 this.groups[group].splice(j, 1);
@@ -142,4 +143,4 @@ export default new class Commands {
             }
         }
     }
-}
+}();

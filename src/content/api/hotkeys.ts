@@ -1,6 +1,6 @@
-import type { HotkeyOptions, ConfigurableHotkeyOptions } from "$types/hotkeys";
+import type { ConfigurableHotkeyOptions, HotkeyOptions } from "$types/hotkeys";
 import Hotkeys from "$core/hotkeys/hotkeys.svelte";
-import { error, validate } from "$content/utils";
+import { validate } from "$content/utils";
 import * as z from "zod";
 
 interface OldConfigurableOptions {
@@ -14,18 +14,35 @@ interface OldConfigurableOptions {
 type KeyboardCallback = (e: KeyboardEvent) => void;
 
 function keySetToCodes(keys: Set<string>) {
-    let newKeys: string[] = [];
-    
-    let mapKeys = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+',
-        '{', '}', '|', ':', '"', '<', '>', '?'];
-    let mapped = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
-        '[', ']', '\\', ';', "'", ',', '.', '/'];
-    let codes = ['Backquote', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5',
-        'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0', 'Minus', 'Equal',
-        'BracketLeft', 'BracketRight', 'Backslash', 'Semicolon', 'Quote',
-        'Comma', 'Period', 'Slash'];
+    const newKeys: string[] = [];
 
-    for(let key of keys) {
+    const mapKeys = ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "{", "}", "|", ":", '"', "<", ">", "?"];
+    const mapped = ["`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[", "]", "\\", ";", "'", ",", ".", "/"];
+    const codes = [
+        "Backquote",
+        "Digit1",
+        "Digit2",
+        "Digit3",
+        "Digit4",
+        "Digit5",
+        "Digit6",
+        "Digit7",
+        "Digit8",
+        "Digit9",
+        "Digit0",
+        "Minus",
+        "Equal",
+        "BracketLeft",
+        "BracketRight",
+        "Backslash",
+        "Semicolon",
+        "Quote",
+        "Comma",
+        "Period",
+        "Slash"
+    ];
+
+    for(const key of keys) {
         let index = mapKeys.indexOf(key);
         if(index === -1) index = mapped.indexOf(key);
         if(index !== -1) newKeys.push(codes[index]);
@@ -69,13 +86,17 @@ class BaseHotkeysApi {
     }
 
     /** Which key codes are currently being pressed */
-    get pressed() { return Hotkeys.pressed };
+    get pressed() {
+        return Hotkeys.pressed;
+    }
 
     /**
      * @deprecated Use {@link pressed} instead
      * @hidden
      */
-    get pressedKeys() { return Hotkeys.pressedKeys };
+    get pressedKeys() {
+        return Hotkeys.pressedKeys;
+    }
 }
 
 class HotkeysApi extends BaseHotkeysApi {
@@ -84,15 +105,14 @@ class HotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addHotkey(id: string, options: HotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addHotkey", arguments, ['id', 'string'],
-            ['options', HotkeyOptionsSchema], ['callback', 'function'])) return;
+        if(!validate("hotkeys.addHotkey", arguments, ["id", "string"], ["options", HotkeyOptionsSchema], ["callback", "function"])) return;
 
         return Hotkeys.addHotkey(id, options, callback);
     }
 
     /** Removes all hotkeys with a given id */
     removeHotkeys(id: string) {
-        if(!validate("hotkeys.removeHotkeys", arguments, ['id', 'string'])) return;
+        if(!validate("hotkeys.removeHotkeys", arguments, ["id", "string"])) return;
 
         Hotkeys.removeHotkeys(id);
     }
@@ -103,15 +123,14 @@ class HotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addConfigurableHotkey", arguments, ['id', 'string'],
-            ['options', ConfigurableHotkeyOptionsSchema], ['callback', 'function'])) return;
+        if(!validate("hotkeys.addConfigurableHotkey", arguments, ["id", "string"], ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"])) return;
 
         return Hotkeys.addConfigurableHotkey(id, options, callback);
     }
 
     /** Removes a configurable hotkey with a given id */
     removeConfigurableHotkey(id: string) {
-        if(!validate("hotkeys.removeConfigurableHotkey", arguments, ['id', 'string'])) return;
+        if(!validate("hotkeys.removeConfigurableHotkey", arguments, ["id", "string"])) return;
 
         Hotkeys.removeConfigurableHotkey(id);
     }
@@ -140,10 +159,10 @@ class HotkeysApi extends BaseHotkeysApi {
      * @hidden
      */
     addConfigurable(pluginName: string, hotkeyId: string, callback: KeyboardCallback, options: OldConfigurableOptions) {
-        let opts: ConfigurableHotkeyOptions = {
+        const opts: ConfigurableHotkeyOptions = {
             title: options.title,
             category: options.category
-        }
+        };
         if(options.preventDefault) opts.preventDefault = true;
         if(options.defaultKeys) opts.default = { keys: keySetToCodes(options.defaultKeys) };
 
@@ -160,26 +179,26 @@ class HotkeysApi extends BaseHotkeysApi {
 }
 
 class ScopedHotkeysApi extends BaseHotkeysApi {
-    constructor(private readonly id: string) { super() }
+    constructor(private readonly id: string) {
+        super();
+    }
 
     /**
      * Adds a hotkey which will fire when certain keys are pressed
      * @returns A function to remove the hotkey
      */
     addHotkey(options: HotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addHotkey", arguments,
-            ['options', HotkeyOptionsSchema], ['callback', 'function'])) return;
+        if(!validate("hotkeys.addHotkey", arguments, ["options", HotkeyOptionsSchema], ["callback", "function"])) return;
 
         return Hotkeys.addHotkey(this.id, options, callback);
     }
-    
+
     /**
      * Adds a hotkey which can be changed by the user
      * @returns A function to remove the hotkey
      */
     addConfigurableHotkey(options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addConfigurableHotkey", arguments,
-            ['options', ConfigurableHotkeyOptionsSchema], ['callback', 'function'])) return;
+        if(!validate("hotkeys.addConfigurableHotkey", arguments, ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"])) return;
 
         return Hotkeys.addConfigurableHotkey(`${this.id}-${options.category}-${options.title}`, options, callback, this.id);
     }

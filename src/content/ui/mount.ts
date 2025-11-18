@@ -35,8 +35,8 @@ export async function mountCommand() {
 
 export async function showErrorMessage(msg: string, title: string = "Error") {
     await domLoaded;
-    
-    let component = mount(ErrorModal, {
+
+    const component = mount(ErrorModal, {
         target: document.body,
         props: {
             title,
@@ -47,7 +47,7 @@ export async function showErrorMessage(msg: string, title: string = "Error") {
 }
 
 export function showPluginSettings(plugin: Plugin) {
-    let component = mount(PluginSettings, {
+    const component = mount(PluginSettings, {
         target: document.body,
         props: {
             plugin,
@@ -57,7 +57,7 @@ export function showPluginSettings(plugin: Plugin) {
 }
 
 export function showScriptLibs(script: Plugin | Lib) {
-    let component = mount(ScriptLibraries, {
+    const component = mount(ScriptLibraries, {
         target: document.body,
         props: {
             name: script.headers.name,

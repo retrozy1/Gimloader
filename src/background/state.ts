@@ -1,10 +1,9 @@
-import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage,
-    SavedState, ScriptInfo, Settings, State } from "$types/state";
+import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage, SavedState, ScriptInfo, Settings, State } from "$types/state";
 import { defaultSettings } from "$shared/consts";
 import debounce from "debounce";
 
-export let statePromise = new Promise<State>(async (res) => {
-    let savedState = await chrome.storage.local.get<SavedState>({
+export const statePromise = new Promise<State>(async (res) => {
+    const savedState = await chrome.storage.local.get<SavedState>({
         plugins: [],
         libraries: [],
         pluginStorage: {},
@@ -26,13 +25,13 @@ export let statePromise = new Promise<State>(async (res) => {
     });
 });
 
-let debounced: Record<string, () => void> = {};
+const debounced: Record<string, () => void> = {};
 
 export function saveDebounced(key: keyof SavedState) {
     // debounce just to be safe
     if(!debounced[key]) {
         debounced[key] = debounce(async () => {
-            chrome.storage.local.set({ [key]: (await statePromise)[key] })
+            chrome.storage.local.set({ [key]: (await statePromise)[key] });
         }, 100);
     }
 
@@ -45,16 +44,16 @@ export function sanitizeScriptInfo(scripts: ScriptInfo[], needsEnabled: boolean)
     if(!Array.isArray(scripts)) return [];
 
     for(let i = 0; i < scripts.length; i++) {
-        let item = scripts[i];
+        const item = scripts[i];
         if(
-            typeof item.name !== "string" ||
-            typeof item.script !== "string" ||
-            (needsEnabled && typeof (item as PluginInfo).enabled !== "boolean")
+            typeof item.name !== "string"
+            || typeof item.script !== "string"
+            || (needsEnabled && typeof (item as PluginInfo).enabled !== "boolean")
         ) {
             scripts.splice(i, 1);
             i--;
             continue;
-        };
+        }
 
         scripts[i] = { name: item.name, script: item.script };
         if(needsEnabled) (scripts[i] as PluginInfo).enabled = (item as PluginInfo).enabled;
@@ -84,7 +83,7 @@ export function sanitizeLibraries(libraries: LibraryInfo[]) {
 export function sanitizePluginStorage(storage: PluginStorage) {
     if(typeof storage !== "object" || storage === null) return {};
 
-    for(let key in storage) {
+    for(const key in storage) {
         if(typeof storage[key] !== "object" || storage[key] === null) {
             delete storage[key];
         }
@@ -96,22 +95,34 @@ export function sanitizePluginStorage(storage: PluginStorage) {
 export function sanitizeHotkeys(hotkeys: ConfigurableHotkeysState) {
     if(typeof hotkeys !== "object" || hotkeys === null) return {};
 
-    for(let id in hotkeys) {
+    for(const id in hotkeys) {
         const invalidate = () => delete hotkeys[id];
 
         // null is allowed, it's an unbound hotkey
-        if(typeof hotkeys[id] !== "object") { invalidate(); continue; }
+        if(typeof hotkeys[id] !== "object") {
+            invalidate();
+            continue;
+        }
         if(hotkeys[id] === null) continue;
 
         let { key, keys, ctrl, shift, alt } = hotkeys[id];
 
-        if(!key && !keys) { invalidate(); continue; }
+        if(!key && !keys) {
+            invalidate();
+            continue;
+        }
         if(key && keys) keys = undefined;
 
         if(key) {
-            if(typeof key !== "string") { invalidate(); continue; }
+            if(typeof key !== "string") {
+                invalidate();
+                continue;
+            }
         } else {
-            if(!Array.isArray(keys)) { invalidate(); continue; }
+            if(!Array.isArray(keys)) {
+                invalidate();
+                continue;
+            }
 
             for(let i = 0; i < keys.length; i++) {
                 if(typeof keys[i] !== "string") {
@@ -120,13 +131,16 @@ export function sanitizeHotkeys(hotkeys: ConfigurableHotkeysState) {
                 }
             }
 
-            if(keys.length === 0) { invalidate(); continue; }
+            if(keys.length === 0) {
+                invalidate();
+                continue;
+            }
         }
 
         if(typeof ctrl !== "boolean") ctrl = undefined;
         if(typeof shift !== "boolean") shift = undefined;
         if(typeof alt !== "boolean") alt = undefined;
-        
+
         hotkeys[id] = { key, keys, ctrl, shift, alt };
     }
 
@@ -134,10 +148,10 @@ export function sanitizeHotkeys(hotkeys: ConfigurableHotkeysState) {
 }
 
 export function copyOverDefault<T extends Record<string, any>>(obj: T, defaultVal: T): T {
-    let newObj = Object.assign({}, defaultVal);
+    const newObj = Object.assign({}, defaultVal);
     if(typeof obj !== "object" || obj === null) return newObj;
 
-    for(let key in defaultVal) {
+    for(const key in defaultVal) {
         if(typeof obj[key] === typeof defaultVal[key]) {
             newObj[key] = obj[key];
         }
@@ -147,7 +161,7 @@ export function copyOverDefault<T extends Record<string, any>>(obj: T, defaultVa
 }
 
 export function sanitizeSettings(settings: Settings) {
-    let newSettings = copyOverDefault(settings, defaultSettings);
+    const newSettings = copyOverDefault(settings, defaultSettings);
 
     // make sure menu view is either "grid" or "list"
     if(newSettings.menuView !== "grid" && newSettings.menuView !== "list") {

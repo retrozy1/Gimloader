@@ -11,8 +11,8 @@
     import { showEditor } from "$content/utils";
     import * as Tooltip from "$shared/ui/tooltip";
     import BookSettings from "svelte-material-icons/BookSettings.svelte";
-    import ScriptTextOutline from 'svelte-material-icons/ScriptTextOutline.svelte';
-    import AlertTriangleOutline from 'svelte-material-icons/AlertOutline.svelte';
+    import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
+    import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
     import { showScriptLibs } from "../mount";
 
     function deleteLib() {
@@ -36,12 +36,11 @@
         dragAllowed
     }: Props = $props();
 
-    let component = $derived(Storage.settings.menuView === 'grid' ? Card : ListItem);
+    let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);
     const SvelteComponent = $derived(component);
 </script>
 
-<SvelteComponent {dragDisabled} {startDrag} {dragAllowed}
-    deprecated={library?.headers.deprecated !== null}>
+<SvelteComponent {dragDisabled} {startDrag} {dragAllowed} deprecated={library?.headers.deprecated !== null}>
     {#snippet header()}
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
             {library?.headers.name}

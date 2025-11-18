@@ -4,7 +4,7 @@ import type { TerrainOption } from "../../worldOptions";
 interface BackgroundLayersManager {
     layerManager: LayerManager;
     scene: Scene;
-    createLayer(options: { layerId: string, depth: number }): void;
+    createLayer(options: { layerId: string; depth: number }): void;
     fill(terrain: TerrainOption): void;
     fillForPlatformer(): void;
     fillForTopDown(terrain: TerrainOption): void;

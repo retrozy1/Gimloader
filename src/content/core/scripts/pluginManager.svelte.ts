@@ -14,11 +14,11 @@ export default new class PluginManager {
     plugins: Plugin[] = $state([]);
     loaded = Deferred.create();
     destroyed = false;
-    
+
     async init(pluginInfo: PluginInfo[]) {
         // load plugins from storage
-        for(let info of pluginInfo) {
-            let pluginObj = new Plugin(info.script, info.enabled);
+        for(const info of pluginInfo) {
+            const pluginObj = new Plugin(info.script, info.enabled);
             this.plugins.push(pluginObj);
         }
 
@@ -30,13 +30,13 @@ export default new class PluginManager {
         Port.on("pluginsSetAll", ({ enabled }) => this.setAll(enabled, false));
         Port.on("pluginsDeleteAll", () => this.deleteAll(false));
 
-        let shouldStart = this.plugins.filter(p => p.enabled);
-        let results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
-        let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
+        const shouldStart = this.plugins.filter(p => p.enabled);
+        const results = await Promise.allSettled(shouldStart.map(p => p.start(true)));
+        const fails = results.filter(r => r.status === "rejected") as PromiseRejectedResult[];
 
         if(fails.length > 0) {
-            let msg = fails.map(f => f.reason).join('\n');
-            showErrorMessage(msg, `Failed to enable ${fails.length} plugin${fails.length > 1 ? 's' : ''}`);
+            const msg = fails.map(f => f.reason).join("\n");
+            showErrorMessage(msg, `Failed to enable ${fails.length} plugin${fails.length > 1 ? "s" : ""}`);
         }
 
         Commands.addCommand(null, {
@@ -56,27 +56,27 @@ export default new class PluginManager {
         }, () => this.toastSetAll(false));
 
         this.loaded.resolve();
-        log('All plugins loaded');
+        log("All plugins loaded");
     }
 
     updateState(pluginInfo: PluginInfo[]) {
         // check for plugins that were added
-        for(let info of pluginInfo) {
+        for(const info of pluginInfo) {
             if(!this.getPlugin(info.name)) {
                 this.createPlugin(info.script, false);
             }
         }
 
         // check for plugins that were removed
-        for(let plugin of this.plugins) {
+        for(const plugin of this.plugins) {
             if(!pluginInfo.find(i => i.name === plugin.headers.name)) {
                 this.deletePlugin(plugin);
             }
         }
 
         // check if any scripts were updated
-        for(let info of pluginInfo) {
-            let plugin = this.getPlugin(info.name);
+        for(const info of pluginInfo) {
+            const plugin = this.getPlugin(info.name);
             if(!plugin) continue;
 
             if(plugin.script !== info.script) {
@@ -85,8 +85,8 @@ export default new class PluginManager {
         }
 
         // check if any plugins were enabled/disabled
-        for(let info of pluginInfo) {
-            let plugin = this.getPlugin(info.name);
+        for(const info of pluginInfo) {
+            const plugin = this.getPlugin(info.name);
             if(!plugin) continue;
 
             if(plugin.enabled !== info.enabled) {
@@ -95,16 +95,15 @@ export default new class PluginManager {
                         .catch((e: Error) => {
                             showErrorMessage(e.message, `Failed to enable plugin ${info.name}`);
                         });
-                }
-                else plugin.stop();
+                } else plugin.stop();
             }
         }
 
         // move the plugins into the correct order
-        let newOrder = [];
-        for (let info of pluginInfo) {
-            let plugin = this.getPlugin(info.name);
-            if (plugin) newOrder.push(plugin);
+        const newOrder = [];
+        for(const info of pluginInfo) {
+            const plugin = this.getPlugin(info.name);
+            if(plugin) newOrder.push(plugin);
         }
 
         this.plugins = newOrder;
@@ -115,32 +114,32 @@ export default new class PluginManager {
     }
 
     isEnabled(name: string) {
-        let plugin = this.getPlugin(name);
+        const plugin = this.getPlugin(name);
         return (plugin?.enabled ?? false) && !plugin?.errored;
     }
 
     async createPlugin(script: string, emit = true) {
-        let headers = parseScriptHeaders(script);
+        const headers = parseScriptHeaders(script);
 
         if(headers.isLibrary !== "false") {
             toast.error("That script doesn't appear to be a plugin! If it should be, please remove the isLibrary header, and if not, please import it as a library.");
             return;
         }
 
-        let existing = this.getPlugin(headers.name);
+        const existing = this.getPlugin(headers.name);
         if(existing) {
-            let conf = confirm(`A plugin named ${headers.name} already exists! Do you want to overwrite it?`);
+            const conf = confirm(`A plugin named ${headers.name} already exists! Do you want to overwrite it?`);
             if(!conf) return;
 
             this.deletePlugin(existing);
         }
 
-        let plugin = new Plugin(script, true);
+        const plugin = new Plugin(script, true);
         this.plugins.unshift(plugin);
 
         if(emit) {
             if(Storage.settings.autoDownloadMissingLibs) {
-                let res = await Port.sendAndRecieve("downloadLibraries", { libraries: headers.needsLib });
+                const res = await Port.sendAndRecieve("downloadLibraries", { libraries: headers.needsLib });
                 if(res.error) {
                     showErrorMessage(res.error, "Failed to automatically download libraries");
                 }
@@ -161,7 +160,7 @@ export default new class PluginManager {
     }
 
     deletePlugin(name: Plugin | string, emit = true) {
-        let plugin = typeof name === "string" ? this.getPlugin(name) : name;
+        const plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
 
         plugin.stop();
@@ -172,13 +171,13 @@ export default new class PluginManager {
             Port.send("pluginDelete", { name: plugin.headers.name });
             Rewriter.invalidate();
         }
-        
+
         Storage.deletePluginStorage(plugin.headers.name);
         log(`Deleted plugin: ${plugin.headers.name}`);
     }
 
     deleteAll(emit = true) {
-        for(let plugin of this.plugins) this.deletePlugin(plugin, false);
+        for(const plugin of this.plugins) this.deletePlugin(plugin, false);
         this.plugins = [];
 
         if(emit) {
@@ -191,19 +190,19 @@ export default new class PluginManager {
         if(emit) Port.send("pluginsSetAll", { enabled });
 
         const togglePlugins = this.plugins.filter(p => p.enabled !== enabled);
-        for(let plugin of togglePlugins) plugin.setEnabled(enabled);
+        for(const plugin of togglePlugins) plugin.setEnabled(enabled);
 
         if(enabled) {
             Promise.allSettled(togglePlugins.map(p => p.start()))
                 .then(results => {
-                    let fails = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
+                    const fails = results.filter(r => r.status === "rejected") as PromiseRejectedResult[];
                     if(fails.length > 0) {
-                        let msg = fails.map(f => f.reason).join('\n');
-                        showErrorMessage(msg, `Failed to enable ${results.length} plugin${results.length > 1 ? 's' : ''}`);
+                        const msg = fails.map(f => f.reason).join("\n");
+                        showErrorMessage(msg, `Failed to enable ${results.length} plugin${results.length > 1 ? "s" : ""}`);
                     }
                 });
         } else {
-            for(let plugin of togglePlugins) {
+            for(const plugin of togglePlugins) {
                 plugin.stop();
             }
         }
@@ -213,12 +212,12 @@ export default new class PluginManager {
     }
 
     getExports(pluginName: string) {
-        let plugin = this.plugins.find(lib => lib.headers.name === pluginName);
+        const plugin = this.plugins.find(lib => lib.headers.name === pluginName);
         return plugin?.exported ?? null;
     }
 
     getHeaders(pluginName: string) {
-        let plugin = this.plugins.find(lib => lib.headers.name === pluginName);
+        const plugin = this.plugins.find(lib => lib.headers.name === pluginName);
         if(!plugin.headers) return null;
         return $state.snapshot(plugin.headers);
     }
@@ -228,10 +227,10 @@ export default new class PluginManager {
     }
 
     async editPlugin(name: Plugin | string, script: string, emit = true, updated = false) {
-        let plugin = typeof name === "string" ? this.getPlugin(name) : name;
+        const plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
 
-        let headers = parseScriptHeaders(script);
+        const headers = parseScriptHeaders(script);
         if(updated && headers.changelog.length > 0) {
             Modals.addUpdated(headers.name, headers.version, headers.changelog);
         }
@@ -241,7 +240,7 @@ export default new class PluginManager {
         // message other windows
         if(emit) {
             if(Storage.settings.autoDownloadMissingLibs) {
-                let res = await Port.sendAndRecieve("downloadLibraries", { libraries: headers.needsLib });
+                const res = await Port.sendAndRecieve("downloadLibraries", { libraries: headers.needsLib });
                 if(res.error) {
                     showErrorMessage(res.error, "Failed to automatically download libraries");
                 }
@@ -267,11 +266,11 @@ export default new class PluginManager {
     }
 
     arrangePlugins(order: string[], emit = true) {
-        let newOrder = [];
+        const newOrder = [];
 
-        for (let name of order) {
-            let plugin = this.getPlugin(name);
-            if (plugin) newOrder.push(plugin);
+        for(const name of order) {
+            const plugin = this.getPlugin(name);
+            if(plugin) newOrder.push(plugin);
         }
         this.plugins = newOrder;
 
@@ -279,9 +278,9 @@ export default new class PluginManager {
     }
 
     async setEnabled(name: Plugin | string, enabled: boolean, emit = true) {
-        let plugin = typeof name === "string" ? this.getPlugin(name) : name;
+        const plugin = typeof name === "string" ? this.getPlugin(name) : name;
         if(!plugin) return;
-        
+
         if(enabled) {
             plugin.setEnabled(true);
             if(emit) Port.send("pluginToggled", { name: plugin.headers.name, enabled: true });
@@ -302,7 +301,7 @@ export default new class PluginManager {
     confirmDeleteAll(shouldToast = true) {
         if(this.plugins.length === 0) {
             toast.error("No plugins to delete");
-            return;    
+            return;
         }
 
         if(!confirm("Are you sure you want to delete all plugins?")) return;
@@ -314,6 +313,6 @@ export default new class PluginManager {
     toastSetAll(enabled: boolean) {
         const changed = this.setAll(enabled);
         const action = enabled ? "Enabled" : "Disabled";
-        toast.success(`${action} ${changed} plugin${changed !== 1 ? 's' : ''}`);
+        toast.success(`${action} ${changed} plugin${changed !== 1 ? "s" : ""}`);
     }
-}
+}();

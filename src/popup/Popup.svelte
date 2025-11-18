@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { PluginInfo } from '$types/state';
-    import { Switch } from '$shared/ui/switch';
-    import state from '$shared/net/bareState.svelte';
-    import Port from '$shared/net/port.svelte';
-    import DeleteOutline from 'svelte-material-icons/DeleteOutline.svelte';
-    import Web from 'svelte-material-icons/Web.svelte';
-    import GithubIcon from '$assets/github-mark-white.svg';
-    import Xml from 'svelte-material-icons/Xml.svelte';
+    import type { PluginInfo } from "$types/state";
+    import { Switch } from "$shared/ui/switch";
+    import state from "$shared/net/bareState.svelte";
+    import Port from "$shared/net/port.svelte";
+    import DeleteOutline from "svelte-material-icons/DeleteOutline.svelte";
+    import Web from "svelte-material-icons/Web.svelte";
+    import GithubIcon from "$assets/github-mark-white.svg";
+    import Xml from "svelte-material-icons/Xml.svelte";
     import { version } from "../../package.json";
-    import { parseScriptHeaders } from '$shared/parseHeader';
-    import { Toaster, toast } from 'svelte-5-french-toast';
+    import { parseScriptHeaders } from "$shared/parseHeader";
+    import { toast, Toaster } from "svelte-5-french-toast";
 
     function onToggle(plugin: PluginInfo) {
         Port.send("pluginToggled", { name: plugin.name, enabled: plugin.enabled });
@@ -29,15 +29,19 @@
         deleting = plugin;
     }
 
-    function openSite() { chrome.tabs.create({ url: "https://gimloader.github.io" }) }
-    function openRepo() { chrome.tabs.create({ url: "https://github.com/Gimloader/Gimloader" })}
+    function openSite() {
+        chrome.tabs.create({ url: "https://gimloader.github.io" });
+    }
+    function openRepo() {
+        chrome.tabs.create({ url: "https://github.com/Gimloader/Gimloader" });
+    }
     function copyDebugInfo() {
         const plugins = state.plugins
             .toSorted((a, b) => a.name.localeCompare(b.name))
             .toSorted((a, b) => a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1);
         const libraries = state.libraries
             .toSorted((a, b) => a.name.localeCompare(b.name));
-        
+
         let debugInfo = `**Core:**\nGimloader v${version}`;
         debugInfo += `\n\n**Plugins:**\n` + plugins.map((plugin) => {
             const headers = parseScriptHeaders(plugin.script);

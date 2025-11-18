@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
-export let focusTrapEnabled = writable(true);
-export let officialPluginsOpen = writable(false);
+export const focusTrapEnabled = writable(true);
+export const officialPluginsOpen = writable(false);

@@ -1,10 +1,10 @@
-import type Scene from './scene';
-import type AimingAndLookingAround from './character/aimingAndLookingAround';
-import type Animation from './character/animation';
-import type Movement from './character/movement';
-import type Physics from './character/physics';
+import type Scene from "./scene";
+import type AimingAndLookingAround from "./character/aimingAndLookingAround";
+import type Animation from "./character/animation";
+import type Movement from "./character/movement";
+import type Physics from "./character/physics";
 import type { Vector } from "@dimforge/rapier2d-compat";
-import type { GameObjects, Tweens } from 'phaser';
+import type { GameObjects, Tweens } from "phaser";
 
 interface Updates {
     update(update: { delta: number }): void;

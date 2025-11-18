@@ -2,16 +2,16 @@ import Port from "$shared/net/port.svelte";
 import * as z from "zod";
 
 export function log(...args: any[]) {
-    console.log('%c[GL]', 'color:#5030f2', ...args);
+    console.log("%c[GL]", "color:#5030f2", ...args);
 }
 
 export function error(...args: any[]) {
-    console.error('%c[GL]', 'color:#5030f2', ...args);
+    console.error("%c[GL]", "color:#5030f2", ...args);
 }
 
 export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
     for(let i = 0; i < schema.length; i++) {
-        let [ name, type ] = schema[i];
+        let [name, type] = schema[i];
         if(name.endsWith("?")) {
             name = name.slice(0, -1);
             if(args[i] === undefined) continue;
@@ -19,10 +19,10 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
 
         // check whether the key argument is present
         if(args[i] === undefined) {
-            error(fnName, 'called without argument', name);
+            error(fnName, "called without argument", name);
             return false;
         }
-        
+
         if(type === "any") continue;
         if(type instanceof z.ZodType) {
             const parsed = type.safeParse(args[i]);
@@ -32,7 +32,7 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
             }
         } else {
             if(!type.split("|").includes(typeof args[i])) {
-                error(fnName, 'received', args[i], `for argument ${name}, expected type ${type}`);
+                error(fnName, "received", args[i], `for argument ${name}, expected type ${type}`);
                 return false;
             }
         }
@@ -44,9 +44,9 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
 export function splicer<T>(array: T[], obj: T) {
     array.push(obj);
     return () => {
-        let index = array.indexOf(obj);
+        const index = array.indexOf(obj);
         if(index !== -1) array.splice(index, 1);
-    }
+    };
 }
 
 export function clearId<T extends { id: string }>(array: T[], id: string) {
@@ -59,18 +59,18 @@ export function clearId<T extends { id: string }>(array: T[], id: string) {
 }
 
 export function readUserFile(accept: string, callback: (text: string) => void) {
-    let input = document.createElement('input');
-    input.type = 'file';
+    const input = document.createElement("input");
+    input.type = "file";
     input.accept = accept;
-    
-    input.addEventListener('change', () => {        
-        let file = input.files?.[0];
+
+    input.addEventListener("change", () => {
+        const file = input.files?.[0];
         if(!file) return;
-        
-        let reader = new FileReader();
+
+        const reader = new FileReader();
         reader.onload = () => {
             callback(reader.result as string);
-        }
+        };
 
         reader.readAsText(file);
     });
@@ -95,7 +95,7 @@ export const domLoaded = new Promise<void>((res) => {
 export class Deferred<T = void> extends Promise<T> {
     resolve: (value?: T) => void;
     reject: (reason?: any) => void;
-    
+
     constructor(callback: any) {
         let resolve: (value?: T) => void;
         let reject: (reason?: any) => void;
@@ -118,5 +118,5 @@ export class Deferred<T = void> extends Promise<T> {
 export function englishList(items: string[], combiner = "and") {
     if(items.length === 1) return items[0];
     else if(items.length === 2) return `${items[0]} ${combiner} ${items[1]}`;
-    else return `${items.slice(0, -1).join(", ")}, ${combiner} ${items.at(-1)}`; 
+    else return `${items.slice(0, -1).join(", ")}, ${combiner} ${items.at(-1)}`;
 }

@@ -14,9 +14,6 @@
     import { parseScriptHeaders } from "$shared/parseHeader";
     import * as Dialog from "$shared/ui/dialog";
 
-    import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
-    import Import from 'svelte-material-icons/Import.svelte';
-
     let searchValue = $state("");
     let items = $state(LibManager.libs.map((lib: Lib) => ({ id: lib.headers.name })));
     $effect(() => {
@@ -54,16 +51,16 @@
 
     const install = async (url: string) => {
         try {
-            if (!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
+            if(!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
             const res = await fetch(url);
             const code = await res.text();
             LibManager.createLib(code);
             toast.success(`Installed ${parseScriptHeaders(code).name}`);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             toast.error(`Failed to install library from URL`); // Just in case the issue is with the headers.
         }
-    }
+    };
 
     let flipDurationMs = $state(0);
     setTimeout(() => flipDurationMs = 300);
@@ -75,7 +72,11 @@
 <Dialog.Root open={libUrlMenuOpen}>
     <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
         <input placeholder="Library URL" bind:value={libUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
-        <Button onclick={() => {install(libUrl); libUrlMenuOpen = false}}>Install</Button>
+        <Button
+            onclick={() => {
+                install(libUrl);
+                libUrlMenuOpen = false;
+            }}>Install</Button>
     </Dialog.Content>
 </Dialog.Root>
 <div class="flex flex-col max-h-full">
@@ -108,14 +109,16 @@
     {#if LibManager.libs.length === 0}
         <h2 class="text-xl">No libraries installed!</h2>
     {/if}
-    <div class="overflow-y-auto outline-none grid gap-4 view-{Storage.settings.menuView} pb-1 grow"
-    use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
-    onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
+    <div
+        class="overflow-y-auto outline-none grid gap-4 view-{Storage.settings.menuView} pb-1 grow"
+        use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
+        onconsider={handleDndConsider}
+        onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
                 {@const library = LibManager.getLib(item.id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
-                    <Library {library} {startDrag} {dragDisabled} dragAllowed={searchValue == ''} />
+                    <Library {library} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
                 </div>
             {/each}
         {/key}

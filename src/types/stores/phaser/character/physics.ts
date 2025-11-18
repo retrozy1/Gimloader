@@ -1,5 +1,5 @@
-import type Scene from '../scene';
-import type Character from '../character';
+import type Scene from "../scene";
+import type Character from "../character";
 import type { Collider, ColliderDesc, RigidBody, RigidBodyDesc, Vector } from "@dimforge/rapier2d-compat";
 
 interface Jump {

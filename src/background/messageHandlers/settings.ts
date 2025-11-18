@@ -7,11 +7,11 @@ import EventEmitter2 from "eventemitter2";
 
 export default new class SettingsHandler extends EventEmitter2 {
     init() {
-        Server.on("settingUpdate", this.onSettingUpdate.bind(this));   
+        Server.on("settingUpdate", this.onSettingUpdate.bind(this));
     }
 
     save() {
-        saveDebounced('settings');
+        saveDebounced("settings");
     }
 
     onSettingUpdate(state: State, message: StateMessages["settingUpdate"]) {
@@ -24,4 +24,4 @@ export default new class SettingsHandler extends EventEmitter2 {
             Updater.checkUpdates();
         }
     }
-}
+}();

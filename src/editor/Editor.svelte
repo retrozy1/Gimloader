@@ -20,7 +20,9 @@
     });
 
     let title = $derived(`${existing ? "Editing" : "Creating"} ${name ? `${type} ${name}` : `a new ${type}`}`);
-    $effect(() => { document.title = `${title} | Gimloader` });
+    $effect(() => {
+        document.title = `${title} | Gimloader`;
+    });
 
     let editorDiv: HTMLElement = $state();
     let saved = $state(true);
@@ -64,7 +66,7 @@
             if(type === "plugin") State.plugins.push({ name: headers.name, enabled: true, script });
             else State.libraries.push({ name: headers.name, script });
         }
-    
+
         name = headers.name;
         saved = true;
     }
@@ -99,8 +101,7 @@
                 {title}
             </div>
             <div class="grow"></div>
-            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2"
-                onclick={save}>
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2" onclick={save}>
                 {#if saved}
                     <ContentSaveOutline size={24} />
                 {:else}
@@ -108,8 +109,7 @@
                 {/if}
                 Save
             </button>
-            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2"
-                onclick={close}>
+            <button class="bg-white text-lg text-gray-700 rounded-full flex items-center gap-2 px-2" onclick={close}>
                 <Close size={24} />
                 Exit
             </button>

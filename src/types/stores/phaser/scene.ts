@@ -1,4 +1,4 @@
-import type { Scene as BaseScene, GameObjects } from "phaser";
+import type { GameObjects, Scene as BaseScene } from "phaser";
 import type Character from "./character";
 import type { Device } from "./scene/device";
 import type { Rect } from "../shapes";

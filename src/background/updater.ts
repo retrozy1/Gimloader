@@ -14,15 +14,15 @@ export default class Updater {
         Server.onMessage("applyUpdates", this.applyUpdates.bind(this));
         Server.onMessage("updateAll", this.updateAll.bind(this));
         Server.onMessage("updateSingle", this.updateSingle.bind(this));
-        
-        let state = await statePromise;
+
+        const state = await statePromise;
         if(!state.settings.autoUpdate) return;
 
-        let stored = await chrome.storage.local.get({
+        const stored = await chrome.storage.local.get({
             lastUpdateCheck: 0
         });
 
-        let diff = Date.now() - stored.lastUpdateCheck;
+        const diff = Date.now() - stored.lastUpdateCheck;
 
         // check for updates once every hour
         if(diff < 60 * 60 * 1000) return;
@@ -32,53 +32,53 @@ export default class Updater {
 
     static async checkUpdates(broadcast = true) {
         return new Promise<void>(async (res) => {
-            let state = await statePromise;
-            let updaters: (() => Promise<void>)[] = [];
-    
+            const state = await statePromise;
+            const updaters: (() => Promise<void>)[] = [];
+
             const checkUpdate = (headers: ScriptHeaders, type: "plugin" | "library") => {
                 return () => {
                     return new Promise<void>(async (res) => {
-                        let text = await this.getText(formatDownloadUrl(headers.downloadUrl));
+                        const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
                         if(!text) return res();
-                        
+
                         // it doesn't matter whether we use parse lib or plugin header here
-                        let newHeaders = parseScriptHeaders(text);
+                        const newHeaders = parseScriptHeaders(text);
                         if(!this.shouldUpdate(headers, newHeaders)) return res();
-        
+
                         this.updates.push({
                             type,
                             name: headers.name,
                             newName: newHeaders.name,
                             script: text
                         });
-    
+
                         res();
                     });
-                }
-            }
-    
-            for(let plugin of state.plugins) {
-                let headers = parseScriptHeaders(plugin.script);
+                };
+            };
+
+            for(const plugin of state.plugins) {
+                const headers = parseScriptHeaders(plugin.script);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "plugin"));
             }
-    
-            for(let lib of state.libraries) {
-                let headers = parseScriptHeaders(lib.script);
+
+            for(const lib of state.libraries) {
+                const headers = parseScriptHeaders(lib.script);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "library"));
             }
-    
+
             let finished = false;
-            
+
             const advance = () => {
-                let update = updaters.shift();
+                const update = updaters.shift();
                 if(!update) {
                     if(finished) return;
                     finished = true;
-    
+
                     chrome.storage.local.set({ lastUpdateCheck: Date.now() });
-                    
+
                     if(broadcast) {
                         state.availableUpdates = this.updates.map(s => s.name);
                         Server.send("availableUpdates", state.availableUpdates);
@@ -86,11 +86,11 @@ export default class Updater {
                     res();
                     return;
                 }
-    
+
                 update().finally(advance);
-            }
-    
-            let maxConcurrent = 5;
+            };
+
+            const maxConcurrent = 5;
             for(let i = 0; i < Math.min(maxConcurrent, updaters.length); i++) {
                 advance();
             }
@@ -101,12 +101,12 @@ export default class Updater {
         if(!oldHeaders.version) return true;
         if(!newHeaders.version) return false;
 
-        let oldParts = oldHeaders.version.split(".").map((n) => parseInt(n));
-        let newParts = newHeaders.version.split(".").map((n) => parseInt(n));
+        const oldParts = oldHeaders.version.split(".").map((n) => parseInt(n, 10));
+        const newParts = newHeaders.version.split(".").map((n) => parseInt(n, 10));
 
         for(let i = 0; i < newParts.length; i++) {
-            let oldPart = oldParts[i]
-            let newPart = newParts[i];
+            const oldPart = oldParts[i];
+            const newPart = newParts[i];
 
             if(newPart > oldPart) return true;
             if(newPart < oldPart) return false;
@@ -132,18 +132,18 @@ export default class Updater {
     static async applyUpdate(state: State, update: Update) {
         const { type, name, newName, script } = update;
         const message = { name, newName, script, updated: true };
-    
+
         if(type === "plugin") {
             // if a plugin with the new name exists, just overwrite it
             // not the best solution but this should almost never happen and the consequences are bad if it's not adressed
             if(name !== newName) {
-                let existing = state.plugins.find(p => p.name === newName);
+                const existing = state.plugins.find(p => p.name === newName);
                 if(existing) {
                     await Server.executeAndSend("pluginDelete", { name: newName });
                 }
             }
 
-            let plugin = state.plugins.find(p => p.name === name);
+            const plugin = state.plugins.find(p => p.name === name);
             if(!plugin) return;
             plugin.name = newName;
             plugin.script = update.script;
@@ -152,13 +152,13 @@ export default class Updater {
             Server.send("pluginEdit", message);
         } else {
             if(name !== newName) {
-                let existing = state.libraries.find(l => l.name === newName);
+                const existing = state.libraries.find(l => l.name === newName);
                 if(existing) {
                     await Server.executeAndSend("libraryDelete", { name: newName });
                 }
             }
 
-            let library = state.libraries.find(l => l.name === name);
+            const library = state.libraries.find(l => l.name === name);
             if(!library) return;
             library.name = newName;
             library.script = update.script;
@@ -170,7 +170,7 @@ export default class Updater {
 
     static applyUpdates(state: State, apply: boolean) {
         if(apply) {
-            for(let update of this.updates) {
+            for(const update of this.updates) {
                 this.applyUpdate(state, update);
             }
         }
@@ -188,7 +188,7 @@ export default class Updater {
 
     static async updateAll(state: State, _: OnceMessages["updateAll"], respond: (names: OnceResponses["updateAll"]) => void) {
         await this.checkUpdates(false);
-        let names = this.updates.map(u => u.name);
+        const names = this.updates.map(u => u.name);
 
         this.applyUpdates(state, true);
         respond(names);
@@ -199,13 +199,13 @@ export default class Updater {
         if(message.type === "plugin") script = state.plugins.find(p => p.name === message.name);
         else script = state.libraries.find(l => l.name === message.name);
 
-        let headers = parseScriptHeaders(script.script);
+        const headers = parseScriptHeaders(script.script);
         if(!headers.downloadUrl) return respond({ updated: false });
 
-        let text = await this.getText(formatDownloadUrl(headers.downloadUrl));
+        const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
         if(!text) return respond({ updated: false, failed: true });
 
-        let newHeaders = parseScriptHeaders(text);
+        const newHeaders = parseScriptHeaders(text);
         if(!this.shouldUpdate(headers, newHeaders)) return respond({ updated: false });
 
         this.applyUpdate(state, {

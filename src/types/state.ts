@@ -13,14 +13,14 @@ export interface LibraryInfo {
 
 export type ScriptInfo = PluginInfo | LibraryInfo;
 
-export type PluginStorage = Record<string, Record<string, any>>
+export type PluginStorage = Record<string, Record<string, any>>;
 export type ConfigurableHotkeysState = Record<string, HotkeyTrigger | null>;
 
 export interface Settings {
     pollerEnabled: boolean;
     autoUpdate: boolean;
     autoDownloadMissingLibs: boolean;
-    menuView: 'grid' | 'list';
+    menuView: "grid" | "list";
     showPluginButtons: boolean;
 }
 

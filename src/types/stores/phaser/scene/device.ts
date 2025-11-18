@@ -2,8 +2,8 @@ import type { Vector } from "@dimforge/rapier2d-compat";
 import type { DeviceOption } from "../../world";
 import type Character from "../character";
 import type Scene from "../scene";
-import type { Types, Tweens } from "phaser";
-import type { Rect, Circle, RectShort, CircleShort, Ellipse, RotatedRect, RotatedCircle } from "../../shapes";
+import type { Tweens, Types } from "phaser";
+import type { Circle, CircleShort, Ellipse, Rect, RectShort, RotatedCircle, RotatedRect } from "../../shapes";
 
 interface AppearanceVariation {
     device: Device;
@@ -46,7 +46,7 @@ interface Colliders {
         box(collider: RectShort): void;
         circle(collider: CircleShort): void;
         ellipse(collider: Ellipse): void;
-    }
+    };
     device: Device;
     list: ColliderEntry[];
     createOptions(collider: DeviceCollider): ColliderOptions;
@@ -106,7 +106,7 @@ interface InteractiveZones {
     add: {
         circle(zone: CircleShort): void;
         rect(zone: Rect): void;
-    }
+    };
     canInteractThroughColliders: boolean;
     device: Device;
     forceDisabled: boolean;
@@ -152,7 +152,7 @@ interface VisualEditing {
     add: {
         box(options: VisualEditingBox): void;
         circle(options: VisualEditingCircle): void;
-    }
+    };
     device: Device;
     isActive: boolean;
     shapes: (VisualEditingBox | VisualEditingCircle)[];
@@ -247,7 +247,7 @@ interface BaseDevice {
     getRealKey(key: string): string;
     onPostUpdate(): void;
     onInit(): void;
-    onMessage(message: { key: string, data: any }): void;
+    onMessage(message: { key: string; data: any }): void;
     onStateChange(key: string): void;
     onDestroy(options: { isBeingReplaced: boolean }): void;
     sendToServerDevice(key: string, data: any): void;

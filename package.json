@@ -14,7 +14,8 @@
     "buildExtFirefox": "cd extension && bun run scripts/build.ts firefox",
     "buildAllFirefox": "bun run buildExtFirefox && bun run buildFirefox",
     "buildTypes": "tsc -p declaration.tsconfig.json",
-    "typeCheck": "tsc --noEmit"
+    "format": "dprint fmt",
+    "check": "biome lint && dprint check && svelte-check"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "svelte": "$svelte"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
     "@dimforge/rapier2d-compat": "^0.19.1",
     "@lucide/svelte": "^0.544.0",
     "@tailwindcss/postcss": "^4.1.16",
@@ -43,12 +45,14 @@
     "@types/react-dom": "^18.2.22",
     "bits-ui": "^2.11.0",
     "clsx": "^2.1.1",
+    "dprint": "^0.50.2",
     "esbuild": "^0.25.0",
     "esbuild-svelte": "^0.9.3",
     "phaser": "^3.90.0",
     "postcss": "^8.5.6",
     "postcss-load-config": "^6.0.1",
     "runed": "^0.35.1",
+    "svelte-check": "^4.3.4",
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^3.1.1",
     "tailwindcss": "^4.1.16",

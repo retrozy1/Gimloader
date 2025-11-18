@@ -12,13 +12,13 @@
     import LibManager from "$core/scripts/libManager.svelte";
     import * as Dialog from "$shared/ui/dialog";
     import * as Tabs from "$shared/ui/tabs";
-    
-    import Wrench from 'svelte-material-icons/Wrench.svelte';
-    import Book from 'svelte-material-icons/Book.svelte';
-    import KeyboardOutline from 'svelte-material-icons/KeyboardOutline.svelte';
-    import Update from 'svelte-material-icons/Update.svelte';
-    import Cog from 'svelte-material-icons/Cog.svelte';
-    import FileUploadOutline from 'svelte-material-icons/FileUploadOutline.svelte';
+
+    import Wrench from "svelte-material-icons/Wrench.svelte";
+    import Book from "svelte-material-icons/Book.svelte";
+    import KeyboardOutline from "svelte-material-icons/KeyboardOutline.svelte";
+    import Update from "svelte-material-icons/Update.svelte";
+    import Cog from "svelte-material-icons/Cog.svelte";
+    import FileUploadOutline from "svelte-material-icons/FileUploadOutline.svelte";
 
     interface Props {
         onClose: () => void;
@@ -27,14 +27,14 @@
     }
 
     let { onClose, tab, officialOpen }: Props = $props();
-    
+
     let currentTab = $state(tab);
     officialPluginsOpen.set(officialOpen);
-    
+
     export const setTab = (tab: string, officialOpen: boolean) => {
         currentTab = tab;
         officialPluginsOpen.set(officialOpen);
-    }
+    };
 
     let modalDragCounter = $state(0);
     let canDrop = $derived(currentTab === "plugins" || currentTab === "libraries");
@@ -63,13 +63,20 @@
 </script>
 
 <Dialog.Root open={true} onOpenChangeComplete={onClose}>
-    <Dialog.Content class="text-gray-600 min-h-[65vh]" trapFocus={false}
-        ondragenter={() => modalDragCounter++} ondragleave={() => modalDragCounter--}
-        ondragover={(e) => e.preventDefault()} ondrop={onDrop}
+    <Dialog.Content
+        class="text-gray-600 min-h-[65vh]"
+        trapFocus={false}
+        ondragenter={() => modalDragCounter++}
+        ondragleave={() => modalDragCounter--}
+        ondragover={(e) => e.preventDefault()}
+        ondrop={onDrop}
         style="max-width: min(1280px, calc(100% - 32px))">
         {#if Port.disconnected}
-            <div class="z-50 absolute left-0 top-0 w-full h-full bg-gray-500
-                rounded-lg opacity-70 flex flex-col items-center justify-center">
+            <div
+                class="
+                    z-50 absolute left-0 top-0 w-full h-full bg-gray-500
+                    rounded-lg opacity-70 flex flex-col items-center justify-center
+                ">
                 <h2 class="text-3xl text-white">Connection lost with extension</h2>
                 <div class="xl text-white">
                     Attempting to reconnect... you can always refresh the page if this fails
@@ -77,9 +84,13 @@
             </div>
         {/if}
         {#if canDrop && modalDragCounter > 0}
-            <div class="z-50 absolute left-0 top-0 w-full h-full pointer-events-none
-                rounded-lg opacity-70 flex items-center justify-center
-                bg-gray-500 border-white border-4 border-dashed" role="dialog">
+            <div
+                class="
+                    z-50 absolute left-0 top-0 w-full h-full pointer-events-none
+                    rounded-lg opacity-70 flex items-center justify-center
+                    bg-gray-500 border-white border-4 border-dashed
+                "
+                role="dialog">
                 <FileUploadOutline size={128} color="white" />
             </div>
         {/if}

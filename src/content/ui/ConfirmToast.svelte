@@ -3,8 +3,8 @@
     import Check from "svelte-material-icons/Check.svelte";
     import Close from "svelte-material-icons/Close.svelte";
 
-    let { toast, text, onconfirmed }:
-        { toast: Toast, text: string, onconfirmed: (confirmed: boolean) => void } = $props();
+    let { toast, text, onconfirmed }: { toast: Toast; text: string; onconfirmed: (confirmed: boolean) => void } =
+        $props();
 
     function confirm(confirmed: boolean) {
         toast_.dismiss(toast.id);

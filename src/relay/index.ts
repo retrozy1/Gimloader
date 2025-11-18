@@ -5,21 +5,21 @@ let disconnected = false;
 let ready = false;
 let messageQueue: any[] = [];
 
-let keyPromise = crypto.subtle.generateKey(algorithm, true, ['sign', 'verify']);
+const keyPromise = crypto.subtle.generateKey(algorithm, true, ["sign", "verify"]);
 
 window.addEventListener("message", async (e) => {
     if(!e.data?.json || e.data?.source !== "gimloader-out") return;
 
-    let data = JSON.parse(e.data.json);
+    const data = JSON.parse(e.data.json);
     if(!data.type) return;
 
-    let key = await keyPromise;
+    const key = await keyPromise;
     if(data.type === "ready") {
-        let json = await crypto.subtle.exportKey("jwk", key);
+        const json = await crypto.subtle.exportKey("jwk", key);
         messageQueue.unshift({ source: "gimloader-in", type: "key", key: json });
 
         ready = true;
-        for(let message of messageQueue) {
+        for(const message of messageQueue) {
             window.postMessage(message);
         }
         messageQueue = [];
@@ -29,18 +29,18 @@ window.addEventListener("message", async (e) => {
     if(disconnected) return;
 
     // verify that the signature checks out
-    let signatureArr: number[] = e.data.signature;
+    const signatureArr: number[] = e.data.signature;
     if(!signatureArr) return;
-    let arr = new TextEncoder().encode(e.data.json);
-    let signature = new Uint8Array(signatureArr).buffer;
-    let matches = await crypto.subtle.verify(algorithm, key, signature, arr);
+    const arr = new TextEncoder().encode(e.data.json);
+    const signature = new Uint8Array(signatureArr).buffer;
+    const matches = await crypto.subtle.verify(algorithm, key, signature, arr);
     if(!matches) return;
 
     port.postMessage(data);
 });
 
 // remind firefox that we're still alive every 20 seconds so it doesn't kill the background script
-setInterval(() => { 
+setInterval(() => {
     chrome.runtime.sendMessage("ping");
 }, 20000);
 
@@ -48,7 +48,7 @@ connect();
 
 function connect() {
     port = chrome.runtime.connect();
-    
+
     port.onDisconnect.addListener(() => {
         disconnected = true;
         window.postMessage({ source: "gimloader-in", type: "portDisconnected" });
@@ -62,10 +62,10 @@ function connect() {
             connect();
         }
     });
-    
+
     port.onMessage.addListener((e) => {
         disconnected = false;
-        let message = { ...e, source: "gimloader-in" };
+        const message = { ...e, source: "gimloader-in" };
         if(ready) {
             window.postMessage(message);
         } else {

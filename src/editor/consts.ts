@@ -3,7 +3,7 @@ export const defaultPluginScript = `/**
  * @description A new plugin
  * @author Your Name Here
  * @version 1.0.0
- */`
+ */`;
 
 export const defaultLibraryScript = `/**
  * @name New Library
@@ -11,4 +11,4 @@ export const defaultLibraryScript = `/**
  * @author Your Name Here
  * @version 1.0.0
  * @isLibrary true
- */`
+ */`;

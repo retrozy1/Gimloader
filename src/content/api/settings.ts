@@ -111,7 +111,7 @@ const DescriptionSchema = z.array(z.discriminatedUnion("type", [
 ]));
 
 function applyDefaults(id: string, settings: (PluginSetting | SettingGroup)[]) {
-    for(let setting of settings) {
+    for(const setting of settings) {
         if(setting.type === "group") {
             applyDefaults(id, setting.settings);
             continue;
@@ -134,7 +134,7 @@ function applyDefaults(id: string, settings: (PluginSetting | SettingGroup)[]) {
 }
 
 function registerListeners(id: string, settings: (PluginSetting | SettingGroup)[]) {
-    for(let setting of settings) {
+    for(const setting of settings) {
         if(setting.type === "group") {
             registerListeners(id, setting.settings);
             continue;
@@ -154,17 +154,17 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
 
             plugin.settingsDescription = description;
             plugin.openSettingsMenu.push(() => showPluginSettings(plugin));
-            
+
             Storage.pluginSettings[id] ??= {};
             applyDefaults(id, description);
-            registerListeners(id, description);            
+            registerListeners(id, description);
         },
         listen(key, callback) {
             if(!validate("settings.listen", arguments, ["key", "string"], ["callback", "function"])) return;
 
-            return Storage.onPluginSettingUpdate(id, key, callback);   
+            return Storage.onPluginSettingUpdate(id, key, callback);
         }
-    }
+    };
 
     const settings = new Proxy(methods, {
         get(target, prop, receiver) {
@@ -175,7 +175,7 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
 
             return Storage.pluginSettings[id]?.[prop] ?? null;
         },
-        set(target, prop, value) {
+        set(_, prop, value) {
             if(typeof prop !== "string") return false;
             if(prop in methods) {
                 error(`settings.${prop} is reserved and cannot be set`);

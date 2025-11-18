@@ -5,13 +5,15 @@
 
     let commandsList = $derived(Object.entries(Commands.groups));
     let value = $state("");
-    
+
     let inputValue = $state("");
-    watch(() => Commands.action, () => { inputValue = "" });
+    watch(() => Commands.action, () => {
+        inputValue = "";
+    });
 
     function windowKeydown(e: KeyboardEvent) {
         if(e.key !== "Enter" || !Commands.open) return;
-        
+
         if(Commands.action?.type === "string") {
             if(inputValue.trim() === "") return;
             Commands.action.callback(inputValue);
@@ -20,7 +22,7 @@
 
             // If the number changes after being clamped, don't submit
             let parsed = parseFloat(inputValue);
-            if(isNaN(parsed)) {
+            if(Number.isNaN(parsed)) {
                 inputValue = "";
                 return;
             }
@@ -54,21 +56,23 @@
         if(e.ctrlKey || e.metaKey || e.altKey) return;
 
         if(Commands.action.options.decimal) {
-            if(!/[0-9\.\-]/.test(e.key)) e.preventDefault();
+            if(!/[0-9.-]/.test(e.key)) e.preventDefault();
         } else {
-            if(!/[0-9\-]/.test(e.key)) e.preventDefault();
+            if(!/[0-9-]/.test(e.key)) e.preventDefault();
         }
     }
 </script>
 
 <svelte:window onkeydown={windowKeydown} />
 
-<Command.Dialog bind:open={Commands.open} bind:value
-    onOpenChangeComplete={onOpenChange}>
+<Command.Dialog bind:open={Commands.open} bind:value onOpenChangeComplete={onOpenChange}>
     {#if Commands.action}
-        <Command.Input bind:value={inputValue} onkeydown={inputKeydown}
+        <Command.Input
+            bind:value={inputValue}
+            onkeydown={inputKeydown}
             maxlength={Commands.action.type === "string" ? Commands.action.options.maxLength : null}
-            placeholder={Commands.action.options.title} />
+            placeholder={Commands.action.options.title}
+        />
         {#if Commands.action.type === "select"}
             <Command.List>
                 {#each Commands.action.options.options as option}

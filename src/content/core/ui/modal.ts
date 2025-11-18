@@ -20,7 +20,7 @@ export interface ModalOptions {
     onClosed?: () => void;
 }
 
-let openModals = new Map<string, () => void>();
+const openModals = new Map<string, () => void>();
 
 export default function showModal(content: HTMLElement | ReactElement, options: ModalOptions = {}) {
     focusTrapEnabled.set(false);
@@ -35,9 +35,9 @@ export default function showModal(content: HTMLElement | ReactElement, options: 
         focusTrapEnabled.set(true);
         if(options.id) openModals.delete(options.id);
         options.onClosed?.();
-    }
+    };
 
-    let component = mount(GenericModal, {
+    const component = mount(GenericModal, {
         target: document.body,
         props: {
             content,

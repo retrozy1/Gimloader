@@ -28,7 +28,7 @@ export default class GimkitInternals {
         Rewriter.exposeObject("App", "platformerPhysics", "topDownBaseSpeed:", (phys) => {
             this.platformerPhysics = phys;
             window.platformerPhysics = phys;
-            
+
             this.events.emit("platformerPhysics", phys);
         });
     }

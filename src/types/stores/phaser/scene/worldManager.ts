@@ -79,7 +79,7 @@ interface InGameTerrainBuilder {
     wasDown: boolean;
     clearConsumeErrorMessage(): void;
     clearPreviewLayer(): void;
-    createPreviewTile(options: CreateTileOptions): void
+    createPreviewTile(options: CreateTileOptions): void;
     update(): void;
 }
 
@@ -90,8 +90,8 @@ interface ActiveBodies {
     world: World;
     disableBody(id: string): void;
     enable(keys: Set<string>, setAll: boolean): void;
-    enableBodiesAlongLine(options: { start: Vector, end: Vector }): void;
-    enableBodiesWithinAreas(options: { areas: Rect[], disableActiveBodiesOutsideArea: boolean }): void;
+    enableBodiesAlongLine(options: { start: Vector; end: Vector }): void;
+    enableBodiesWithinAreas(options: { areas: Rect[]; disableActiveBodiesOutsideArea: boolean }): void;
     enableBody(id: string): void;
     setDirty(): void;
 }

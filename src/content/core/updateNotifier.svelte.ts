@@ -28,8 +28,8 @@ export default class UpdateNotifier {
         } else if(availableUpdates.length === 2) {
             message = `${availableUpdates[0]} and ${availableUpdates[1]} both have updates available. Would you like to download them?`;
         } else {
-            message = `${availableUpdates.slice(0, -1).join(", ")}, and ${availableUpdates[availableUpdates.length - 1]} ` +
-            "all have updates available. Would you like to download them?";
+            message = `${availableUpdates.slice(0, -1).join(", ")}, and ${availableUpdates[availableUpdates.length - 1]} `
+                + "all have updates available. Would you like to download them?";
         }
 
         confirmToast(message, (apply) => {

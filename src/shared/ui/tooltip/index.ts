@@ -7,15 +7,15 @@ const Provider = TooltipPrimitive.Provider;
 const Portal = TooltipPrimitive.Portal;
 
 export {
-	Root,
-	Trigger,
-	Content,
-	Provider,
-	Portal,
-	//
-	Root as Tooltip,
-	Content as TooltipContent,
-	Trigger as TooltipTrigger,
-	Provider as TooltipProvider,
-	Portal as TooltipPortal,
+    Content,
+    Content as TooltipContent,
+    Portal,
+    Portal as TooltipPortal,
+    Provider,
+    Provider as TooltipProvider,
+    Root,
+    //
+    Root as Tooltip,
+    Trigger,
+    Trigger as TooltipTrigger
 };

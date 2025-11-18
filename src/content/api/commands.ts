@@ -35,7 +35,7 @@ const CommandOptionsSchema = z.object({
  *       title: "Enter a string",
  *       maxLength: 20
  *    });
- * 
+ *
  *    console.log("User chose:", { choice, number, string });
  * });
  * ```
@@ -43,8 +43,7 @@ const CommandOptionsSchema = z.object({
 export class CommandsApi {
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(id: string, options: CommandOptions, callback: CommandCallback) {
-        if(!validate("commands.addCommand", arguments, ["id", "string"],
-            ["options", CommandOptionsSchema], ["callback", "function"])) return;
+        if(!validate("commands.addCommand", arguments, ["id", "string"], ["options", CommandOptionsSchema], ["callback", "function"])) return;
 
         return Commands.addCommand(id, options, callback);
     }
@@ -83,7 +82,7 @@ export class CommandsApi {
  *       title: "Enter a string",
  *       maxLength: 20
  *    });
- * 
+ *
  *    console.log("User chose:", { choice, number, string });
  * });
  * ```
@@ -93,8 +92,7 @@ export class ScopedCommandsApi {
 
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(options: CommandOptions, callback: CommandCallback) {
-        if(!validate("commands.addCommand", arguments,
-            ["options", CommandOptionsSchema], ["callback", "function"])) return;
+        if(!validate("commands.addCommand", arguments, ["options", CommandOptionsSchema], ["callback", "function"])) return;
 
         return Commands.addCommand(this.id, options, callback);
     }

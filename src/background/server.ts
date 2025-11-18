@@ -7,7 +7,7 @@ import PluginsHandler from "./messageHandlers/plugin";
 import SettingsHandler from "./messageHandlers/settings";
 import StateHandler from "./messageHandlers/state";
 import StorageHandler from "./messageHandlers/storage";
-import { saveDebounced, statePromise } from "./state";
+import { statePromise } from "./state";
 
 type Port = chrome.runtime.Port;
 
@@ -17,10 +17,8 @@ interface Message {
     returnId?: string;
 }
 
-type UpdateCallback<Channel extends keyof StateMessages> = 
-    (state: State, message: StateMessages[Channel]) => void;
-type MessageCallback<Channel extends keyof OnceMessages> =
-    (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void;
+type UpdateCallback<Channel extends keyof StateMessages> = (state: State, message: StateMessages[Channel]) => void;
+type MessageCallback<Channel extends keyof OnceMessages> = (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void;
 
 export default new class Server {
     open = new Set<Port>();
@@ -48,7 +46,7 @@ export default new class Server {
         this.open.add(port);
         port.onDisconnect.addListener(() => {
             chrome.runtime.lastError; // suppress error messages
-            this.open.delete(port)
+            this.open.delete(port);
         });
 
         statePromise.then((state) => port.postMessage(state));
@@ -59,11 +57,20 @@ export default new class Server {
     }
 
     async onPortMessage(port: Port, msg: Message) {
-        let { type, message, returnId } = msg;
+        const { type, message, returnId } = msg;
 
-        const invalidateMessages: (keyof StateMessages)[] =
-            ["pluginCreate", "pluginDelete", "pluginEdit", "pluginToggled", "pluginsDeleteAll", "pluginsSetAll",
-            "libraryCreate", "libraryDelete", "libraryEdit", "librariesDeleteAll"];
+        const invalidateMessages: (keyof StateMessages)[] = [
+            "pluginCreate",
+            "pluginDelete",
+            "pluginEdit",
+            "pluginToggled",
+            "pluginsDeleteAll",
+            "pluginsSetAll",
+            "libraryCreate",
+            "libraryDelete",
+            "libraryEdit",
+            "librariesDeleteAll"
+        ];
 
         // If it comes from a game port the cache has been invalidated already
         const invalidated = port.name !== "game" && invalidateMessages.includes(type);
@@ -74,26 +81,25 @@ export default new class Server {
 
         if(returnId) {
             // message with a response (not done with .sendMessage to avoid race conditions)
-            let callback = this.messageListeners.get(type);
+            const callback = this.messageListeners.get(type);
             if(!callback) return;
-    
+
             callback(await statePromise, message, (response?: void) => {
                 port.postMessage({ returnId, response });
             });
         } else {
             // no reply expected, just a state update
-            let callback = this.listeners.get(type);
+            const callback = this.listeners.get(type);
             if(!callback) return;
-    
+
             callback(await statePromise, message);
 
             // send the message to other connected ports
-            for(let openPort of this.open) {
+            for(const openPort of this.open) {
                 if(openPort === port) continue;
                 openPort.postMessage(msg);
             }
         }
-
     }
 
     on<Channel extends keyof StateMessages>(type: Channel, callback: UpdateCallback<Channel>) {
@@ -105,19 +111,19 @@ export default new class Server {
     }
 
     send<Channel extends keyof Messages>(type: Channel, message: Messages[Channel]) {
-        for(let port of this.open) {
+        for(const port of this.open) {
             port.postMessage({ type, message });
         }
     }
 
     async executeAndSend<Channel extends keyof Messages>(type: Channel, message: Messages[Channel]) {
-        let callback = this.listeners.get(type);
+        const callback = this.listeners.get(type);
         if(callback) {
             callback(await statePromise, message);
         }
 
-        for(let port of this.open) {
+        for(const port of this.open) {
             port.postMessage({ type, message });
         }
     }
-}
+}();

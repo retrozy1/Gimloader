@@ -10,7 +10,7 @@ export default class HotkeysHandler {
     }
 
     static save() {
-        saveDebounced('hotkeys');
+        saveDebounced("hotkeys");
     }
 
     static onHotkeyUpdate(state: State, message: StateMessages["hotkeyUpdate"]) {

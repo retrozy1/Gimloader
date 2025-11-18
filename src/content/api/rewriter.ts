@@ -10,7 +10,7 @@ import { validate } from "$content/utils";
  * const callback = GL.Rewriter.createShared("MyPlugin", "uniqueId", (val) => {
  *  console.log(val);
  * });
- * 
+ *
  * GL.Rewriter.addParseHook("MyPlugin", "index", (code) => {
  *  let index = code.indexOf("something");
  *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
@@ -30,15 +30,14 @@ class RewriterApi {
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(pluginName: string, prefix: string | boolean, callback: (code: string) => string) {
-        if(!validate("rewriter.addParseHook", arguments,
-            ['pluginName', 'string'], ['prefix', 'string|boolean'], ['callback', 'function'])) return;
+        if(!validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["callback", "function"])) return;
 
         return Rewriter.addParseHook(pluginName, prefix, callback);
     }
 
     /** Removes all hooks created by a certain plugin */
     removeParseHooks(pluginName: string) {
-        if(!validate("rewriter.removeParseHooks", arguments, ['pluginName', 'string'])) return;
+        if(!validate("rewriter.removeParseHooks", arguments, ["pluginName", "string"])) return;
 
         Rewriter.removeParseHooks(pluginName);
     }
@@ -51,23 +50,21 @@ class RewriterApi {
      * @returns A string representing the code to access the shared value.
      */
     createShared(pluginName: string, id: string, value: any) {
-        if(!validate("rewriter.createShared", arguments,
-            ['pluginName', 'string'], ['id', 'string'], ['value', 'any'])) return;
+        if(!validate("rewriter.createShared", arguments, ["pluginName", "string"], ["id", "string"], ["value", "any"])) return;
 
         return Rewriter.createShared(pluginName, id, value);
     }
 
     /** Removes all values created by {@link createShared} by a certain plugin */
     removeShared(pluginName: string) {
-        if(!validate("rewriter.removeShared", arguments, ['pluginName', 'string'])) return;
+        if(!validate("rewriter.removeShared", arguments, ["pluginName", "string"])) return;
 
         this.removeShared(pluginName);
     }
 
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(pluginName: string, id: string) {
-        if(!validate("rewriter.removeSharedById", arguments,
-            ['pluginName', 'string'], ['id', 'string'])) return;
+        if(!validate("rewriter.removeSharedById", arguments, ["pluginName", "string"], ["id", "string"])) return;
 
         Rewriter.removeSharedById(pluginName, id);
     }
@@ -80,11 +77,11 @@ class RewriterApi {
  * @example
  * ```js
  * const api = new GL();
- * 
+ *
  * const callback = api.Rewriter.createShared("uniqueId", (val) => {
  *  console.log(val);
  * });
- * 
+ *
  * api.Rewriter.addParseHook("index", (code) => {
  *  let index = code.indexOf("something");
  *  code = code.slice(0, index) + `console.log("something else")` + code.slice(index);
@@ -105,8 +102,7 @@ class ScopedRewriterApi {
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(prefix: string | boolean, callback: (code: string) => string) {
-        if(!validate("rewriter.addParseHook", arguments,
-            ['prefix', 'string|boolean'], ['callback', 'function'])) return;
+        if(!validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", "function"])) return;
 
         return Rewriter.addParseHook(this.id, prefix, callback);
     }
@@ -118,15 +114,14 @@ class ScopedRewriterApi {
      * @returns A string representing the code to access the shared value.
      */
     createShared(id: string, value: any) {
-        if(!validate("rewriter.createShared", arguments,
-            ['id', 'string'], ['value', 'any'])) return;
+        if(!validate("rewriter.createShared", arguments, ["id", "string"], ["value", "any"])) return;
 
         return Rewriter.createShared(this.id, id, value);
     }
 
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(id: string) {
-        if(!validate("rewriter.removeSharedById", arguments, ['id', 'string'])) return;
+        if(!validate("rewriter.removeSharedById", arguments, ["id", "string"])) return;
 
         Rewriter.removeSharedById(this.id, id);
     }

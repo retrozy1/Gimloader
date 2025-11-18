@@ -4,12 +4,12 @@
     import ChevronDown from "svelte-material-icons/ChevronDown.svelte";
     import ChevronUp from "svelte-material-icons/ChevronUp.svelte";
 
-    let { pluginName, group }: { pluginName: string, group: SettingGroup } = $props();
+    let { pluginName, group }: { pluginName: string; group: SettingGroup } = $props();
 
     let expanded = $state(true);
 </script>
 
-<div class="text-xl flex items-center font-bold {expanded ? "" : "border-b-2"}">
+<div class="text-xl flex items-center font-bold" class:border-b-2={!expanded}>
     <button onclick={() => expanded = !expanded}>
         {#if expanded}
             <ChevronDown size={28} />

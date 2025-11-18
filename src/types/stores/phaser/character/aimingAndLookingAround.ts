@@ -1,5 +1,5 @@
-import type Character from '../character';
-import type { Tweens, GameObjects } from 'phaser';
+import type Character from "../character";
+import type { GameObjects, Tweens } from "phaser";
 
 interface SoundEffect {
     path: string;

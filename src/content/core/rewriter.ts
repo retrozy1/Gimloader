@@ -1,5 +1,5 @@
 import { domLoaded, englishList, splicer } from "$content/utils";
-import { get, set, clear } from "idb-keyval";
+import { clear, get, set } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
 import { showErrorMessage } from "$content/ui/mount";
@@ -50,7 +50,7 @@ export default class Rewriter {
         });
 
         await domLoaded;
-        let index = document.querySelector<HTMLScriptElement>('script[type="module"][src^="/assets/index"]');
+        const index = document.querySelector<HTMLScriptElement>('script[type="module"][src^="/assets/index"]');
 
         // Invalidate the database if the index script has changed
         const name = this.getName(index.src);
@@ -58,7 +58,7 @@ export default class Rewriter {
             this.invalidate();
             localStorage.setItem("gl-lastindex", name);
         }
-        
+
         this.base = new URL(index.src);
         this.import(index.src, true);
     }
@@ -94,12 +94,12 @@ export default class Rewriter {
                 const resp = await fetch(`https://www.gimkit.com/gimloader/assets/${name}`);
                 const js = await resp.text();
                 parsed = this.parse(js, name, root, skipPluginHooks);
-                
+
                 if(!skipPluginHooks) set(name, parsed);
             }
-            
+
             const code = await this.prepareJs(parsed);
-            const blob = new Blob([ code ], { type: "text/javascript" });
+            const blob = new Blob([code], { type: "text/javascript" });
             res(URL.createObjectURL(blob));
         });
 
@@ -111,7 +111,7 @@ export default class Rewriter {
         const url = new URL(src, this.base);
         const name = this.getName(url.pathname);
         const blobUrl = await this.getBlobUrl(name, root);
-        
+
         // Negligible impact on load time
         await PluginManager.loaded;
 
@@ -119,7 +119,7 @@ export default class Rewriter {
             const imported = await import(blobUrl);
             URL.revokeObjectURL(blobUrl);
             return imported;
-        } catch(e) {
+        } catch (e) {
             console.error("Error importing", src, e);
 
             // Create an error message that lists plugins that might be causing the issue
@@ -140,7 +140,7 @@ export default class Rewriter {
                 + `This error is likely caused by ${englishList(usedHooks, "or")}. `
                 + `Try disabling ${usedHooks.length > 1 ? "these plugins" : "this plugin"} and reloading.`;
             showErrorMessage(message, "Error loading script");
-            
+
             // Load it again without hooks
             this.loadingSrcs.delete(name);
             const newUrl = await this.getBlobUrl(name, root, true);
@@ -165,8 +165,8 @@ export default class Rewriter {
         js = js.replaceAll("import(", "GLImport(");
 
         // Replace static imports
-        let imports: Import[] = [];
-        for(let match of js.matchAll(this.importRegex)) {
+        const imports: Import[] = [];
+        for(const match of js.matchAll(this.importRegex)) {
             imports.push({ text: match[1], name: this.getName(match[2]) });
         }
 
@@ -174,11 +174,11 @@ export default class Rewriter {
 
         // Run parse hooks
         const hooks = this.getHooks(name, root, skipPluginHooks);
-        for(let hook of hooks) {
+        for(const hook of hooks) {
             try {
-                let edited = hook.callback(js);
+                const edited = hook.callback(js);
                 if(edited) js = edited;
-            } catch(e) {
+            } catch (e) {
                 console.error("Error in parse hook:", e);
             }
         }
@@ -193,8 +193,8 @@ export default class Rewriter {
     }
 
     static async prepareJs(parsed: ParsedJs) {
-        let imports = await Promise.all(parsed.imports.map(async (imported) => {
-            let url = await this.getBlobUrl(imported.name, false);
+        const imports = await Promise.all(parsed.imports.map(async (imported) => {
+            const url = await this.getBlobUrl(imported.name, false);
             return imported.text + `"${url}";`;
         }));
 
@@ -211,7 +211,7 @@ export default class Rewriter {
     }
 
     static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
-        let object: ParseHook = { prefix, callback };
+        const object: ParseHook = { prefix, callback };
         if(pluginName) object.pluginName = pluginName;
 
         return splicer(this.parseHooks, object);
@@ -219,7 +219,7 @@ export default class Rewriter {
 
     static removeParseHooks(pluginName: string) {
         for(let i = 0; i < this.parseHooks.length; i++) {
-            let hook = this.parseHooks[i];
+            const hook = this.parseHooks[i];
             if(hook.pluginName === pluginName) {
                 this.parseHooks.splice(i, 1);
                 i--;
@@ -243,7 +243,7 @@ export default class Rewriter {
     static removeShared(pluginName: string) {
         if(!this.sharedPluginNames[pluginName]) return;
 
-        for(let id of this.sharedPluginNames[pluginName]) {
+        for(const id of this.sharedPluginNames[pluginName]) {
             delete this.shared[id];
         }
 
@@ -256,7 +256,7 @@ export default class Rewriter {
 
     static createMemoized(id: string, getter: () => any) {
         let stored: any;
-        let shared = this.createShared(null, id, () => {
+        const shared = this.createShared(null, id, () => {
             if(stored) return stored;
 
             stored = getter();
@@ -295,7 +295,7 @@ export default class Rewriter {
         const cb = this.createShared(null, id, callback);
 
         this.addParseHook(null, prefix, (code) => {
-            let index = code.indexOf(substring);
+            const index = code.indexOf(substring);
             if(index === -1) return code;
 
             const lastComma = code.lastIndexOf(",", index);
@@ -308,14 +308,14 @@ export default class Rewriter {
     }
 
     static replaceBetween(text: string, start: string, end: string, withText: string) {
-        let startIndex = text.indexOf(start);
-        let endIndex = text.indexOf(end, startIndex) + end.length;
+        const startIndex = text.indexOf(start);
+        const endIndex = text.indexOf(end, startIndex) + end.length;
 
         return text.slice(0, startIndex) + withText + text.slice(endIndex);
     }
 
     static insertAfter(text: string, after: string, withText: string) {
-        let index = text.indexOf(after) + after.length;
+        const index = text.indexOf(after) + after.length;
         return text.slice(0, index) + withText + text.slice(index);
     }
 }

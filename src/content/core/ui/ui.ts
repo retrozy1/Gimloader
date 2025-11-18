@@ -1,10 +1,10 @@
-import type * as React from 'react';
-import type * as ReactDOM from 'react-dom/client';
-import { addPluginButtons } from './addPluginButtons';
+import type * as React from "react";
+import type * as ReactDOM from "react-dom/client";
+import { addPluginButtons } from "./addPluginButtons";
 import styles from "$content/css/styles.css";
 import tailwindStyles from "$content/css/tailwind.css";
-import { domLoaded } from '$content/utils';
-import Rewriter from '../rewriter';
+import { domLoaded } from "$content/utils";
+import Rewriter from "../rewriter";
 
 export default class UI {
     static React: typeof React;
@@ -25,7 +25,7 @@ export default class UI {
     }
 
     static addStyles(id: string | null, styleString: string) {
-        let style = document.createElement('style');
+        const style = document.createElement("style");
         style.innerHTML = styleString;
 
         // wait for document to be ready
@@ -38,21 +38,21 @@ export default class UI {
         this.styles.get(id)?.push(style);
 
         return () => {
-            let styles = this.styles.get(id);
+            const styles = this.styles.get(id);
             if(styles) {
-                let index = styles.indexOf(style);
+                const index = styles.indexOf(style);
                 if(index !== -1) {
                     styles.splice(index, 1);
                     style.remove();
                 }
             }
-        }
+        };
     }
 
     static removeStyles(id: string) {
         if(!this.styles.has(id)) return;
 
-        for(let style of this.styles.get(id)!) {
+        for(const style of this.styles.get(id)!) {
             style.remove();
         }
 

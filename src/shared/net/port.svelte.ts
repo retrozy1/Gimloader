@@ -42,10 +42,10 @@ export default new class Port extends EventEmitter2 {
             this.runtime = chrome.runtime;
 
             if(location.hostname === "www.gimkit.com") {
-                // @ts-ignore prevent scripts from using the apis
+                // @ts-expect-error prevent scripts from using the apis
                 chrome.runtime = {};
             }
-    
+
             this.connectPort();
             this.keepBackgroundAlive();
         }
@@ -59,7 +59,7 @@ export default new class Port extends EventEmitter2 {
         } else {
             this.port = this.runtime.connect(extensionId, { name: this.name });
         }
-        
+
         this.port.onMessage.addListener(this.onMessage.bind(this));
 
         this.port.onDisconnect.addListener(() => {
@@ -75,7 +75,7 @@ export default new class Port extends EventEmitter2 {
         });
     }
 
-    async postMessage(type: string, message: any, returnId?: string ) {
+    async postMessage(type: string, message: any, returnId?: string) {
         // just discard messages sent while disconnected, we'll resynchronize to before they mattered
         if(this.disconnected) return;
 
@@ -85,13 +85,13 @@ export default new class Port extends EventEmitter2 {
         }
 
         // disclaimer: I know nothing about cryptography
-        let str = JSON.stringify({ type, message, returnId });
+        const str = JSON.stringify({ type, message, returnId });
 
         // generate a signature for the json
-        let arr = new TextEncoder().encode(str);
-        let key = await this.signKey;  
-        let signed = await crypto.subtle.sign(algorithm, key, arr);
-        let signature = Array.from(new Uint8Array(signed));
+        const arr = new TextEncoder().encode(str);
+        const key = await this.signKey;
+        const signed = await crypto.subtle.sign(algorithm, key, arr);
+        const signature = Array.from(new Uint8Array(signed));
 
         window.postMessage({ json: str, signature, source: "gimloader-out" });
     }
@@ -100,7 +100,7 @@ export default new class Port extends EventEmitter2 {
         this.disconnected = false;
 
         if(data?.type === "key") {
-            crypto.subtle.importKey("jwk", data.key, algorithm, true, ['sign', 'verify'])
+            crypto.subtle.importKey("jwk", data.key, algorithm, true, ["sign", "verify"])
                 .then((key) => this.signKeyRes(key));
             return;
         }
@@ -113,14 +113,14 @@ export default new class Port extends EventEmitter2 {
             } else {
                 this.subsequentCallback?.(data);
             }
-            
+
             this.firstMessage = false;
             return;
         }
 
         if(data.returnId) {
-            let { response, returnId } = data;
-            let callback = this.pendingMessages.get(returnId);
+            const { response, returnId } = data;
+            const callback = this.pendingMessages.get(returnId);
             if(!callback) return;
 
             callback(response);
@@ -136,7 +136,7 @@ export default new class Port extends EventEmitter2 {
 
     sendAndRecieve<Channel extends keyof OnceMessages>(type: Channel, message: OnceMessages[Channel] = undefined) {
         return new Promise<any>((res) => {
-            let returnId = crypto.randomUUID();
+            const returnId = crypto.randomUUID();
             this.pendingMessages.set(returnId, res);
             this.postMessage(type, message, returnId);
         });
@@ -161,4 +161,4 @@ export default new class Port extends EventEmitter2 {
     on<Channel extends keyof Messages>(channel: Channel, callback: (value: Messages[Channel]) => void) {
         return super.on(channel, callback);
     }
-}
+}();

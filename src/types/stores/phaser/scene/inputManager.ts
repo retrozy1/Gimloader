@@ -63,7 +63,7 @@ interface Mouse {
     worldY: number;
     x: number;
     y: number;
-    addClickListener(options: { callback: (pointer: Input.Pointer) => void}): () => void;
+    addClickListener(options: { callback: (pointer: Input.Pointer) => void }): () => void;
     pointerUpdate(pointer: Input.Pointer): void;
     removeClickListener(id: string): void;
     shouldBecomeMovementPointer(pointer: Input.Pointer): boolean;

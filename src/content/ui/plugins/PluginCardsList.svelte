@@ -4,7 +4,7 @@
     import Plugin from "./Plugin.svelte";
     import { readUserFile, showEditor } from "$content/utils";
     import { Button } from "$shared/ui/button";
-    import Search from '../components/Search.svelte';
+    import Search from "../components/Search.svelte";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import Storage from "$core/storage.svelte";
     import Port from "$shared/net/port.svelte";
@@ -14,11 +14,8 @@
     import * as DropdownMenu from "$shared/ui/dropdown-menu";
     import toast from "svelte-5-french-toast";
     import * as Dialog from "$shared/ui/dialog";
-    
-    import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
-    import Import from 'svelte-material-icons/Import.svelte';
     import { parseScriptHeaders } from "$shared/parseHeader";
-    
+
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
 
@@ -61,7 +58,7 @@
         let enabled = PluginManager.plugins.filter((p) => p.enabled);
         let disabled = PluginManager.plugins.filter((p) => !p.enabled);
         PluginManager.plugins = enabled.concat(disabled);
-        Port.send("pluginsArrange", { order: PluginManager.plugins.map(p => p.headers.name) })
+        Port.send("pluginsArrange", { order: PluginManager.plugins.map(p => p.headers.name) });
     }
 
     function sortAlphabetical() {
@@ -74,16 +71,16 @@
     // Stollen from OfficialPlugins.svelte because I do not know the proper place to put the function for sharing.
     const install = async (url: string) => {
         try {
-            if (!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
+            if(!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
             const res = await fetch(url);
             const code = await res.text();
             await PluginManager.createPlugin(code);
             toast.success(`Installed ${parseScriptHeaders(code).name}`);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             toast.error(`Failed to install plugin from URL`); // Just in case the issue is with the headers.
         }
-    }
+    };
 
     let pluginUrl = $state("");
     let pluginUrlMenuOpen = $state(false);
@@ -92,7 +89,11 @@
 <Dialog.Root open={pluginUrlMenuOpen}>
     <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
         <input placeholder="Plugin URL" bind:value={pluginUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
-        <Button onclick={() => {install(pluginUrl); pluginUrlMenuOpen = false}}>Install</Button>
+        <Button
+            onclick={() => {
+                install(pluginUrl);
+                pluginUrlMenuOpen = false;
+            }}>Install</Button>
     </Dialog.Content>
 </Dialog.Root>
 <div class="flex flex-col max-h-full">
@@ -147,9 +148,11 @@
             or import or create your own.
         </h2>
     {/if}
-    <div class="overflow-y-auto outline-none grid gap-4 pb-1 grow view-{Storage.settings.menuView}"
-    use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
-    onconsider={handleDndConsider} onfinalize={handleDndFinalize}>
+    <div
+        class="overflow-y-auto outline-none grid gap-4 pb-1 grow view-{Storage.settings.menuView}"
+        use:dndzone={{ items, flipDurationMs, dragDisabled, dropTargetStyle: {} }}
+        onconsider={handleDndConsider}
+        onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
                 {@const plugin = PluginManager.getPlugin(item.id)}

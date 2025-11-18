@@ -1,19 +1,19 @@
-import { parseScriptHeaders } from '$shared/parseHeader';
-import { Lib } from './scripts.svelte';
-import type { LibraryInfo } from '$types/state';
-import Port from '$shared/net/port.svelte';
-import toast from 'svelte-5-french-toast';
-import Rewriter from '../rewriter';
-import Modals from '../modals.svelte';
-import Commands from '../commands.svelte';
+import { parseScriptHeaders } from "$shared/parseHeader";
+import { Lib } from "./scripts.svelte";
+import type { LibraryInfo } from "$types/state";
+import Port from "$shared/net/port.svelte";
+import toast from "svelte-5-french-toast";
+import Rewriter from "../rewriter";
+import Modals from "../modals.svelte";
+import Commands from "../commands.svelte";
 
 export default new class LibManagerClass {
     libs: Lib[] = $state([]);
 
     init(libInfo: LibraryInfo[]) {
-        for(let info of libInfo) {
-            let lib = new Lib(info.script);
-    
+        for(const info of libInfo) {
+            const lib = new Lib(info.script);
+
             this.libs.push(lib);
         }
 
@@ -32,39 +32,39 @@ export default new class LibManagerClass {
 
     updateState(libInfo: LibraryInfo[]) {
         // check if any libraries were added
-        for(let info of libInfo) {
+        for(const info of libInfo) {
             if(!this.getLib(info.name)) {
                 this.createLib(info.script);
             }
         }
 
         // check if any libraries were removed
-        for(let lib of this.libs) {
+        for(const lib of this.libs) {
             if(!libInfo.some(i => i.name === lib.headers.name)) {
                 this.deleteLib(lib);
             }
         }
 
         // check if any libraries were updated
-        for(let info of libInfo) {
-            let existing = this.getLib(info.name);
+        for(const info of libInfo) {
+            const existing = this.getLib(info.name);
             if(existing.script !== info.script) {
                 this.editLib(existing, info.script);
             }
         }
 
         // move the libraries into the correct order
-        let newOrder = [];
-        for (let info of libInfo) {
-            let setLib = this.getLib(info.name);
-            if (setLib) newOrder.push(setLib);
+        const newOrder = [];
+        for(const info of libInfo) {
+            const setLib = this.getLib(info.name);
+            if(setLib) newOrder.push(setLib);
         }
 
         this.libs = newOrder;
     }
 
     get(libName: string) {
-        let lib = this.libs.find(lib => lib.headers.name === libName);
+        const lib = this.libs.find(lib => lib.headers.name === libName);
         return lib?.library ?? null;
     }
 
@@ -73,16 +73,16 @@ export default new class LibManagerClass {
     }
 
     createLib(script: string, ignoreDuplicates = false, emit = true) {
-        let headers = parseScriptHeaders(script);
-        
+        const headers = parseScriptHeaders(script);
+
         if(headers.isLibrary === "false") {
             toast.error("That script doesn't appear to be a library! If it should be, please set the isLibrary header, and if not, please import it as a plugin.");
             return;
         }
 
-        let existing = this.getLib(headers.name);
+        const existing = this.getLib(headers.name);
         if(existing && !ignoreDuplicates) {
-            let conf = confirm(`A library named ${headers.name} already exists! Do you want to overwrite it?`);
+            const conf = confirm(`A library named ${headers.name} already exists! Do you want to overwrite it?`);
             if(!conf) return;
         }
 
@@ -90,7 +90,7 @@ export default new class LibManagerClass {
             this.deleteLib(existing);
         }
 
-        let lib = new Lib(script, headers);
+        const lib = new Lib(script, headers);
         this.libs.unshift(lib);
 
         if(emit) {
@@ -103,7 +103,7 @@ export default new class LibManagerClass {
 
     deleteLib(lib: Lib, emit = true) {
         if(!lib) return;
-        
+
         lib.stop();
         lib.onDelete();
         this.libs.splice(this.libs.indexOf(lib), 1);
@@ -115,7 +115,7 @@ export default new class LibManagerClass {
     }
 
     deleteAll(emit = true) {
-        for(let lib of this.libs) {
+        for(const lib of this.libs) {
             lib.stop();
         }
 
@@ -128,13 +128,13 @@ export default new class LibManagerClass {
     }
 
     getLibHeaders(name: string) {
-        let lib = this.getLib(name);
+        const lib = this.getLib(name);
         if(!lib) return null;
         return $state.snapshot(lib.headers);
     }
 
     isEnabled(name: string) {
-        let lib = this.getLib(name);
+        const lib = this.getLib(name);
         if(!lib) return null;
         return lib.enablePromise !== null;
     }
@@ -144,10 +144,10 @@ export default new class LibManagerClass {
     }
 
     async editLib(library: Lib | string, script: string, emit = true, updated = false) {
-        let lib = typeof library === "string" ? this.getLib(library) : library;
+        const lib = typeof library === "string" ? this.getLib(library) : library;
         if(!lib) return;
 
-        let headers = parseScriptHeaders(script);
+        const headers = parseScriptHeaders(script);
         if(updated && headers.changelog.length > 0) {
             Modals.addUpdated(headers.name, headers.version, headers.changelog);
         }
@@ -163,7 +163,7 @@ export default new class LibManagerClass {
                 lib.script = script;
 
                 await lib.start();
-            } else{
+            } else {
                 lib.script = script;
             }
         } else {
@@ -176,11 +176,11 @@ export default new class LibManagerClass {
     }
 
     arrangeLibs(order: string[], emit = true) {
-        let newOrder = [];
+        const newOrder = [];
 
-        for (let name of order) {
-            let lib = this.getLib(name);
-            if (lib) newOrder.push(lib);
+        for(const name of order) {
+            const lib = this.getLib(name);
+            if(lib) newOrder.push(lib);
         }
         this.libs = newOrder;
 
@@ -198,4 +198,4 @@ export default new class LibManagerClass {
         this.deleteAll();
         if(shouldToast) toast.success("Deleted all libraries");
     }
-}
+}();

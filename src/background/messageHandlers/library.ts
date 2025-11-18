@@ -22,18 +22,18 @@ export default class LibrariesHandler {
     }
 
     static save() {
-        saveDebounced('libraries');
+        saveDebounced("libraries");
     }
 
     static onLibraryEdit(state: State, message: StateMessages["libraryEdit"]) {
-        let lib = state.libraries.find((lib) => lib.name === message.name);
+        const lib = state.libraries.find((lib) => lib.name === message.name);
         lib.script = message.script;
         lib.name = message.newName;
         this.save();
     }
 
     static onLibraryDelete(state: State, message: StateMessages["libraryDelete"]) {
-        state.libraries = state.libraries.filter((lib => lib.name !== message.name));
+        state.libraries = state.libraries.filter(lib => lib.name !== message.name);
         this.save();
     }
 
@@ -51,42 +51,40 @@ export default class LibrariesHandler {
     }
 
     static onLibrariesArrange(state: State, message: StateMessages["librariesArrange"]) {
-        let newLibraries = [];
-        for(let name of message.order) {
-            let lib = state.libraries.find((lib) => lib.name === name);
+        const newLibraries = [];
+        for(const name of message.order) {
+            const lib = state.libraries.find((lib) => lib.name === name);
             newLibraries.push(lib);
         }
         state.libraries = newLibraries;
         this.save();
     }
 
-    static downloadLibraries(state: State, message: OnceMessages["downloadLibraries"],
-        reply: (response: OnceResponses["downloadLibraries"]) => void) {
-    
+    static downloadLibraries(state: State, message: OnceMessages["downloadLibraries"], reply: (response: OnceResponses["downloadLibraries"]) => void) {
         let undownloadable = false;
         let active = 0;
-        let errors: string[] = [];
+        const errors: string[] = [];
         const installing = new Set<string>();
 
         const finish = () => {
             // return any errors that happened
             if(errors.length > 0) {
-                let message = errors.join("\n");
+                const message = errors.join("\n");
                 return reply({ allDownloaded: false, error: message });
             }
 
             reply({ allDownloaded: !undownloadable });
-        }
+        };
 
         const processLibs = (libraries: string[], first = false) => {
-            let missing: MissingLib[] = [];
+            const missing: MissingLib[] = [];
 
-            for(let lib of libraries) {
-                let parts = lib.split('|');
-                let name = parts[0].trim();
-                let url = parts[1]?.trim();
-        
-                if(state.libraries.some(l => l.name === name)) continue;    
+            for(const lib of libraries) {
+                const parts = lib.split("|");
+                const name = parts[0].trim();
+                const url = parts[1]?.trim();
+
+                if(state.libraries.some(l => l.name === name)) continue;
                 missing.push({ name, url });
             }
 
@@ -96,38 +94,38 @@ export default class LibrariesHandler {
             }
 
             // attempt to download ones with a url
-            let downloadable = missing.filter(m => m.url);
+            const downloadable = missing.filter(m => m.url);
             if(downloadable.length !== missing.length) undownloadable = true;
 
-            for(let { name, url } of downloadable) {
+            for(const { name, url } of downloadable) {
                 if(installing.has(name)) continue;
                 installing.add(name);
                 active++;
 
                 new Promise<string>(async (res, rej) => {
-                    let resp = await fetch(formatDownloadUrl(url))
+                    const resp = await fetch(formatDownloadUrl(url))
                         .catch(() => rej(`Failed to download library ${name} from ${url}`));
                     if(!resp) return;
                     if(resp.status !== 200) return rej(`Failed to download library ${name} from ${url}\nRecieved response status of ${resp.status}`);
 
-                    let text = await resp.text();
+                    const text = await resp.text();
                     res(text);
                 })
-                .then((script) => {
-                    let message = { name, script };
-                    this.onLibraryCreate(state, message);
-                    Server.send("libraryCreate", message);
+                    .then((script) => {
+                        const message = { name, script };
+                        this.onLibraryCreate(state, message);
+                        Server.send("libraryCreate", message);
 
-                    let headers = parseScriptHeaders(script);
-                    processLibs(headers.needsLib);
-                })
-                .catch((err) => errors.push(err))
-                .finally(() => {
-                    active--;
-                    if(active == 0) finish();
-                });
+                        const headers = parseScriptHeaders(script);
+                        processLibs(headers.needsLib);
+                    })
+                    .catch((err) => errors.push(err))
+                    .finally(() => {
+                        active--;
+                        if(active === 0) finish();
+                    });
             }
-        }
+        };
 
         processLibs(message.libraries, true);
     }

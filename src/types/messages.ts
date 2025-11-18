@@ -3,28 +3,28 @@ import type { ConfigurableHotkeysState, SavedState, State } from "./state";
 
 // These go both ways
 export interface StateMessages {
-    hotkeyUpdate: { id: string, trigger: HotkeyTrigger };
+    hotkeyUpdate: { id: string; trigger: HotkeyTrigger };
     hotkeysUpdate: { hotkeys: ConfigurableHotkeysState };
 
-    libraryEdit: { name: string, newName: string, script: string, updated?: boolean };
+    libraryEdit: { name: string; newName: string; script: string; updated?: boolean };
     libraryDelete: { name: string };
     librariesDeleteAll: void;
-    libraryCreate: { name: string, script: string };
+    libraryCreate: { name: string; script: string };
     librariesArrange: { order: string[] };
 
-    pluginEdit: { name: string, newName: string, script: string, updated?: boolean };
+    pluginEdit: { name: string; newName: string; script: string; updated?: boolean };
     pluginDelete: { name: string };
     pluginsDeleteAll: void;
-    pluginCreate: { name: string, script: string };
+    pluginCreate: { name: string; script: string };
     pluginsArrange: { order: string[] };
-    pluginToggled: { name: string, enabled: boolean };
+    pluginToggled: { name: string; enabled: boolean };
     pluginsSetAll: { enabled: boolean };
 
-    settingUpdate: { key: string, value: any };
+    settingUpdate: { key: string; value: any };
 
-    pluginValueUpdate: { id: string, key: string, value: string };
-    pluginValueDelete: { id: string, key: string };
-    pluginSettingUpdate: { id: string, key: string, value: string };
+    pluginValueUpdate: { id: string; key: string; value: string };
+    pluginValueDelete: { id: string; key: string };
+    pluginSettingUpdate: { id: string; key: string; value: string };
     clearPluginStorage: { id: string };
 
     cacheInvalid: { invalid: boolean };
@@ -33,7 +33,7 @@ export interface StateMessages {
 // These only go from the background to content
 export interface Messages extends StateMessages {
     setState: SavedState;
-    toast: { type: "success" | "error" | "normal", message: string };
+    toast: { type: "success" | "error" | "normal"; message: string };
     availableUpdates: string[];
 }
 
@@ -43,16 +43,16 @@ export interface OnceMessages {
     downloadLibraries: { libraries: string[] };
     applyUpdates: { apply: boolean };
     updateAll: void;
-    updateSingle: { type: "plugin" | "library", name: string };
-    showEditor: { type: "plugin" | "library", name?: string };
+    updateSingle: { type: "plugin" | "library"; name: string };
+    showEditor: { type: "plugin" | "library"; name?: string };
 }
 
 export interface OnceResponses {
     getState: State;
     setState: void;
-    downloadLibraries: { allDownloaded: boolean, error?: string };
+    downloadLibraries: { allDownloaded: boolean; error?: string };
     applyUpdates: void;
     updateAll: string[];
-    updateSingle: { updated: boolean, failed?: boolean, version?: string };
+    updateSingle: { updated: boolean; failed?: boolean; version?: string };
     showEditor: void;
 }

@@ -3,8 +3,8 @@ import type { Plugin } from "$core/scripts/scripts.svelte";
 import { HotkeysApi, ScopedHotkeysApi } from "./hotkeys";
 import { ParcelApi, ScopedParcelApi } from "./parcel";
 import { NetApi, ScopedNetApi } from "./net";
-import { UIApi, ScopedUIApi } from "./ui";
-import { StorageApi, ScopedStorageApi } from "./storage";
+import { ScopedUIApi, UIApi } from "./ui";
+import { ScopedStorageApi, StorageApi } from "./storage";
 import { PatcherApi, ScopedPatcherApi } from "./patcher";
 import { RewriterApi, ScopedRewriterApi } from "./rewriter";
 import { CommandsApi, ScopedCommandsApi } from "./commands";
@@ -60,37 +60,49 @@ class Api {
 
     /** Methods for getting info on plugins */
     static plugins = Object.freeze(new PluginsApi());
-    
+
     /** Gets the exported values of a plugin, if it has been enabled */
     static plugin = this.plugins.get;
 
     /** Gimkit's internal react instance */
-    static get React() { return UI.React };
+    static get React() {
+        return UI.React;
+    }
 
     /** Gimkit's internal reactDom instance */
-    static get ReactDOM() { return UI.ReactDOM };
+    static get ReactDOM() {
+        return UI.ReactDOM;
+    }
 
     /** A variety of Gimkit internal objects available in 2d gamemodes */
-    static get stores() { return GimkitInternals.stores };
+    static get stores() {
+        return GimkitInternals.stores;
+    }
 
     /**
      * Gimkit's notification object, only available when joining or playing a game
-     * 
+     *
      * {@link https://ant.design/components/notification}
      */
-    static get notification() { return GimkitInternals.notification };
+    static get notification() {
+        return GimkitInternals.notification;
+    }
 
     /**
      * @deprecated No longer supported
      * @hidden
      */
-    static get contextMenu() { return { showContextMenu: () => {}, createReactContextMenu: () => {} } }; 
+    static get contextMenu() {
+        return { showContextMenu: () => {}, createReactContextMenu: () => {} };
+    }
 
     /**
      * @deprecated No longer supported
      * @hidden
      */
-    static get platformerPhysics() { return GimkitInternals.platformerPhysics };
+    static get platformerPhysics() {
+        return GimkitInternals.platformerPhysics;
+    }
 
     /**
      * @deprecated The api no longer emits events. Use GL.net.loaded to listen to load events
@@ -98,7 +110,7 @@ class Api {
      */
     static addEventListener(type: string, callback: () => void) {
         if(type === "loadEnd") {
-            Net.on('load:*', callback);
+            Net.on("load:*", callback);
         }
     }
 
@@ -108,7 +120,7 @@ class Api {
      */
     static removeEventListener(type: string, callback: () => void) {
         if(type === "loadEnd") {
-            Net.off('load:*', callback);
+            Net.off("load:*", callback);
         }
     }
 
@@ -116,7 +128,9 @@ class Api {
      * @deprecated Use {@link plugins} instead
      * @hidden
      */
-    static get pluginManager() { return this.plugins };
+    static get pluginManager() {
+        return this.plugins;
+    }
 
     constructor(type?: string, name?: string) {
         const scoped = setupScoped(type, name);
@@ -124,7 +138,7 @@ class Api {
         this.openSettingsMenu = scoped.openSettingsMenu;
 
         this.rewriter = Object.freeze(new ScopedRewriterApi(scoped.id));
-        this.parcel = Object.freeze(new ScopedParcelApi(scoped.id));
+        this.parcel = Object.freeze(new ScopedParcelApi());
         this.hotkeys = Object.freeze(new ScopedHotkeysApi(scoped.id));
         this.net = Object.freeze(new ScopedNetApi(scoped.id, scoped.script.headers.gamemode));
         this.UI = Object.freeze(new ScopedUIApi(scoped.id));
@@ -137,11 +151,11 @@ class Api {
 
         const netOnAny = (channel: string, ...args: any[]) => {
             this.net.emit(channel, ...args);
-        }
+        };
 
         // emit events to the net object (not done there to allow for cleanup)
         Net.onAny(netOnAny);
-        
+
         const cleanup = () => {
             Rewriter.removeParseHooks(scoped.id);
             Rewriter.removeShared(scoped.id);
@@ -157,8 +171,8 @@ class Api {
             Storage.removeValueListeners(scoped.id);
             Storage.removeSettingListeners(scoped.id);
             Commands.removeCommands(scoped.id);
-        }
-        
+        };
+
         this.onStop(cleanup);
     }
 
@@ -203,32 +217,40 @@ class Api {
 
     /** Methods for getting info on plugins */
     plugins = Api.plugins;
-    
+
     /** Gets the exported values of a plugin, if it has been enabled */
     plugin = Api.plugins.get;
 
     /** Gimkit's internal react instance */
-    get React() { return UI.React };
+    get React() {
+        return UI.React;
+    }
 
     /** Gimkit's internal reactDom instance */
-    get ReactDOM() { return UI.ReactDOM };
+    get ReactDOM() {
+        return UI.ReactDOM;
+    }
 
     /** A variety of gimkit internal objects available in 2d gamemodes */
-    get stores() { return GimkitInternals.stores };
+    get stores() {
+        return GimkitInternals.stores;
+    }
 
     /**
      * Gimkit's notification object, only available when joining or playing a game
-     * 
+     *
      * {@link https://ant.design/components/notification}
      */
-    get notification() { return GimkitInternals.notification };
+    get notification() {
+        return GimkitInternals.notification;
+    }
 
     /** Run a callback when the plugin or library is disabled */
     onStop: (callback: () => void) => void;
 
     /**
      * Run a callback when the plugin's settings menu button is clicked
-     * 
+     *
      * This function is not available for libraries
      */
     openSettingsMenu: (callback: () => void) => void;

@@ -1,0 +1,35 @@
+{
+    "indentWidth": 4,
+    "useTabs": false,
+    "lineWidth": 220,
+    "typescript": {
+        "trailingCommas": "never",
+        "semiColons": "prefer",
+        "quoteStyle": "preferDouble",
+        "ifStatement.spaceAfterIfKeyword": false,
+        "forInStatement.spaceAfterForKeyword": false,
+        "forOfStatement.spaceAfterForKeyword": false,
+        "forStatement.spaceAfterForKeyword": false,
+        "whileStatement.spaceAfterWhileKeyword": false,
+        "module.sortImportDeclarations": "maintain",
+        "importDeclaration.sortTypeOnlyImports": "last"
+    },
+    "json": {},
+    "malva": {},
+    "markup": {
+        "scriptIndent": true,
+        "styleIndent": true,
+        "printWidth": 120,
+        "closingBracketSameLine": true,
+        "preferAttrsSingleLine": true
+    },
+    "includes": [
+        "./src/**/*.{ts,js,json,css,svelte}"
+    ],
+    "plugins": [
+        "https://plugins.dprint.dev/typescript-0.95.11.wasm",
+        "https://plugins.dprint.dev/json-0.21.0.wasm",
+        "https://plugins.dprint.dev/g-plane/malva-v0.14.3.wasm",
+        "https://plugins.dprint.dev/g-plane/markup_fmt-v0.24.0.wasm"
+    ]
+}

@@ -1,5 +1,5 @@
 import type { ConfigurableHotkeyOptions, HotkeyCallback, HotkeyTrigger } from "$types/hotkeys";
-import Hotkeys from './hotkeys.svelte';
+import Hotkeys from "./hotkeys.svelte";
 
 export default class ConfigurableHotkey {
     id: string;

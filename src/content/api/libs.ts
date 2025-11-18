@@ -3,25 +3,27 @@ import { validate } from "$content/utils";
 
 class LibsApi {
     /** A list of all the libraries installed */
-    get list() { return LibManager.getLibNames() };
+    get list() {
+        return LibManager.getLibNames();
+    }
 
     /** Gets whether or not a plugin is installed and enabled */
     isEnabled(name: string) {
-        if(!validate("libs.isEnabled", arguments, ['name', 'string'])) return;
+        if(!validate("libs.isEnabled", arguments, ["name", "string"])) return;
 
         return LibManager.isEnabled(name);
     }
 
     /** Gets the headers of a library, such as version, author, and description */
     getHeaders(name: string) {
-        if(!validate("libs.getHeaders", arguments, ['name', 'string'])) return;
+        if(!validate("libs.getHeaders", arguments, ["name", "string"])) return;
 
         return LibManager.getLibHeaders(name);
     }
 
     /** Gets the exported values of a library */
     get(name: string) {
-        if(!validate("libs.get", arguments, ['name', 'string'])) return;
+        if(!validate("libs.get", arguments, ["name", "string"])) return;
 
         return LibManager.get(name);
     }

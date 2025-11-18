@@ -8,7 +8,6 @@ import type { PluginSettingsDescription } from "$types/settings";
 import Commands from "../commands.svelte";
 import PluginManager from "./pluginManager.svelte";
 import toast from "svelte-5-french-toast";
-import { showMenu } from "$content/ui/mount";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -34,20 +33,20 @@ abstract class BaseScript {
 
     runScript(initial: boolean, alreadyStartedLibs: string[] = []) {
         return new Promise<any>(async (res, rej) => {
-            let success = await this.loadLibs(initial, alreadyStartedLibs)
+            const success = await this.loadLibs(initial, alreadyStartedLibs)
                 .catch(rej);
             if(!success) return;
 
             const uri = encodeURIComponent(this.headers.name);
             const host = this.type === "Plugin" ? "plugins" : "libraries";
             const sourceUrl = `\n//# sourceURL=gimloader://${host}/${uri}.js`;
-            
+
             // Only create the api automatically if the plugin doesn't call new GL() itself for backwards compatibility
             const apiDeclaration = this.script.match(apiCreatedRegex) ? "" : `const api = new GL("${host}", "${this.headers.name}");\n`;
-    
+
             const blob = new Blob([apiDeclaration, this.script, sourceUrl], { type: "application/javascript" });
             const url = URL.createObjectURL(blob);
-    
+
             import(url)
                 .then((returnVal) => {
                     if(!initial) this.checkReloadNeeded();
@@ -60,10 +59,10 @@ abstract class BaseScript {
 
     checkReloadNeeded() {
         if(
-            this.headers.reloadRequired === 'true' || 
-            this.headers.reloadRequired === '' ||
-            (this.headers.reloadRequired === 'ingame' && Net.type !== "None") ||
-            (this.headers.reloadRequired === 'notingame' && Net.type === "None")
+            this.headers.reloadRequired === "true"
+            || this.headers.reloadRequired === ""
+            || (this.headers.reloadRequired === "ingame" && Net.type !== "None")
+            || (this.headers.reloadRequired === "notingame" && Net.type === "None")
         ) {
             Modals.addReloadNeeded(this.headers.name);
         }
@@ -82,13 +81,13 @@ abstract class BaseScript {
                 alreadyStartedLibs.push(this.headers.name);
             }
 
-            let libObjs: Lib[] = [];
-            let optionalLibObjs: Lib[] = [];
+            const libObjs: Lib[] = [];
+            const optionalLibObjs: Lib[] = [];
 
             // load required libs
-            for(let lib of this.headers.needsLib) {
-                let libName = lib.split('|')[0].trim();
-                let libObj = LibManager.getLib(libName);
+            for(const lib of this.headers.needsLib) {
+                const libName = lib.split("|")[0].trim();
+                const libObj = LibManager.getLib(libName);
 
                 if(!libObj) {
                     rej(new Error(`${this.type} ${this.headers.name} requires library ${libName} which is not installed`));
@@ -99,9 +98,9 @@ abstract class BaseScript {
             }
 
             // load optional libs
-            for(let lib of this.headers.optionalLib) {
-                let libName = lib.split('|')[0].trim();
-                let libObj = LibManager.getLib(libName);
+            for(const lib of this.headers.optionalLib) {
+                const libName = lib.split("|")[0].trim();
+                const libObj = LibManager.getLib(libName);
 
                 if(!libObj) continue;
                 optionalLibObjs.push(libObj);
@@ -109,22 +108,22 @@ abstract class BaseScript {
 
             this.usedLibs.push(...libObjs, ...optionalLibObjs);
 
-            let [results, optionalResults] = await Promise.all([
+            const [results, optionalResults] = await Promise.all([
                 Promise.allSettled(libObjs.map(lib => lib.start(this.id, initial, alreadyStartedLibs))),
                 Promise.allSettled(optionalLibObjs.map(lib => lib.start(this.id, initial, alreadyStartedLibs)))
             ]);
 
             // log errors with optional libs, but don't fail the load
-            for(let result of optionalResults) {
-                if(result.status === 'rejected') {
+            for(const result of optionalResults) {
+                if(result.status === "rejected") {
                     log(`Failed to enable optional library for ${this.type.toLowerCase()} ${this.headers.name}:`, result.reason);
                 }
             }
 
-            let failed = results.filter(r => r.status === 'rejected') as PromiseRejectedResult[];
+            const failed = results.filter(r => r.status === "rejected") as PromiseRejectedResult[];
             if(failed.length > 0) {
-                let failMsg = failed.map(f => f.reason).join("\n");
-                let err = new Error(`Error while enabling libraries for ${this.type.toLowerCase()} ${this.headers.name}:\n${failMsg}`);
+                const failMsg = failed.map(f => f.reason).join("\n");
+                const err = new Error(`Error while enabling libraries for ${this.type.toLowerCase()} ${this.headers.name}:\n${failMsg}`);
                 rej(err);
                 return;
             }
@@ -134,7 +133,7 @@ abstract class BaseScript {
     }
 
     unloadLibs() {
-        for(let lib of this.usedLibs) {
+        for(const lib of this.usedLibs) {
             lib.removeUsed(this.id);
         }
     }
@@ -175,7 +174,7 @@ export class Plugin extends BaseScript {
     cleanupToggleCommand: () => void;
     setEnabled(enabled: boolean) {
         if(this.enabled === enabled) return;
-        
+
         this.enabled = enabled;
         this.cleanupToggleCommand?.();
 
@@ -189,7 +188,7 @@ export class Plugin extends BaseScript {
             toast.success(`${action}d ${this.headers.name}`);
         });
     }
-    
+
     start(initial = false) {
         if(this.enablePromise) return this.enablePromise;
 
@@ -205,14 +204,16 @@ export class Plugin extends BaseScript {
                         this.openSettingsMenu.push(returnVal.openSettingsMenu);
                     }
 
-                    if (this.openSettingsMenu.length > 0) this.cleanupConfigureCommand = Commands.addCommand(null, {
-                        group: "Plugins",
-                        text: `Configure ${this.headers.name}`,
-                        keywords: ["settings"]
-                    }, () => {
-                        if (this.openSettingsMenu.length === 0) return;
-                        this.openSettingsMenu.forEach(c => c());
-                    });
+                    if(this.openSettingsMenu.length > 0) {
+                        this.cleanupConfigureCommand = Commands.addCommand(null, {
+                            group: "Plugins",
+                            text: `Configure ${this.headers.name}`,
+                            keywords: ["settings"]
+                        }, () => {
+                            if(this.openSettingsMenu.length === 0) return;
+                            this.openSettingsMenu.forEach(c => c());
+                        });
+                    }
 
                     log(`Loaded plugin: ${this.headers.name}`);
 
@@ -222,7 +223,7 @@ export class Plugin extends BaseScript {
                     console.error(e);
                     this.errored = true;
                     rej(e);
-                })
+                });
         });
 
         return this.enablePromise;
@@ -232,7 +233,7 @@ export class Plugin extends BaseScript {
         if(!this.enabled) return;
 
         try {
-            for(let stop of this.onStop) stop?.();
+            for(const stop of this.onStop) stop?.();
         } catch (e) {
             console.error(`Error stopping plugin ${this.headers.name}:`, e);
         }
@@ -286,15 +287,15 @@ export class Lib extends BaseScript {
                     if(returnVal.onStop && typeof returnVal.onStop === "function") {
                         this.onStop.push(returnVal.onStop);
                     }
-    
+
                     if(returnVal.default) {
                         returnVal = returnVal.default;
                     }
-            
+
                     this.library = returnVal;
                     res();
                 })
-                .catch(rej)
+                .catch(rej);
         });
 
         return this.enablePromise;
@@ -302,7 +303,7 @@ export class Lib extends BaseScript {
 
     removeUsed(id: string) {
         this.usedBy.delete(id);
-    
+
         if(this.usedBy.size === 0) {
             this.stop();
         }
@@ -311,8 +312,8 @@ export class Lib extends BaseScript {
     stop() {
         // call onStop if it exists
         try {
-            for(let stop of this.onStop) stop();
-        } catch(e) {
+            for(const stop of this.onStop) stop();
+        } catch (e) {
             log(`Error stopping library ${this.headers.name}:`, e);
         }
 

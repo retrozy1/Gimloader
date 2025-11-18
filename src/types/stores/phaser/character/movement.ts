@@ -1,4 +1,4 @@
-import type Character from '../character';
+import type Character from "../character";
 
 interface Point {
     endTime: number;

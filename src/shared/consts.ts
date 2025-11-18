@@ -11,8 +11,8 @@ export const defaultSettings: Settings = {
     pollerEnabled: false,
     autoUpdate: true,
     autoDownloadMissingLibs: true,
-    menuView: 'grid',
+    menuView: "grid",
     showPluginButtons: true
-}
+};
 
 export const flipDurationMs = 300;

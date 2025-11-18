@@ -3,7 +3,7 @@
     import type { HotkeyTrigger } from "$types/hotkeys";
     import { Button } from "$shared/ui/button";
     import * as Popover from "$shared/ui/popover";
-    import Undo from 'svelte-material-icons/Undo.svelte';
+    import Undo from "svelte-material-icons/Undo.svelte";
     import { SvelteSet } from "svelte/reactivity";
     import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 
@@ -11,8 +11,8 @@
 
     let categories: Record<string, ConfigurableHotkey[]> = $derived.by(() => {
         let categories = {};
-        for (let hotkey of hotkeys.values()) {
-            if (!categories[hotkey.category]) {
+        for(let hotkey of hotkeys.values()) {
+            if(!categories[hotkey.category]) {
                 categories[hotkey.category] = [];
             }
             categories[hotkey.category].push(hotkey);
@@ -35,7 +35,7 @@
                 ctrl: e.ctrlKey,
                 alt: e.altKey,
                 shift: e.shiftKey
-            }
+            };
         }
     }
 
@@ -85,7 +85,7 @@
             if(trigger.ctrl && !trigger.key.startsWith("Control")) keys.push("Ctrl");
             if(trigger.alt && !trigger.key.startsWith("Alt")) keys.push("Alt");
             if(trigger.shift && !trigger.key.startsWith("Shift")) keys.push("Shift");
-    
+
             if(trigger.key.startsWith("Key")) keys.push(trigger.key.slice(3));
             else if(trigger.key.startsWith("Digit")) keys.push(trigger.key.slice(5));
             else keys.push(trigger.key);
@@ -108,8 +108,7 @@
 <svelte:window onkeydown={onKeydown} />
 
 <div class="flex flex-col">
-    <div class="grow overflow-y-auto grid gap-x-5 gap-y-1 pb-1"
-    style="grid-template-columns: auto auto auto 1fr;">
+    <div class="grow overflow-y-auto grid gap-x-5 gap-y-1 pb-1" style="grid-template-columns: auto auto auto 1fr">
         {#if Object.keys(categories).length === 0}
             <h1 class="col-span-4 text-center font-bold text-3xl pt-5">There aren't any hotkeys!</h1>
             <h2 class="col-span-4 text-center text-xl">Some plugins will add hotkeys that can be changed here.</h2>

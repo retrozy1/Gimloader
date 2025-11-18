@@ -13,10 +13,10 @@
     let officialPlugins: OfficialScriptInfo[] = $state([]);
     let searchValue = $state("");
     let plugins = $derived(officialPlugins.filter(p => (
-        !PluginManager.plugins.some(pl => pl.headers.name === p.title) &&
-        p.title.toLowerCase().includes(searchValue.toLowerCase())
-    )));    
-    
+        !PluginManager.plugins.some(pl => pl.headers.name === p.title)
+        && p.title.toLowerCase().includes(searchValue.toLowerCase())
+    )));
+
     const saved = localStorage.getItem("gl-officialPlugins");
     if(saved) {
         try {
@@ -27,17 +27,17 @@
     }
 
     onMount(async () => {
-        const lastFetch = parseInt(localStorage.getItem("gl-lastOfficialFetch") ?? "0");
+        const lastFetch = parseInt(localStorage.getItem("gl-lastOfficialFetch") ?? "0", 10);
         const delay = 1000 * 60 * 60; // 1 hour
         const now = Date.now();
-    
+
         if(now - lastFetch < delay) return;
 
         try {
             const res = await fetch("https://gimloader.github.io/plugins.json");
             officialPlugins = await res.json();
             localStorage.setItem("gl-officialPlugins", JSON.stringify(officialPlugins));
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to fetch official plugins", e);
             return;
         }
@@ -49,11 +49,11 @@
             const code = await res.text();
             await PluginManager.createPlugin(code);
             toast.success(`Installed ${name}`);
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             toast.error(`Failed to install ${name}`);
         }
-    }
+    };
 </script>
 
 <div class="flex flex-col max-h-full">

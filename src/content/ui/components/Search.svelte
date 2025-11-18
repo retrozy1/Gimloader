@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Magnify from 'svelte-material-icons/Magnify.svelte';
-    import Close from 'svelte-material-icons/Close.svelte';
+    import Magnify from "svelte-material-icons/Magnify.svelte";
+    import Close from "svelte-material-icons/Close.svelte";
 
     interface Props {
         value?: string;
@@ -23,14 +23,14 @@
     }
 
     function onKeyDown(e: KeyboardEvent) {
-        if(e.key === 'Escape') {
+        if(e.key === "Escape") {
             closeSearch();
             e.stopPropagation();
         }
     }
 
     function windowKeyDown(e: KeyboardEvent) {
-        if(e.key == 'f' && e.ctrlKey) {
+        if(e.key === "f" && e.ctrlKey) {
             e.preventDefault();
             openSearch();
         }
@@ -42,9 +42,14 @@
 <button class="ml-2!" onclick={openSearch}>
     <Magnify />
 </button>
-<input type="text" class="ml-1 border-t-0 border-x-0 px-1 py-0 border-gray-500!"
-bind:value={value} bind:this={searchInput} onkeydown={onKeyDown}
-style="box-shadow: none; display: none;" />
+<input
+    type="text"
+    class="ml-1 border-t-0 border-x-0 px-1 py-0 border-gray-500!"
+    bind:value={value}
+    bind:this={searchInput}
+    onkeydown={onKeyDown}
+    style="box-shadow: none; display: none"
+/>
 {#if searchOpen}
     <button onclick={closeSearch}>
         <Close />

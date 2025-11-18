@@ -1,6 +1,6 @@
 import whiteWrenchSvg from "$assets/wrench-light.svg";
 import UI from "$core/ui/ui";
-import Hotkeys from '$core/hotkeys/hotkeys.svelte';
+import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import Rewriter from "../rewriter";
 import { showMenu } from "$content/ui/mount";
 import Commands from "../commands.svelte";
@@ -42,7 +42,7 @@ export function addPluginButtons() {
 
     // Add the wrench button the homescreen
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf(`name:"far fa-search"`);
+        const index = code.indexOf(`name:"far fa-search"`);
         if(index === -1) return;
 
         const start = code.lastIndexOf("push(", index) + 5;
@@ -60,7 +60,7 @@ export function addPluginButtons() {
 
     // Add the wrench button to the ingame 2d HUD
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf(`tooltip:"Sound"`);
+        const index = code.indexOf(`tooltip:"Sound"`);
         if(index === -1) return;
 
         const start = code.lastIndexOf("[", index) + 1;
@@ -70,14 +70,14 @@ export function addPluginButtons() {
         insert = insert.replace("Sound", "Plugins");
         insert = insert.replace("fa-waveform", "fa-wrench gl-button5");
         insert = Rewriter.replaceBetween(insert, "onClick:", ",", `onClick:()=>${openUI}(),`);
-        
+
         code = code.slice(0, start) + insert + code.slice(start);
         return code;
     });
 
     // Add the wrench button the pregame 2d HUD
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf(`"#01579b",onClick:()=>`);
+        const index = code.indexOf(`"#01579b",onClick:()=>`);
         if(index === -1) return;
 
         const start = code.lastIndexOf(",", code.lastIndexOf(".jsx(", index));
@@ -88,7 +88,7 @@ export function addPluginButtons() {
         insert = Rewriter.replaceBetween(insert, "onClick:", "}", `onClick:()=>${openUI}()`);
         insert = Rewriter.replaceBetween(insert, "}),", "name]", `}),"Plugins"]`);
         insert = Rewriter.replaceBetween(insert, "src:", "iconImage,", `src:${whiteWrench},`);
-        
+
         code = code.slice(0, start) + insert + code.slice(start);
         code = code.replace("space-between", "flex-start;\n  gap: 8px;");
         code = Rewriter.insertAfter(code, "sticker}s`,", "style:{flexGrow:1},");
@@ -99,36 +99,36 @@ export function addPluginButtons() {
     // Add the wrench button to the join screen
     const wrapJoin = Rewriter.createShared(null, "wrapJoinButton", (joinButton: () => any) => {
         return function() {
-            let element = joinButton.apply(this, arguments);
-            let newButton = UI.React.createElement('button', {
-                className: 'openPlugins',
+            const element = joinButton.apply(this, arguments);
+            const newButton = UI.React.createElement("button", {
+                className: "openPlugins",
                 dangerouslySetInnerHTML: { __html: whiteWrenchSvg },
                 onClick: () => showMenu()
             });
 
-            return UI.React.createElement('div', { className: 'gl-join' }, [element, newButton]);
-        }
+            return UI.React.createElement("div", { className: "gl-join" }, [element, newButton]);
+        };
     });
 
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf("JoinPrimaryButton");
+        const index = code.indexOf("JoinPrimaryButton");
         if(index === -1) return;
 
         // Just wrap it with a function here, it's easier
-        let start = code.indexOf("=", index) + 1;
-        let end = code.indexOf("onClick})", index) + 9;
-        let component = code.slice(start, end);
+        const start = code.indexOf("=", index) + 1;
+        const end = code.indexOf("onClick})", index) + 9;
+        const component = code.slice(start, end);
         code = code.slice(0, start) + wrapJoin + "(" + component + ")" + code.slice(end);
         return code;
     });
 
     // Add the wrench button to the creative screem
     Rewriter.addParseHook(null, "App", (code) => {
-        let index = code.indexOf(`tooltip:"Options"`);
+        const index = code.indexOf(`tooltip:"Options"`);
         if(index === -1) return;
 
-        let start = code.lastIndexOf("children:", index) + 9;
-        let end = code.indexOf("})})", index) + 4;
+        const start = code.lastIndexOf("children:", index) + 9;
+        const end = code.indexOf("})})", index) + 4;
         let insert = code.slice(start, end);
 
         insert = insert.replace("Options", "Plugins");
@@ -142,14 +142,13 @@ export function addPluginButtons() {
 
     // Add the button to the 1d host lobby
     Rewriter.addParseHook(null, "index", (code) => {
-        let index = code.indexOf("getButtonInfo()");
+        const index = code.indexOf("getButtonInfo()");
         if(index === -1) return;
 
-        let start = code.indexOf("children:", index) + 9;
-        let end = code.indexOf("})", start) + 2;
+        const start = code.indexOf("children:", index) + 9;
+        const end = code.indexOf("})", start) + 2;
         let insert = code.slice(start, end);
-        insert = Rewriter.replaceBetween(insert, "{", "}",
-            `{onClick:()=>${openUI}(),children:"Plugins",className:"gl-button"}`);
+        insert = Rewriter.replaceBetween(insert, "{", "}", `{onClick:()=>${openUI}(),children:"Plugins",className:"gl-button"}`);
 
         code = code.slice(0, start) + `${createElement}("div",{className:"gl-row"},[`
             + insert + "," + code.slice(start, end) + "])" + code.slice(end);
@@ -159,43 +158,47 @@ export function addPluginButtons() {
 
     // Add the button to the 1d player lobby
     Rewriter.addParseHook(null, "index", (code) => {
-        let index = code.indexOf("/client/img/svgLogoWhite.svg");
+        const index = code.indexOf("/client/img/svgLogoWhite.svg");
         if(index === -1) return;
 
-        let start = code.lastIndexOf("children:", index) + 9;
-        let end = code.indexOf("})", index) + 2;
+        const start = code.lastIndexOf("children:", index) + 9;
+        const end = code.indexOf("})", index) + 2;
 
-        code = code.slice(0, start) + "[" + code.slice(start, end) +
-            `,${createElement}("img",{src:${whiteWrench},style:{height:"30px",marginLeft:"8px",cursor:"pointer"},` + 
-            `onClick:()=>${openUI}(),className:"gl-button"})]` + code.slice(end);
+        code = code.slice(0, start) + "[" + code.slice(start, end)
+            + `,${createElement}("img",{src:${whiteWrench},style:{height:"30px",marginLeft:"8px",cursor:"pointer"},`
+            + `onClick:()=>${openUI}(),className:"gl-button"})]` + code.slice(end);
 
         return code;
     });
 
     // Add the button to the 1d host game screen
     Rewriter.addParseHook(null, "index", (code) => {
-        let index = code.indexOf("this.toggleMusic,");
+        const index = code.indexOf("this.toggleMusic,");
         if(index === -1) return;
 
-        let start = code.lastIndexOf(".jsx(", index) - 1;
-        let end = code.indexOf(`"})`, index) + 3;
+        const start = code.lastIndexOf(".jsx(", index) - 1;
+        const end = code.indexOf(`"})`, index) + 3;
         let insert = code.slice(start, end);
 
-        insert = Rewriter.replaceBetween(insert, "{", `"})`,
-            `{onClick:()=>${openUI}(),icon:${createElement}("img",{src:${whiteWrench},` +
-            `style:{width:"20px",marginTop:"-3px"},className:"gl-button2"}),tooltipMessage:"Plugins"})`);
+        insert = Rewriter.replaceBetween(
+            insert,
+            "{",
+            `"})`,
+            `{onClick:()=>${openUI}(),icon:${createElement}("img",{src:${whiteWrench},`
+                + `style:{width:"20px",marginTop:"-3px"},className:"gl-button2"}),tooltipMessage:"Plugins"})`
+        );
 
-        let insertIndex = code.lastIndexOf("[", start) + 1;
+        const insertIndex = code.lastIndexOf("[", start) + 1;
         code = code.slice(0, insertIndex) + insert + "," + code.slice(insertIndex);
         return code;
     });
 
     // Add the button to the 1d player game screen
     Rewriter.addParseHook(null, "index", (code) => {
-        let index = code.indexOf(`label":"Menu"`);
+        const index = code.indexOf(`label":"Menu"`);
         if(index === -1) return;
 
-        let insertIndex = code.indexOf("{}),", index) + 4;
+        const insertIndex = code.indexOf("{}),", index) + 4;
         code = code.slice(0, insertIndex)
             + `${createElement}("img",{src:${whiteWrench},style:{height:"22px",marginLeft:"10px",cursor:"pointer"},`
             + `onClick:()=>${openUI}(),className:"gl-button"}),` + code.slice(insertIndex);

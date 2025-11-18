@@ -4,7 +4,7 @@ import ConfigurableHotkey from "./configurable.svelte";
 import { clearId, splicer } from "$content/utils";
 import Port from "$shared/net/port.svelte";
 
-type DefaultHotkey = HotkeyOptions & { callback: HotkeyCallback, id: string };
+type DefaultHotkey = HotkeyOptions & { callback: HotkeyCallback; id: string };
 
 export default new class Hotkeys {
     hotkeys: DefaultHotkey[] = [];
@@ -16,29 +16,29 @@ export default new class Hotkeys {
     init(saved: ConfigurableHotkeysState) {
         this.savedHotkeys = saved;
 
-        window.addEventListener('keydown', (event) => {
+        window.addEventListener("keydown", (event) => {
             this.pressed.add(event.code);
             this.pressedKeys.add(event.key.toLowerCase());
             this.checkHotkeys(event);
         });
 
-        window.addEventListener('keyup', (event) => {
+        window.addEventListener("keyup", (event) => {
             this.pressed.delete(event.code);
             this.pressedKeys.delete(event.key.toLowerCase());
         });
 
-        window.addEventListener('blur', () => {
+        window.addEventListener("blur", () => {
             this.releaseAll();
         });
 
-        Port.on('hotkeyUpdate', ({ id, trigger }) => this.updateConfigurable(id, trigger));
-        Port.on('hotkeysUpdate', ({ hotkeys }) => this.updateAllConfigurable(hotkeys));
+        Port.on("hotkeyUpdate", ({ id, trigger }) => this.updateConfigurable(id, trigger));
+        Port.on("hotkeysUpdate", ({ hotkeys }) => this.updateAllConfigurable(hotkeys));
     }
 
     updateState(saved: ConfigurableHotkeysState) {
         this.savedHotkeys = saved;
 
-        for(let hotkey of this.configurableHotkeys) {
+        for(const hotkey of this.configurableHotkeys) {
             hotkey.loadTrigger();
         }
     }
@@ -47,10 +47,12 @@ export default new class Hotkeys {
         return splicer(this.hotkeys, { ...options, id, callback });
     }
 
-    removeHotkeys(id: any) { clearId(this.hotkeys, id); }
-    
+    removeHotkeys(id: any) {
+        clearId(this.hotkeys, id);
+    }
+
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: HotkeyCallback, pluginName?: string) {
-        let obj = new ConfigurableHotkey(id, callback, options, pluginName);
+        const obj = new ConfigurableHotkey(id, callback, options, pluginName);
 
         return splicer(this.configurableHotkeys, obj);
     }
@@ -79,14 +81,14 @@ export default new class Hotkeys {
     }
 
     checkHotkeys(e: KeyboardEvent) {
-        for(let hotkey of this.hotkeys) {
+        for(const hotkey of this.hotkeys) {
             if(this.checkTrigger(e, hotkey)) {
                 if(hotkey.preventDefault || hotkey.preventDefault === undefined) e.preventDefault();
                 hotkey.callback(e);
             }
         }
 
-        for(let hotkey of this.configurableHotkeys) {
+        for(const hotkey of this.configurableHotkeys) {
             if(hotkey.trigger && this.checkTrigger(e, hotkey.trigger)) {
                 if(hotkey.preventDefault) e.preventDefault();
                 hotkey.callback(e);
@@ -96,19 +98,19 @@ export default new class Hotkeys {
 
     checkTrigger(e: KeyboardEvent, trigger: HotkeyTrigger) {
         if(trigger.key) {
-            if(trigger.key != e.code) return false;
+            if(trigger.key !== e.code) return false;
         } else {
             if(!trigger.keys.includes(e.code)) return false;
 
-            for(let key of trigger.keys) {
+            for(const key of trigger.keys) {
                 if(!this.pressed.has(key)) return false;
             }
         }
 
         return (
-            (trigger.ctrl === undefined || trigger.ctrl === e.ctrlKey) &&
-            (trigger.shift === undefined || trigger.shift === e.shiftKey) &&
-            (trigger.alt === undefined || trigger.alt === e.altKey)
+            (trigger.ctrl === undefined || trigger.ctrl === e.ctrlKey)
+            && (trigger.shift === undefined || trigger.shift === e.shiftKey)
+            && (trigger.alt === undefined || trigger.alt === e.altKey)
         );
     }
 
@@ -118,7 +120,7 @@ export default new class Hotkeys {
     }
 
     saveAllConfigurable() {
-        for(let hotkey of this.configurableHotkeys) {
+        for(const hotkey of this.configurableHotkeys) {
             this.savedHotkeys[hotkey.id] = $state.snapshot(hotkey.trigger);
         }
 
@@ -126,20 +128,20 @@ export default new class Hotkeys {
     }
 
     updateConfigurable(id: string, trigger: HotkeyTrigger | null) {
-        let hotkey = this.configurableHotkeys.find(h => h.id === id);
+        const hotkey = this.configurableHotkeys.find(h => h.id === id);
         if(!hotkey) return;
-        
+
         hotkey.trigger = trigger;
     }
 
     updateAllConfigurable(hotkeys: ConfigurableHotkeysState) {
         this.savedHotkeys = hotkeys;
 
-        for(let id in hotkeys) {
-            let existing = this.configurableHotkeys.find(h => h.id === id);
-            if(existing && existing.trigger != hotkeys[id]) {
+        for(const id in hotkeys) {
+            const existing = this.configurableHotkeys.find(h => h.id === id);
+            if(existing && existing.trigger !== hotkeys[id]) {
                 existing.trigger = hotkeys[id];
             }
         }
     }
-}
+}();

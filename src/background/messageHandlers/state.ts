@@ -1,6 +1,5 @@
 import Server from "$bg/server";
-import { sanitizeHotkeys, sanitizeLibraries, sanitizePlugins,
-    sanitizePluginStorage, sanitizeSettings, saveDebounced } from "$bg/state";
+import { sanitizeHotkeys, sanitizeLibraries, sanitizePlugins, sanitizePluginStorage, sanitizeSettings, saveDebounced } from "$bg/state";
 import Updater from "$bg/updater";
 import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { State } from "$types/state";
@@ -16,7 +15,7 @@ export default class StateHandler {
     }
 
     static onSetState(state: State, newState: OnceMessages["setState"], respond: () => void) {
-        let { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys } = newState;
+        const { plugins, libraries, pluginStorage, pluginSettings, settings, hotkeys } = newState;
 
         if(plugins) state.plugins = sanitizePlugins(plugins);
         if(libraries) state.libraries = sanitizeLibraries(libraries);
@@ -28,12 +27,12 @@ export default class StateHandler {
 
         Server.send("setState", state);
 
-        saveDebounced('plugins');
-        saveDebounced('pluginStorage');
-        saveDebounced('libraries');
-        saveDebounced('hotkeys');
-        saveDebounced('settings');
-        saveDebounced('cacheInvalid');
+        saveDebounced("plugins");
+        saveDebounced("pluginStorage");
+        saveDebounced("libraries");
+        saveDebounced("hotkeys");
+        saveDebounced("settings");
+        saveDebounced("cacheInvalid");
 
         if(state.settings.autoUpdate) Updater.checkUpdates();
         respond();

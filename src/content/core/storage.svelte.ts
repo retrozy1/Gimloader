@@ -50,12 +50,12 @@ export default new class Storage extends EventEmitter2 {
         document.documentElement.classList.toggle("noPluginButtons", !this.settings.showPluginButtons);
     }
 
-    updateSetting(key: string, value: any, emit = true) {        
+    updateSetting(key: string, value: any, emit = true) {
         this.settings[key] = value;
         if(emit) Port.send("settingUpdate", { key, value });
         else this.emit(key, value);
 
-        switch(key) {
+        switch (key) {
             case "showPluginButtons":
                 document.documentElement.classList.toggle("noPluginButtons", !value);
                 break;
@@ -63,16 +63,16 @@ export default new class Storage extends EventEmitter2 {
     }
 
     getPluginValue(id: string, key: string, defaultVal?: any) {
-        let val = this.values[id]?.[key];
+        const val = this.values[id]?.[key];
         if(val !== undefined) return val;
         return defaultVal ?? null;
     }
-    
+
     setPluginValue(id: string, key: string, value: any, emit = true) {
         if(!this.values[id]) this.values[id] = {};
         this.values[id][key] = value;
 
-        for(let listener of this.valueListeners) {
+        for(const listener of this.valueListeners) {
             if(listener.id === id && listener.key === key) {
                 // if we are emitting it's not remote, and vice versa
                 listener.callback(value, !emit);
@@ -86,7 +86,7 @@ export default new class Storage extends EventEmitter2 {
         if(!this.pluginSettings[id]) this.pluginSettings[id] = {};
         this.pluginSettings[id][key] = value;
 
-        for(let listener of this.settingsListeners) {
+        for(const listener of this.settingsListeners) {
             if(listener.id === id && listener.key === key) {
                 listener.callback(value, !emit);
             }
@@ -96,12 +96,12 @@ export default new class Storage extends EventEmitter2 {
     }
 
     deletePluginValue(id: string, key: string, emit = true) {
-        let plugin = this.values[id];
+        const plugin = this.values[id];
         if(!plugin) return;
         delete plugin[key];
         if(emit) Port.send("pluginValueDelete", { id, key });
     }
-    
+
     deletePluginStorage(id: string, emit = true) {
         delete this.values[id];
         if(emit) Port.send("clearPluginStorage", { id });
@@ -117,7 +117,7 @@ export default new class Storage extends EventEmitter2 {
 
     offPluginValueUpdate(id: string, key: string, callback: ValueChangeCallback) {
         for(let i = 0; i < this.valueListeners.length; i++) {
-            let listener = this.valueListeners[i];
+            const listener = this.valueListeners[i];
             if(listener.id === id && listener.key === key && listener.callback === callback) {
                 this.valueListeners.splice(i, 1);
                 return;
@@ -125,6 +125,10 @@ export default new class Storage extends EventEmitter2 {
         }
     }
 
-    removeValueListeners(id: string) { clearId(this.valueListeners, id); }
-    removeSettingListeners(id: string) { clearId(this.settingsListeners, id); }
-}
+    removeValueListeners(id: string) {
+        clearId(this.valueListeners, id);
+    }
+    removeSettingListeners(id: string) {
+        clearId(this.settingsListeners, id);
+    }
+}();

@@ -12,10 +12,10 @@
     import ColorSetting from "./ColorSetting.svelte";
     import CustomSetting from "./CustomSetting.svelte";
 
-    let { pluginName, setting }: { pluginName: string, setting: PluginSetting } = $props();
-    
+    let { pluginName, setting }: { pluginName: string; setting: PluginSetting } = $props();
+
     watch(() => Storage.pluginSettings[pluginName][setting.id], () => {
-        const value = Storage.pluginSettings[pluginName][setting.id];        
+        const value = Storage.pluginSettings[pluginName][setting.id];
         Storage.setPluginSetting(pluginName, setting.id, value);
     }, { lazy: true });
 </script>

@@ -10,9 +10,13 @@ export default class StorageHandler {
         Server.on("pluginSettingUpdate", this.onPluginSettingUpdate.bind(this));
         Server.on("clearPluginStorage", this.onClearPluginStorage.bind(this));
     }
-    
-    static saveStorage() { saveDebounced('pluginStorage'); }
-    static saveSettings() { saveDebounced('pluginSettings'); }
+
+    static saveStorage() {
+        saveDebounced("pluginStorage");
+    }
+    static saveSettings() {
+        saveDebounced("pluginSettings");
+    }
 
     static onPluginValueUpdate(state: State, message: StateMessages["pluginValueUpdate"]) {
         if(!state.pluginStorage[message.id]) state.pluginStorage[message.id] = {};

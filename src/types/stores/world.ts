@@ -22,14 +22,14 @@ interface WorldCustomAssets {
 export interface CodeGridSchema {
     allowChannelGrids: boolean;
     customBlocks: any[];
-    triggers: any[]
+    triggers: any[];
 }
 
 export interface DeviceOption {
     codeGridSchema: CodeGridSchema;
     defaultState: any;
     id: string;
-    optionSchema: { options: any[]; };
+    optionSchema: { options: any[] };
     wireConfig: any;
 }
 
@@ -102,5 +102,5 @@ export default interface World {
     width: number;
     mapOptionsJSON: string;
     terrain: Terrain;
-    wires: { wires: Map<any, any>; };
+    wires: { wires: Map<any, any> };
 }

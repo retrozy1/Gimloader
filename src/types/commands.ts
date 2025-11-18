@@ -49,7 +49,7 @@ export interface CommandSelectAction extends BaseCommandAction<string> {
 
 export interface CommandNumberAction extends BaseCommandAction<number> {
     type: "number";
-    options: CommandNumberOptions
+    options: CommandNumberOptions;
 }
 
 export interface CommandStringAction extends BaseCommandAction<string> {
