@@ -10,6 +10,9 @@
     import * as DropdownMenu from "$shared/ui/dropdown-menu";
     import { Button } from "$shared/ui/button";
     import ViewControl from "../components/ViewControl.svelte";
+    import toast from "svelte-5-french-toast";
+    import { parseScriptHeaders } from "$shared/parseHeader";
+    import * as Dialog from "$shared/ui/dialog";
 
     import PlusBoxOutline from 'svelte-material-icons/PlusBoxOutline.svelte';
     import Import from 'svelte-material-icons/Import.svelte';
@@ -49,18 +52,44 @@
         });
     }
 
+    const install = async (url: string) => {
+        try {
+            if (!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
+            const res = await fetch(url);
+            const code = await res.text();
+            LibManager.createLib(code);
+            toast.success(`Installed ${parseScriptHeaders(code).name}`);
+        } catch(e) {
+            console.error(e);
+            toast.error(`Failed to install library from URL`); // Just in case the issue is with the headers.
+        }
+    }
+
     let flipDurationMs = $state(0);
     setTimeout(() => flipDurationMs = 300);
+
+    let libUrl = $state("");
+    let libUrlMenuOpen = $state(false);
 </script>
 
+<Dialog.Root open={libUrlMenuOpen}>
+    <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
+        <input placeholder="Library URL" bind:value={libUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
+        <Button onclick={() => {install(libUrl); libUrlMenuOpen = false}}>Install</Button>
+    </Dialog.Content>
+</Dialog.Root>
 <div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
-        <button onclick={() => showEditor("library")}>
-            <PlusBoxOutline size={32} />
-        </button>
-        <button onclick={importLib}>
-            <Import size={32} />
-        </button>
+        <DropdownMenu.Root>
+            <DropdownMenu.Trigger class="mr-1.5!">
+                <Button class="h-7">Create/Install Library</Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content>
+                <DropdownMenu.Item onclick={() => showEditor("library")}>Create Blank</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={importLib}>Upload File</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => libUrlMenuOpen = true}>Install From URL</DropdownMenu.Item>
+            </DropdownMenu.Content>
+        </DropdownMenu.Root>
         <DropdownMenu.Root>
             <DropdownMenu.Trigger class="mr-2!">
                 <Button class="h-7">
