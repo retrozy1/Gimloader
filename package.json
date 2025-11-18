@@ -15,6 +15,7 @@
     "buildAllFirefox": "bun run buildExtFirefox && bun run buildFirefox",
     "buildTypes": "tsc -p declaration.tsconfig.json",
     "format": "dprint fmt",
+    "lint": "biome lint",
     "check": "biome lint && dprint check && svelte-check"
   },
   "repository": {
