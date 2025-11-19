@@ -9,7 +9,7 @@ export function error(...args: any[]) {
     console.error("%c[GL]", "color:#5030f2", ...args);
 }
 
-export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
+function check(fnName: string, args: IArguments, schema: [string, string | z.ZodType][], onErr: (msg: string) => void) {
     for(let i = 0; i < schema.length; i++) {
         let [name, type] = schema[i];
         if(name.endsWith("?")) {
@@ -19,7 +19,8 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
 
         // check whether the key argument is present
         if(args[i] === undefined) {
-            error(fnName, "called without argument", name);
+            const message = `${fnName} called without argument ${name}`;            
+            onErr(message);
             return false;
         }
 
@@ -27,18 +28,26 @@ export function validate(fnName: string, args: IArguments, ...schema: [string, s
         if(type instanceof z.ZodType) {
             const parsed = type.safeParse(args[i]);
             if(!parsed.success) {
-                error(`Error in ${fnName} argument ${name}:\n`, z.prettifyError(parsed.error));
+                onErr(`Error in ${fnName} argument ${name}:\n${z.prettifyError(parsed.error)}`);
                 return false;
             }
         } else {
             if(!type.split("|").includes(typeof args[i])) {
-                error(fnName, "received", args[i], `for argument ${name}, expected type ${type}`);
+                onErr(`${fnName} received ${args[i]} for argument ${name}, expected type ${type}`);
                 return false;
             }
         }
     }
 
     return true;
+}
+
+export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
+    return check(fnName, args, schema, (msg) => error(msg));
+}
+
+export function validateThrow(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
+    return check(fnName, args, schema, (msg) => { throw new Error(msg); });
 }
 
 export function splicer<T>(array: T[], obj: T) {

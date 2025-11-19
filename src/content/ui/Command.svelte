@@ -134,6 +134,7 @@
 {/snippet}
 
 <Dialog.Root bind:open={Commands.open} onOpenChangeComplete={onOpenChange}>
+    <Dialog.Overlay class="z-100" />
     <Dialog.Content
         class="flex flex-col p-0 gap-0 overflow-hidden z-100"
         style="width: min(600px, 90vw)"

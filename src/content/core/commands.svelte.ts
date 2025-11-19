@@ -1,13 +1,34 @@
 import type { Command, CommandAction, CommandCallback, CommandContext, CommandOptions } from "$types/commands";
 import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
-import { clearId } from "$content/utils";
+import { clearId, validate, validateThrow } from "$content/utils";
+import * as z from "zod";
 
 class CancelError extends Error {
     constructor() {
         super("Command cancelled by user");
     }
 }
+
+const SelectSchema = z.object({
+    title: z.string(),
+    options: z.array(z.object({
+        label: z.string(),
+        value: z.string()
+    })).min(1)
+});
+
+const NumberSchema = z.object({
+    title: z.string(),
+    min: z.number().optional(),
+    max: z.number().optional(),
+    decimal: z.boolean().optional()
+});
+
+const StringSchema = z.object({
+    title: z.string(),
+    maxLength: z.number().optional()
+});
 
 export default new class Commands {
     commands: Command[] = $state([]);
@@ -49,9 +70,18 @@ export default new class Commands {
         };
 
         this.context = {
-            select: (options) => createAction("select", options),
-            number: (options) => createAction("number", options),
-            string: (options) => createAction("string", options)
+            select(options) {
+                validateThrow("context.select", arguments, ["options", SelectSchema]);
+                return createAction("select", options)
+            },
+            number(options) {
+                validateThrow("context.number", arguments, ["options", NumberSchema]);
+                return createAction("number", options)
+            },
+            string(options) {
+                validateThrow("context.string", arguments, ["options", StringSchema]);
+                return createAction("string", options)
+            }
         };
     }
 
@@ -108,12 +138,13 @@ export default new class Commands {
 
     runCommand(callback: CommandCallback) {
         this.startClose();
-        try {
-            callback(this.context);
-        } catch (e) {
-            if(e instanceof CancelError) return;
 
-            throw e;
+        const returned = callback(this.context);
+        if(returned instanceof Promise) {
+            returned.catch((err) => {
+                if(err instanceof CancelError) return;
+                throw err;
+            });
         }
     }
 
