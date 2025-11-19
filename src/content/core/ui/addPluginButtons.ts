@@ -7,7 +7,6 @@ import Commands from "../commands.svelte";
 
 function addTabCommand(text: string, tab: string, keywords?: string[], officialOpen?: boolean) {
     Commands.addCommand(null, {
-        group: "Gimloader",
         text,
         keywords
     }, () => showMenu(tab, officialOpen));

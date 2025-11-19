@@ -103,19 +103,21 @@ export default new class Commands {
             if(index === -1) return;
 
             this.commands.splice(index, 1);
-        }
+        };
     }
 
     runCommand(callback: CommandCallback) {
         this.startClose();
         try {
             callback(this.context);
-        } catch(e) {
+        } catch (e) {
             if(e instanceof CancelError) return;
 
             throw e;
         }
     }
 
-    removeCommands(id: string) { clearId(this.commands, id) }
+    removeCommands(id: string) {
+        clearId(this.commands, id);
+    }
 }();

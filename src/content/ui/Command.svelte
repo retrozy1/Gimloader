@@ -11,7 +11,9 @@
     let selectSearch = $state("");
     let textInput = $state("");
     let numberInput: number | undefined = $state();
-    watch([() => searched, () => selectSearch], () => { selectedIndex = 0 });
+    watch([() => searched, () => selectSearch], () => {
+        selectedIndex = 0;
+    });
 
     interface Option {
         text: string;
@@ -118,22 +120,33 @@
 <svelte:window onkeydown={onKeydown} />
 
 {#snippet item(text: string, index: number)}
-    <button data-selected={index === selectedIndex ? true : null} onselect={() => onSelect(index)}
-        onmouseover={() => selectedIndex = index} onfocus={() => selectedIndex = index}
-        class="data-selected:bg-accent data-selected:text-accent-foreground w-full outline-hidden
-        relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1! text-sm!">
+    <button
+        data-selected={index === selectedIndex ? true : null}
+        onselect={() => onSelect(index)}
+        onmouseover={() => selectedIndex = index}
+        onfocus={() => selectedIndex = index}
+        class="
+            data-selected:bg-accent data-selected:text-accent-foreground w-full outline-hidden
+            relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1! text-sm!
+        ">
         {text}
     </button>
 {/snippet}
 
 <Dialog.Root bind:open={Commands.open} onOpenChangeComplete={onOpenChange}>
-    <Dialog.Content class="flex flex-col p-0 gap-0 overflow-hidden z-100"
-        style="width: min(600px, 90vw);" showCloseButton={false}>
+    <Dialog.Content
+        class="flex flex-col p-0 gap-0 overflow-hidden z-100"
+        style="width: min(600px, 90vw)"
+        showCloseButton={false}>
         {#if !Commands.action}
-            <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8" >
+            <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8">
                 <Search class="size-4 shrink-0 opacity-50" />
-                <input placeholder="Type a command or search..." bind:value={searched}
-                    spellcheck={false} class={inputClass} />
+                <input
+                    placeholder="Type a command or search..."
+                    bind:value={searched}
+                    spellcheck={false}
+                    class={inputClass}
+                />
             </div>
             <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
                 {#each items as command, i}
@@ -147,8 +160,12 @@
             </div>
         {:else if Commands.action.type === "select"}
             <div class="h-9 border-b pl-3 pr-8">
-                <input placeholder={Commands.action.options.title} bind:value={selectSearch}
-                    spellcheck={false} class={inputClass} />
+                <input
+                    placeholder={Commands.action.options.title}
+                    bind:value={selectSearch}
+                    spellcheck={false}
+                    class={inputClass}
+                />
             </div>
             <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
                 {#each selectItems as option, i}
@@ -157,14 +174,26 @@
             </div>
         {:else if Commands.action.type === "string"}
             <div class="h-9 pl-3 pr-8">
-                <input placeholder={Commands.action.options.title} bind:value={textInput}
-                    spellcheck={false} maxlength={Commands.action.options.maxLength} class={inputClass} />
+                <input
+                    placeholder={Commands.action.options.title}
+                    bind:value={textInput}
+                    spellcheck={false}
+                    maxlength={Commands.action.options.maxLength}
+                    class={inputClass}
+                />
             </div>
         {:else}
             <div class="h-9 pl-3 pr-8">
-                <input placeholder={Commands.action.options.title} type="number" bind:value={numberInput}
-                    spellcheck={false} class={inputClass} min={Commands.action.options.min}
-                    max={Commands.action.options.max} step={Commands.action.options.decimal ? null : 1} />
+                <input
+                    placeholder={Commands.action.options.title}
+                    type="number"
+                    bind:value={numberInput}
+                    spellcheck={false}
+                    class={inputClass}
+                    min={Commands.action.options.min}
+                    max={Commands.action.options.max}
+                    step={Commands.action.options.decimal ? null : 1}
+                />
             </div>
         {/if}
     </Dialog.Content>

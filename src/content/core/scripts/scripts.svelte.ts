@@ -153,16 +153,32 @@ export class Plugin extends BaseScript {
     errored = $state(false);
     settingsDescription?: PluginSettingsDescription;
     cleanupConfigureCommand?: () => void;
+    cleanupToggleCommand?: () => void;
 
     constructor(script: string, enabled = true) {
         super(script);
         this.setEnabled(enabled);
 
         this.cleanupDeleteCommand = Commands.addCommand(null, {
-            group: "Plugins",
             text: `Delete ${this.headers.name}`,
             keywords: ["remove", "uninstall"]
         }, () => this.confirmDelete());
+
+        this.cleanupToggleCommand = Commands.addCommand(null, {
+            text: () => `${this.enabled ? "Disable" : "Enable"} ${this.headers.name}`,
+            keywords: ["toggle"]
+        }, () => {
+            PluginManager.setEnabled(this, !this.enabled);
+            toast.success(`${this.enabled ? "Enabled" : "Disabled"} ${this.headers.name}`);
+        });
+
+        this.cleanupConfigureCommand = Commands.addCommand(null, {
+            text: `Configure ${this.headers.name}`,
+            keywords: ["settings"],
+            hidden: () => this.openSettingsMenu.length === 0
+        }, () => {
+            this.openSettingsMenu.forEach(c => c());
+        });
     }
 
     confirmDelete() {
@@ -171,22 +187,10 @@ export class Plugin extends BaseScript {
         toast.success(`Deleted plugin ${this.headers.name}`);
     }
 
-    cleanupToggleCommand: () => void;
     setEnabled(enabled: boolean) {
         if(this.enabled === enabled) return;
 
         this.enabled = enabled;
-        this.cleanupToggleCommand?.();
-
-        const action = enabled ? "Disable" : "Enable";
-        this.cleanupToggleCommand = Commands.addCommand(null, {
-            group: "Plugins",
-            text: `${action} ${this.headers.name}`,
-            keywords: ["toggle"]
-        }, () => {
-            PluginManager.setEnabled(this, !enabled);
-            toast.success(`${action}d ${this.headers.name}`);
-        });
     }
 
     start(initial = false) {
@@ -202,17 +206,6 @@ export class Plugin extends BaseScript {
                     }
                     if(returnVal.openSettingsMenu && typeof returnVal.openSettingsMenu === "function") {
                         this.openSettingsMenu.push(returnVal.openSettingsMenu);
-                    }
-
-                    if(this.openSettingsMenu.length > 0) {
-                        this.cleanupConfigureCommand = Commands.addCommand(null, {
-                            group: "Plugins",
-                            text: `Configure ${this.headers.name}`,
-                            keywords: ["settings"]
-                        }, () => {
-                            if(this.openSettingsMenu.length === 0) return;
-                            this.openSettingsMenu.forEach(c => c());
-                        });
                     }
 
                     log(`Loaded plugin: ${this.headers.name}`);
@@ -264,7 +257,6 @@ export class Lib extends BaseScript {
         super(script, headers);
 
         this.cleanupDeleteCommand = Commands.addCommand(null, {
-            group: "Libraries",
             text: `Delete ${this.headers.name}`,
             keywords: ["remove", "uninstall"]
         }, () => this.confirmDelete());

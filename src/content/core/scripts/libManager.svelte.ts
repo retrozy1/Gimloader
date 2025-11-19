@@ -24,7 +24,6 @@ export default new class LibManagerClass {
         Port.on("librariesArrange", ({ order }) => this.arrangeLibs(order, false));
 
         Commands.addCommand(null, {
-            group: "Libraries",
             text: "Delete All Libraries",
             keywords: ["remove all", "uninstall all"]
         }, () => this.deleteAllConfirm());

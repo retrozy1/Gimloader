@@ -40,17 +40,14 @@ export default new class PluginManager {
         }
 
         Commands.addCommand(null, {
-            group: "Plugins",
             text: "Delete All Plugins",
             keywords: ["remove all", "uninstall all"]
         }, () => this.confirmDeleteAll());
         Commands.addCommand(null, {
-            group: "Plugins",
             text: "Enable All Plugins",
             keywords: ["turn on all"]
         }, () => this.toastSetAll(true));
         Commands.addCommand(null, {
-            group: "Plugins",
             text: "Disable All Plugins",
             keywords: ["turn off all"]
         }, () => this.toastSetAll(false));

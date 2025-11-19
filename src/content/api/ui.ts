@@ -8,7 +8,7 @@ import * as z from "zod";
 const ButtonSchema = z.object({
     text: z.string(),
     style: z.enum(["primary", "danger", "close"]).optional(),
-    onClick: z.function({ output: z.any() })
+    onClick: z.function({ output: z.any() }).optional()
 });
 
 const ModalOptionsSchema = z.object({
