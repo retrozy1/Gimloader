@@ -1,7 +1,7 @@
 import type { Command, CommandAction, CommandCallback, CommandContext, CommandOptions } from "$types/commands";
 import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
-import { clearId, validate, validateThrow } from "$content/utils";
+import { clearId, validate } from "$content/utils";
 import * as z from "zod";
 
 class CancelError extends Error {
@@ -71,16 +71,16 @@ export default new class Commands {
 
         this.context = {
             select(options) {
-                validateThrow("context.select", arguments, ["options", SelectSchema]);
-                return createAction("select", options)
+                validate("context.select", arguments, ["options", SelectSchema]);
+                return createAction("select", options);
             },
             number(options) {
-                validateThrow("context.number", arguments, ["options", NumberSchema]);
-                return createAction("number", options)
+                validate("context.number", arguments, ["options", NumberSchema]);
+                return createAction("number", options);
             },
             string(options) {
-                validateThrow("context.string", arguments, ["options", StringSchema]);
-                return createAction("string", options)
+                validate("context.string", arguments, ["options", StringSchema]);
+                return createAction("string", options);
             }
         };
     }

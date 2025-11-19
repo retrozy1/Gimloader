@@ -9,7 +9,7 @@ export function error(...args: any[]) {
     console.error("%c[GL]", "color:#5030f2", ...args);
 }
 
-function check(fnName: string, args: IArguments, schema: [string, string | z.ZodType][], onErr: (msg: string) => void) {
+export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
     for(let i = 0; i < schema.length; i++) {
         let [name, type] = schema[i];
         if(name.endsWith("?")) {
@@ -19,35 +19,21 @@ function check(fnName: string, args: IArguments, schema: [string, string | z.Zod
 
         // check whether the key argument is present
         if(args[i] === undefined) {
-            const message = `${fnName} called without argument ${name}`;            
-            onErr(message);
-            return false;
+            throw new Error(`${fnName} called without argument ${name}`);
         }
 
         if(type === "any") continue;
         if(type instanceof z.ZodType) {
             const parsed = type.safeParse(args[i]);
             if(!parsed.success) {
-                onErr(`Error in ${fnName} argument ${name}:\n${z.prettifyError(parsed.error)}`);
-                return false;
+                throw new Error(`Failed to parse ${fnName} argument ${name}:\n${z.prettifyError(parsed.error)}`);
             }
         } else {
             if(!type.split("|").includes(typeof args[i])) {
-                onErr(`${fnName} received ${args[i]} for argument ${name}, expected type ${type}`);
-                return false;
+                throw new Error(`${fnName} received ${args[i]} for argument ${name}, expected type ${type}`);
             }
         }
     }
-
-    return true;
-}
-
-export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
-    return check(fnName, args, schema, (msg) => error(msg));
-}
-
-export function validateThrow(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
-    return check(fnName, args, schema, (msg) => { throw new Error(msg); });
 }
 
 export function splicer<T>(array: T[], obj: T) {

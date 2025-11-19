@@ -9,21 +9,21 @@ class LibsApi {
 
     /** Gets whether or not a plugin is installed and enabled */
     isEnabled(name: string) {
-        if(!validate("libs.isEnabled", arguments, ["name", "string"])) return;
+        validate("libs.isEnabled", arguments, ["name", "string"]);
 
         return LibManager.isEnabled(name);
     }
 
     /** Gets the headers of a library, such as version, author, and description */
     getHeaders(name: string) {
-        if(!validate("libs.getHeaders", arguments, ["name", "string"])) return;
+        validate("libs.getHeaders", arguments, ["name", "string"]);
 
         return LibManager.getLibHeaders(name);
     }
 
     /** Gets the exported values of a library */
     get(name: string) {
-        if(!validate("libs.get", arguments, ["name", "string"])) return;
+        validate("libs.get", arguments, ["name", "string"]);
 
         return LibManager.get(name);
     }

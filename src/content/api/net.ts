@@ -38,7 +38,7 @@ class BaseNetApi extends EventEmitter2 {
 
     /** Sends a message to the server on a specific channel */
     send(channel: string, message?: any) {
-        if(!validate("net.send", arguments, ["channel", "string"])) return;
+        validate("net.send", arguments, ["channel", "string"]);
 
         Net.send(channel, message);
     }
@@ -75,42 +75,42 @@ class NetApi extends BaseNetApi {
      * @returns A function to cancel waiting for load
      */
     onLoad(id: string, callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
-        if(!validate("Net.onLoad", arguments, ["id", "string"], ["callback", "function"], ["gamemode?", GamemodeSchema])) return;
+        validate("Net.onLoad", arguments, ["id", "string"], ["callback", "function"], ["gamemode?", GamemodeSchema]);
 
         return Net.pluginOnLoad(id, callback, gamemode);
     }
 
     /** Cancels any calls to {@link onLoad} with the same id */
     offLoad(id: string) {
-        if(!validate("Net.offLoad", arguments, ["id", "string"])) return;
+        validate("Net.offLoad", arguments, ["id", "string"]);
 
         Net.pluginOffLoad(id);
     }
 
     /** Runs a callback when a request is made that matches a certain path (can have wildcards) */
     modifyFetchRequest(id: string, path: string, callback: (options: RequesterOptions) => any) {
-        if(!validate("net.modifyFetchRequest", arguments, ["id", "string"], ["path", "string"], ["callback", "function"])) return;
+        validate("net.modifyFetchRequest", arguments, ["id", "string"], ["path", "string"], ["callback", "function"]);
 
         return Net.modifyFetchRequest(id, path, callback);
     }
 
     /** Runs a callback when a response is recieved for a request under a certain path (can have wildcards) */
     modifyFetchResponse(id: string, path: string, callback: (response: any) => any) {
-        if(!validate("net.modifyFetchResponse", arguments, ["id", "string"], ["path", "string"], ["callback", "function"])) return;
+        validate("net.modifyFetchResponse", arguments, ["id", "string"], ["path", "string"], ["callback", "function"]);
 
         return Net.modifyFetchResponse(id, path, callback);
     }
 
     /** Stops any modifications made by {@link modifyFetchRequest} with the same id */
     stopModifyRequest(id: string) {
-        if(!validate("net.stopModifyRequest", arguments, ["id", "string"])) return;
+        validate("net.stopModifyRequest", arguments, ["id", "string"]);
 
         Net.stopModifyRequest(id);
     }
 
     /** Stops any modifications made by {@link modifyFetchResponse} with the same id */
     stopModifyResponse(id: string) {
-        if(!validate("net.stopModifyResponse", arguments, ["id", "string"])) return;
+        validate("net.stopModifyResponse", arguments, ["id", "string"]);
 
         Net.stopModifyResponse(id);
     }
@@ -189,7 +189,7 @@ class ScopedNetApi extends BaseNetApi {
      * @returns A function to cancel waiting for load
      */
     onLoad(callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
-        if(!validate("Net.onLoad", arguments, ["callback", "function"], ["gamemode?", GamemodeSchema])) return;
+        validate("Net.onLoad", arguments, ["callback", "function"], ["gamemode?", GamemodeSchema]);
         if(gamemode === undefined) gamemode = this.defaultGamemode;
 
         return Net.pluginOnLoad(this.id, callback, gamemode);
@@ -197,14 +197,14 @@ class ScopedNetApi extends BaseNetApi {
 
     /** Runs a callback when a request is made that matches a certain path (can have wildcards) */
     modifyFetchRequest(path: string, callback: (options: RequesterOptions) => any) {
-        if(!validate("net.modifyFetchRequest", arguments, ["path", "string"], ["callback", "function"])) return;
+        validate("net.modifyFetchRequest", arguments, ["path", "string"], ["callback", "function"]);
 
         return Net.modifyFetchRequest(this.id, path, callback);
     }
 
     /** Runs a callback when a response is recieved for a request under a certain path (can have wildcards) */
     modifyFetchResponse(path: string, callback: (response: any) => any) {
-        if(!validate("net.modifyFetchResponse", arguments, ["path", "string"], ["callback", "function"])) return;
+        validate("net.modifyFetchResponse", arguments, ["path", "string"], ["callback", "function"]);
 
         return Net.modifyFetchResponse(this.id, path, callback);
     }

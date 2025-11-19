@@ -46,14 +46,14 @@ const CommandOptionsSchema = z.union([
 export class CommandsApi {
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(id: string, options: CommandOptions, callback: CommandCallback) {
-        if(!validate("commands.addCommand", arguments, ["id", "string"], ["options", CommandOptionsSchema], ["callback", "function"])) return;
+        validate("commands.addCommand", arguments, ["id", "string"], ["options", CommandOptionsSchema], ["callback", "function"]);
 
         return Commands.addCommand(id, options, callback);
     }
 
     /** Removes all commands that were added with the same id */
     removeCommands(id: string) {
-        if(!validate("commands.removeCommands", arguments, ["id", "string"])) return;
+        validate("commands.removeCommands", arguments, ["id", "string"]);
 
         Commands.removeCommands(id);
     }
@@ -95,7 +95,7 @@ export class ScopedCommandsApi {
 
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(options: CommandOptions, callback: CommandCallback) {
-        if(!validate("commands.addCommand", arguments, ["options", CommandOptionsSchema], ["callback", "function"])) return;
+        validate("commands.addCommand", arguments, ["options", CommandOptionsSchema], ["callback", "function"]);
 
         return Commands.addCommand(this.id, options, callback);
     }

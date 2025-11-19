@@ -24,7 +24,7 @@ const ModalOptionsSchema = z.object({
 class BaseUIApi {
     /** Shows a customizable modal to the user */
     showModal(element: HTMLElement | ReactElement, options: ModalOptions = {}) {
-        if(!validate("UI.showModal", arguments, ["element", "any"], ["options?", ModalOptionsSchema])) return;
+        validate("UI.showModal", arguments, ["element", "any"], ["options?", ModalOptionsSchema]);
 
         showModal(element, options);
     }
@@ -36,14 +36,14 @@ class UIApi extends BaseUIApi {
      * @returns A function to remove the styles
      */
     addStyles(id: string, style: string) {
-        if(!validate("UI.removeStyles", arguments, ["id", "string"], ["style", "string"])) return;
+        validate("UI.removeStyles", arguments, ["id", "string"], ["style", "string"]);
 
         return UI.addStyles(id, style);
     }
 
     /** Remove all styles with a given id */
     removeStyles(id: string) {
-        if(!validate("UI.removeStyles", arguments, ["id", "string"])) return;
+        validate("UI.removeStyles", arguments, ["id", "string"]);
 
         UI.removeStyles(id);
     }
@@ -59,7 +59,7 @@ class ScopedUIApi extends BaseUIApi {
      * @returns A function to remove the styles
      */
     addStyles(style: string) {
-        if(!validate("UI.removeStyles", arguments, ["style", "string"])) return;
+        validate("UI.removeStyles", arguments, ["style", "string"]);
 
         return UI.addStyles(this.id, style);
     }

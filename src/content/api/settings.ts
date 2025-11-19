@@ -150,7 +150,7 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
 
     const methods: SettingsMethods = {
         create(description) {
-            if(!validate("settings.create", arguments, ["description", DescriptionSchema])) return;
+            validate("settings.create", arguments, ["description", DescriptionSchema]);
 
             plugin.settingsDescription = description;
             plugin.openSettingsMenu.push(() => showPluginSettings(plugin));
@@ -160,7 +160,7 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
             registerListeners(id, description);
         },
         listen(key, callback) {
-            if(!validate("settings.listen", arguments, ["key", "string"], ["callback", "function"])) return;
+            validate("settings.listen", arguments, ["key", "string"], ["callback", "function"]);
 
             return Storage.onPluginSettingUpdate(id, key, callback);
         }

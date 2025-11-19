@@ -105,14 +105,14 @@ class HotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addHotkey(id: string, options: HotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addHotkey", arguments, ["id", "string"], ["options", HotkeyOptionsSchema], ["callback", "function"])) return;
+        validate("hotkeys.addHotkey", arguments, ["id", "string"], ["options", HotkeyOptionsSchema], ["callback", "function"]);
 
         return Hotkeys.addHotkey(id, options, callback);
     }
 
     /** Removes all hotkeys with a given id */
     removeHotkeys(id: string) {
-        if(!validate("hotkeys.removeHotkeys", arguments, ["id", "string"])) return;
+        validate("hotkeys.removeHotkeys", arguments, ["id", "string"]);
 
         Hotkeys.removeHotkeys(id);
     }
@@ -123,14 +123,14 @@ class HotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addConfigurableHotkey(id: string, options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addConfigurableHotkey", arguments, ["id", "string"], ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"])) return;
+        validate("hotkeys.addConfigurableHotkey", arguments, ["id", "string"], ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"]);
 
         return Hotkeys.addConfigurableHotkey(id, options, callback);
     }
 
     /** Removes a configurable hotkey with a given id */
     removeConfigurableHotkey(id: string) {
-        if(!validate("hotkeys.removeConfigurableHotkey", arguments, ["id", "string"])) return;
+        validate("hotkeys.removeConfigurableHotkey", arguments, ["id", "string"]);
 
         Hotkeys.removeConfigurableHotkey(id);
     }
@@ -188,7 +188,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addHotkey(options: HotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addHotkey", arguments, ["options", HotkeyOptionsSchema], ["callback", "function"])) return;
+        validate("hotkeys.addHotkey", arguments, ["options", HotkeyOptionsSchema], ["callback", "function"]);
 
         return Hotkeys.addHotkey(this.id, options, callback);
     }
@@ -198,7 +198,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
      * @returns A function to remove the hotkey
      */
     addConfigurableHotkey(options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
-        if(!validate("hotkeys.addConfigurableHotkey", arguments, ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"])) return;
+        validate("hotkeys.addConfigurableHotkey", arguments, ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"]);
 
         return Hotkeys.addConfigurableHotkey(`${this.id}-${options.category}-${options.title}`, options, callback, this.id);
     }
