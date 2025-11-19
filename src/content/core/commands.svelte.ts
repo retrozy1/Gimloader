@@ -1,6 +1,7 @@
 import type { Command, CommandAction, CommandCallback, CommandContext, CommandOptions } from "$types/commands";
 import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
+import { clearId } from "$content/utils";
 
 class CancelError extends Error {
     constructor() {
@@ -9,8 +10,7 @@ class CancelError extends Error {
 }
 
 export default new class Commands {
-    groups: Record<string, Command[]> = $state({});
-    callbacks: Record<string, CommandCallback> = {};
+    commands: Command[] = $state([]);
     action: CommandAction | null = $state(null);
     context: CommandContext;
     open = $state(false);
@@ -71,76 +71,51 @@ export default new class Commands {
         this.open = true;
     }
 
-    onSelect(value: string) {
-        const action = this.action;
-        if(action?.type === "select") {
-            const selected = action.options.options.find(o => o.label === value);
-            if(!selected) return;
+    onClosed() {
+        if(!this.action) return;
 
-            action.callback(selected.value);
-            return;
-        }
+        this.action.cancel();
+        this.action = null;
+    }
 
-        this.startClose();
-        const returned = this.callbacks[value]?.(this.context);
+    commandIdentifier = 0;
+    addCommand(id: string | null, options: CommandOptions | string, callback: CommandCallback) {
+        const identifier = this.commandIdentifier++;
 
-        // Automatically catch errors caused by the user cancelling
-        if(returned instanceof Promise) {
-            returned.catch((err) => {
-                if(err instanceof CancelError) return;
-                console.error("Error executing command:", err);
+        if(typeof options === "string") {
+            this.commands.push({
+                text: options,
+                id,
+                identifier,
+                callback
+            });
+        } else {
+            this.commands.push({
+                ...options,
+                id,
+                identifier,
+                callback
             });
         }
-    }
-
-    addCommand(id: string | null, options: CommandOptions, callback: CommandCallback) {
-        // Find a unique value
-        let value = options.text;
-        let index = 2;
-        while(this.callbacks[value]) {
-            value = `${options.text} ${index}`;
-            index++;
-        }
-
-        this.callbacks[value] = callback;
-
-        const command: Command = {
-            id,
-            value,
-            text: options.text,
-            keywords: options.keywords
-        };
-        this.groups[options.group] ??= [];
-        this.groups[options.group].push(command);
 
         return () => {
-            const index = this.groups[options.group].findIndex(c => c.value === value);
-            if(index !== -1) this.groups[options.group].splice(index, 1);
+            const index = this.commands.findIndex(c => c.identifier === identifier);
+            if(index === -1) return;
 
-            delete this.callbacks[value];
-
-            // If the group is empty, remove it
-            if(this.groups[options.group].length === 0) {
-                delete this.groups[options.group];
-            }
-        };
-    }
-
-    removeCommands(id: string) {
-        for(const group in this.groups) {
-            // Remove all commands with the given id
-            for(let j = this.groups[group].length - 1; j >= 0; j--) {
-                const command = this.groups[group][j];
-                if(command.id !== id) continue;
-
-                this.groups[group].splice(j, 1);
-                delete this.callbacks[command.value];
-            }
-
-            // If the group is empty, remove it
-            if(this.groups[group].length === 0) {
-                delete this.groups[group];
-            }
+            this.commands.splice(index, 1);
         }
     }
+
+    runCommand(callback: CommandCallback) {
+        this.startClose();
+        try {
+            callback(this.context);
+        } catch(e) {
+            if(e instanceof CancelError) return;
+
+            throw e;
+        }
+    }
+
+    removeCommands(id: string) { clearId(this.commands, id) }
 }();

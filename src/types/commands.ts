@@ -1,14 +1,13 @@
 export interface CommandOptions {
-    text: string;
-    group: string;
+    text: string | (() => string);
     keywords?: string[];
+    hidden?: () => boolean;
 }
 
-export interface Command {
+export interface Command extends CommandOptions {
     id: string | null;
-    text: string;
-    value: string;
-    keywords?: string[];
+    identifier: number;
+    callback: CommandCallback;
 }
 
 export interface BaseCommandOptions {

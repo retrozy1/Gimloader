@@ -1,103 +1,171 @@
 <script lang="ts">
-    import * as Command from "$shared/ui/command";
-    import Commands from "$core/commands.svelte";
+    import Commands from "$content/core/commands.svelte";
+    import * as Dialog from "$shared/ui/dialog";
+    import type { CommandCallback } from "$types/commands";
+    import Search from "@lucide/svelte/icons/search";
+    import { computeCommandScore } from "bits-ui";
     import { watch } from "runed";
 
-    let commandsList = $derived(Object.entries(Commands.groups));
-    let value = $state("");
+    let selectedIndex = $state(0);
+    let searched = $state("");
+    let selectSearch = $state("");
+    let textInput = $state("");
+    let numberInput: number | undefined = $state();
+    watch([() => searched, () => selectSearch], () => { selectedIndex = 0 });
 
-    let inputValue = $state("");
-    watch(() => Commands.action, () => {
-        inputValue = "";
+    interface Option {
+        text: string;
+        score: number;
+        callback: CommandCallback;
+    }
+
+    // Calculate which options to show in general
+    let items = $derived.by(() => {
+        let options: Option[] = [];
+
+        for(let command of Commands.commands) {
+            if(command.hidden?.()) continue;
+            const text = typeof command.text === "function" ? command.text() : command.text;
+            const score = computeCommandScore(text, searched, command.keywords);
+
+            if(score === 0) continue;
+            options.push({ text, score, callback: command.callback });
+        }
+
+        options.sort((a, b) => b.score - a.score);
+        return options;
     });
 
-    function windowKeydown(e: KeyboardEvent) {
-        if(e.key !== "Enter" || !Commands.open) return;
+    interface SelectOption {
+        label: string;
+        value: string;
+        score: number;
+    }
 
-        if(Commands.action?.type === "string") {
-            if(inputValue.trim() === "") return;
-            Commands.action.callback(inputValue);
-        } else if(Commands.action?.type === "number") {
-            if(!inputValue) return;
+    // Calculate which options to show in the select action
+    let selectItems = $derived.by(() => {
+        if(Commands.action?.type !== "select") return [];
 
-            // If the number changes after being clamped, don't submit
-            let parsed = parseFloat(inputValue);
-            if(Number.isNaN(parsed)) {
-                inputValue = "";
-                return;
-            }
+        let options: SelectOption[] = [];
+        for(let option of Commands.action.options.options) {
+            const score = computeCommandScore(option.label, selectSearch);
+            if(score === 0) continue;
 
-            const options = Commands.action.options;
-            if(!options.decimal) parsed = Math.round(parsed);
-            if(options.min) parsed = Math.max(parsed, options.min);
-            if(options.max) parsed = Math.min(parsed, options.max);
-            if(String(parsed) !== inputValue) {
-                inputValue = String(parsed);
-                return;
-            }
+            options.push({ label: option.label, value: option.value, score });
+        }
 
-            Commands.action.callback(parsed);
+        options.sort((a, b) => b.score - a.score);
+        return options;
+    });
+
+    function onKeydown(e: KeyboardEvent) {
+        if(!Commands.open) return;
+
+        if(e.key === "ArrowDown") {
+            selectedIndex = (selectedIndex + 1) % items.length;
+        } else if(e.key === "ArrowUp") {
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        } else if(e.key === "Enter") {
+            onSelect(selectedIndex);
         }
     }
 
-    function onSelect() {
-        Commands.onSelect(value);
+    function onSelect(index: number) {
+        if(Commands.action?.type === "select") {
+            const option = selectItems[index];
+            if(!option) return;
+
+            Commands.action.callback(option.value);
+            return;
+        } else if(Commands.action?.type === "string") {
+            if(!textInput) return;
+
+            Commands.action.callback(textInput);
+            return;
+        } else if(Commands.action?.type === "number") {
+            if(numberInput === undefined) return;
+
+            let oldValue = numberInput;
+            const options = Commands.action.options;
+            if(options.min !== undefined) numberInput = Math.max(numberInput, options.min);
+            if(options.max !== undefined) numberInput = Math.min(numberInput, options.max);
+            if(options.decimal === false) numberInput = Math.round(numberInput);
+            if(numberInput !== oldValue) return;
+
+            Commands.action.callback(numberInput);
+            return;
+        }
+
+        const command = items[index];
+        if(!command) return;
+
+        Commands.runCommand(command.callback);
     }
 
     function onOpenChange(open: boolean) {
         if(open) return;
 
-        Commands.action?.cancel();
-        Commands.action = null;
+        searched = "";
+        selectSearch = "";
+        textInput = "";
+        numberInput = undefined;
+        Commands.onClosed();
     }
 
-    function inputKeydown(e: KeyboardEvent) {
-        if(Commands.action.type !== "number" || e.key.length > 1) return;
-        if(e.ctrlKey || e.metaKey || e.altKey) return;
-
-        if(Commands.action.options.decimal) {
-            if(!/[0-9.-]/.test(e.key)) e.preventDefault();
-        } else {
-            if(!/[0-9-]/.test(e.key)) e.preventDefault();
-        }
-    }
+    const inputClass = "placeholder:text-muted-foreground outline-hidden flex h-10 w-full rounded-md py-3 text-sm";
 </script>
 
-<svelte:window onkeydown={windowKeydown} />
+<svelte:window onkeydown={onKeydown} />
 
-<Command.Dialog bind:open={Commands.open} bind:value onOpenChangeComplete={onOpenChange}>
-    {#if Commands.action}
-        <Command.Input
-            bind:value={inputValue}
-            onkeydown={inputKeydown}
-            maxlength={Commands.action.type === "string" ? Commands.action.options.maxLength : null}
-            placeholder={Commands.action.options.title}
-        />
-        {#if Commands.action.type === "select"}
-            <Command.List>
-                {#each Commands.action.options.options as option}
-                    <Command.Item {onSelect}>
-                        {option.label}
-                    </Command.Item>
+{#snippet item(text: string, index: number)}
+    <button data-selected={index === selectedIndex ? true : null} onselect={() => onSelect(index)}
+        onmouseover={() => selectedIndex = index} onfocus={() => selectedIndex = index}
+        class="data-selected:bg-accent data-selected:text-accent-foreground w-full outline-hidden
+        relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1! text-sm!">
+        {text}
+    </button>
+{/snippet}
+
+<Dialog.Root bind:open={Commands.open} onOpenChangeComplete={onOpenChange}>
+    <Dialog.Content class="flex flex-col p-0 gap-0 overflow-hidden z-100"
+        style="width: min(600px, 90vw);" showCloseButton={false}>
+        {#if !Commands.action}
+            <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8" >
+                <Search class="size-4 shrink-0 opacity-50" />
+                <input placeholder="Type a command or search..." bind:value={searched}
+                    spellcheck={false} class={inputClass} />
+            </div>
+            <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
+                {#each items as command, i}
+                    {@render item(command.text, i)}
                 {/each}
-            </Command.List>
-        {/if}
-    {:else}
-        <Command.Input placeholder="Type a command or search..." />
-        <Command.List>
-            <Command.Empty>No results found.</Command.Empty>
-            {#each commandsList as [group, commands], i}
-                <Command.Group heading={group}>
-                    {#each commands as command}
-                        <Command.Item {onSelect} value={command.value} keywords={command.keywords}>
-                            {command.text}
-                        </Command.Item>
-                    {/each}
-                </Command.Group>
-                {#if i < commandsList.length - 1}
-                    <Command.Separator />
+                {#if items.length === 0}
+                    <div class="w-full p-2 text-center text-sm text-muted-foreground">
+                        No commands found.
+                    </div>
                 {/if}
-            {/each}
-        </Command.List>
-    {/if}
-</Command.Dialog>
+            </div>
+        {:else if Commands.action.type === "select"}
+            <div class="h-9 border-b pl-3 pr-8">
+                <input placeholder={Commands.action.options.title} bind:value={selectSearch}
+                    spellcheck={false} class={inputClass} />
+            </div>
+            <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
+                {#each selectItems as option, i}
+                    {@render item(option.label, i)}
+                {/each}
+            </div>
+        {:else if Commands.action.type === "string"}
+            <div class="h-9 pl-3 pr-8">
+                <input placeholder={Commands.action.options.title} bind:value={textInput}
+                    spellcheck={false} maxlength={Commands.action.options.maxLength} class={inputClass} />
+            </div>
+        {:else}
+            <div class="h-9 pl-3 pr-8">
+                <input placeholder={Commands.action.options.title} type="number" bind:value={numberInput}
+                    spellcheck={false} class={inputClass} min={Commands.action.options.min}
+                    max={Commands.action.options.max} step={Commands.action.options.decimal ? null : 1} />
+            </div>
+        {/if}
+    </Dialog.Content>
+</Dialog.Root>

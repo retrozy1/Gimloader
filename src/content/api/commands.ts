@@ -3,11 +3,14 @@ import { validate } from "$content/utils";
 import type { CommandCallback, CommandOptions } from "$types/commands";
 import * as z from "zod";
 
-const CommandOptionsSchema = z.object({
-    text: z.string(),
-    group: z.string(),
-    keywords: z.array(z.string()).optional()
-});
+const CommandOptionsSchema = z.union([
+    z.string(),
+    z.object({
+        text: z.union([z.string(), z.function()]),
+        keywords: z.array(z.string()).optional(),
+        hidden: z.function().optional()
+    })
+]);
 
 /**
  * An API for adding commands to the command palette
