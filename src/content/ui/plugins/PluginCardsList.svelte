@@ -15,6 +15,7 @@
     import toast from "svelte-5-french-toast";
     import * as Dialog from "$shared/ui/dialog";
     import { parseScriptHeaders } from "$shared/parseHeader";
+    import ChevronDown from "@lucide/svelte/icons/chevron-down";
 
     let searchValue = $state("");
     let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
@@ -51,10 +52,7 @@
         });
     }
 
-    let sortOpen = $state(false);
-
     function sortEnabled() {
-        sortOpen = false;
         let enabled = PluginManager.plugins.filter((p) => p.enabled);
         let disabled = PluginManager.plugins.filter((p) => !p.enabled);
         PluginManager.plugins = enabled.concat(disabled);
@@ -62,7 +60,6 @@
     }
 
     function sortAlphabetical() {
-        sortOpen = false;
         let sorted = PluginManager.plugins.sort((a, b) => a.headers.name.localeCompare(b.headers.name));
         PluginManager.plugins = sorted;
         Port.send("pluginsArrange", { order: sorted.map(p => p.headers.name) });
@@ -86,7 +83,7 @@
     let pluginUrlMenuOpen = $state(false);
 </script>
 
-<Dialog.Root open={pluginUrlMenuOpen}>
+<Dialog.Root open={pluginUrlMenuOpen} onOpenChangeComplete={() => pluginUrl = ""}>
     <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
         <input placeholder="Plugin URL" bind:value={pluginUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
         <Button
@@ -96,6 +93,7 @@
             }}>Install</Button>
     </Dialog.Content>
 </Dialog.Root>
+
 <div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
         <Button class="h-7" onclick={() => officialPluginsOpen.set(true)}>
@@ -105,6 +103,7 @@
             <DropdownMenu.Trigger class="mx-1.5!">
                 <Button class="h-7">
                     Create/Install Plugin
+                    <ChevronDown size={12} />
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
@@ -117,6 +116,7 @@
             <DropdownMenu.Trigger>
                 <Button class="h-7">
                     Bulk actions
+                    <ChevronDown size={12} />
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
@@ -129,6 +129,7 @@
             <DropdownMenu.Trigger class="mx-1.5!">
                 <Button class="h-7">
                     Sort by...
+                    <ChevronDown size={12} />
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>

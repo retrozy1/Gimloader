@@ -1,2 +1,9 @@
+Added command palette- open with ctrl+shift+p (chrome) or alt+shift+p (firefox)
+Fixed polling for extensions locally on firefox
 Fixed crash when used on Firefox together with some other extensions
 Added titles for script buttons
+Added option to import scripts from a URL
+Improved validation for api arguments
+Fixed visual issue with script author's name being cut off
+Fixed visual issue with horizontal scrollbar appearing in settings
+Better handling for load errors

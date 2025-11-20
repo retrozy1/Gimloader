@@ -5,6 +5,7 @@
     import Search from "@lucide/svelte/icons/search";
     import { computeCommandScore } from "bits-ui";
     import { watch } from "runed";
+    import type { Action } from "svelte/action";
 
     let selectedIndex = $state(0);
     let searched = $state("");
@@ -114,6 +115,16 @@
         Commands.onClosed();
     }
 
+    const makeVisible: Action<HTMLElement, boolean> = (node, show) => {
+        if(show) node.scrollIntoView({ block: "nearest" });
+
+        return {
+            update(show: boolean) {
+                if(show) node.scrollIntoView({ block: "nearest" });
+            }
+        };
+    };
+
     const inputClass = "placeholder:text-muted-foreground outline-hidden flex h-10 w-full rounded-md py-3 text-sm";
 </script>
 
@@ -121,6 +132,7 @@
 
 {#snippet item(text: string, index: number)}
     <button
+        use:makeVisible={index === selectedIndex}
         data-selected={index === selectedIndex ? true : null}
         onselect={() => onSelect(index)}
         onmouseover={() => selectedIndex = index}

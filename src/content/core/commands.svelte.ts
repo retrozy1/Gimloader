@@ -3,6 +3,7 @@ import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
 import { clearId, validate } from "$content/utils";
 import * as z from "zod";
+import { isFirefox } from "$shared/consts";
 
 class CancelError extends Error {
     constructor() {
@@ -39,16 +40,24 @@ export default new class Commands {
     init() {
         mountCommand();
 
+        const chromeDefault = {
+            key: "KeyP",
+            ctrl: true,
+            shift: true,
+            alt: false
+        };
+        const firefoxDefault = {
+            key: "KeyP",
+            ctrl: false,
+            shift: true,
+            alt: true
+        };
+
         Hotkeys.addConfigurableHotkey("openCommandPalette", {
             category: "Gimloader",
             title: "Open Command Palette",
             preventDefault: true,
-            default: {
-                key: "KeyP",
-                ctrl: true,
-                shift: true,
-                alt: false
-            }
+            default: isFirefox ? firefoxDefault : chromeDefault
         }, () => this.startOpen());
 
         const createAction = <T extends CommandAction, R>(type: T["type"], options: T["options"]) => {

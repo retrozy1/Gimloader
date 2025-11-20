@@ -13,6 +13,7 @@
     import toast from "svelte-5-french-toast";
     import { parseScriptHeaders } from "$shared/parseHeader";
     import * as Dialog from "$shared/ui/dialog";
+    import ChevronDown from "@lucide/svelte/icons/chevron-down";
 
     let searchValue = $state("");
     let items = $state(LibManager.libs.map((lib: Lib) => ({ id: lib.headers.name })));
@@ -62,14 +63,13 @@
         }
     };
 
-    let flipDurationMs = $state(0);
-    setTimeout(() => flipDurationMs = 300);
+    const flipDurationMs = 300;
 
     let libUrl = $state("");
     let libUrlMenuOpen = $state(false);
 </script>
 
-<Dialog.Root open={libUrlMenuOpen}>
+<Dialog.Root open={libUrlMenuOpen} onOpenChangeComplete={() => libUrl = ""}>
     <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
         <input placeholder="Library URL" bind:value={libUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
         <Button
@@ -79,11 +79,15 @@
             }}>Install</Button>
     </Dialog.Content>
 </Dialog.Root>
+
 <div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
         <DropdownMenu.Root>
             <DropdownMenu.Trigger class="mr-1.5!">
-                <Button class="h-7">Create/Install Library</Button>
+                <Button class="h-7">
+                    Create/Install Library
+                    <ChevronDown size={12} />
+                </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
                 <DropdownMenu.Item onclick={() => showEditor("library")}>Create Blank</DropdownMenu.Item>
@@ -95,6 +99,7 @@
             <DropdownMenu.Trigger class="mr-2!">
                 <Button class="h-7">
                     Bulk actions
+                    <ChevronDown size={12} />
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
