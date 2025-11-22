@@ -134,7 +134,7 @@
     <button
         use:makeVisible={index === selectedIndex}
         data-selected={index === selectedIndex ? true : null}
-        onselect={() => onSelect(index)}
+        onclick={() => onSelect(index)}
         onmouseover={() => selectedIndex = index}
         onfocus={() => selectedIndex = index}
         class="
