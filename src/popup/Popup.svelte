@@ -44,11 +44,11 @@
 
         let debugInfo = `**Core:**\nGimloader v${version}`;
         debugInfo += `\n\n**Plugins:**\n` + plugins.map((plugin) => {
-            const headers = parseScriptHeaders(plugin.script);
+            const headers = parseScriptHeaders(plugin.code);
             return `- ${plugin.name} v${headers.version || "unknown"} [${plugin.enabled ? "enabled" : "disabled"}]`;
         }).join("\n");
         debugInfo += `\n\n**Libraries:**\n` + libraries.map((library) => {
-            const headers = parseScriptHeaders(library.script);
+            const headers = parseScriptHeaders(library.code);
             return `- ${library.name} v${headers.version || "unknown"}`;
         }).join("\n");
 

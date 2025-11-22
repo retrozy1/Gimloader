@@ -15,7 +15,8 @@ export function parseScriptHeaders(code: string): ScriptHeaders {
         webpage: null,
         deprecated: null,
         gamemode: [],
-        changelog: []
+        changelog: [],
+        needsPlugin: []
     };
 
     return parseHeader<ScriptHeaders>(code, baseHeaders);

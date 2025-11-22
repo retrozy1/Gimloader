@@ -2,10 +2,9 @@ import Internals from "$core/internals";
 import EventEmitter2 from "eventemitter2";
 import { clearId, error, log, splicer } from "$content/utils";
 import Patcher from "../patcher";
-import LibManager from "$core/scripts/libManager.svelte";
-import { formatDownloadUrl } from "$shared/net/util";
 import Rewriter from "../rewriter";
 import wildcardMatch from "wildcard-match";
+import { gameState } from "$content/stores";
 
 export type ConnectionType = "None" | "Colyseus" | "Blueboat";
 
@@ -152,6 +151,7 @@ export default new class Net extends EventEmitter2 {
 
         this.type = "Colyseus";
         this.room = room;
+        gameState.inGame = true;
 
         // intercept outgoing messages
         Patcher.before(null, room, "send", (_, args) => {
@@ -180,6 +180,7 @@ export default new class Net extends EventEmitter2 {
 
         this.room = room;
         this.type = "Blueboat";
+        gameState.inGame = true;
 
         // intercept incoming messages
         Patcher.before(null, room.onMessage, "call", (_, args) => {
@@ -297,23 +298,6 @@ export default new class Net extends EventEmitter2 {
 
     send(channel: string, message?: any) {
         this.room?.send(channel, message);
-    }
-
-    downloadLibrary(url: string) {
-        return new Promise<void>(async (res, rej) => {
-            const resp = await fetch(formatDownloadUrl(url))
-                .catch(() => rej(`Failed to download library from ${url}`));
-            if(!resp) return;
-
-            if(resp.status !== 200) {
-                rej(`Failed to download library from ${url}\nRecieved response status of ${resp.status}`);
-                return;
-            }
-
-            const text = await resp.text();
-            LibManager.createLib(text);
-            res();
-        });
     }
 
     onLoad(type: ConnectionType, gamemode: string, ...otherTriggers: string[]) {

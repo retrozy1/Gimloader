@@ -13,6 +13,7 @@ export interface ScriptHeaders {
     gamemode: string[];
     changelog: string[];
     /** Only available for plugins */
+    needsPlugin: string[];
     hasSettings: string;
 }
 

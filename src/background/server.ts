@@ -64,12 +64,12 @@ export default new class Server {
             "pluginDelete",
             "pluginEdit",
             "pluginToggled",
-            "pluginsDeleteAll",
-            "pluginsSetAll",
+            "pluginDeleteAll",
+            "pluginSetAll",
             "libraryCreate",
             "libraryDelete",
             "libraryEdit",
-            "librariesDeleteAll"
+            "libraryDeleteAll"
         ];
 
         // If it comes from a game port the cache has been invalidated already

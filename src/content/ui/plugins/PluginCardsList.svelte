@@ -10,18 +10,17 @@
     import Port from "$shared/net/port.svelte";
     import { flipDurationMs } from "$shared/consts";
     import ViewControl from "../components/ViewControl.svelte";
-    import { officialPluginsOpen } from "../stores";
+    import { officialPluginsOpen } from "../../stores";
     import * as DropdownMenu from "$shared/ui/dropdown-menu";
-    import toast from "svelte-5-french-toast";
     import * as Dialog from "$shared/ui/dialog";
-    import { parseScriptHeaders } from "$shared/parseHeader";
     import ChevronDown from "@lucide/svelte/icons/chevron-down";
+    import { downloadPlugin } from "$content/core/net/download";
 
     let searchValue = $state("");
-    let items = $state(PluginManager.plugins.map((plugin) => ({ id: plugin.headers.name })));
+    let items = $state(PluginManager.scripts.map((plugin) => ({ id: plugin.headers.name })));
 
     $effect(() => {
-        items = PluginManager.plugins
+        items = PluginManager.scripts
             .filter((plugin) => plugin.headers.name.toLowerCase().includes(searchValue.toLowerCase()))
             .map((plugin) => ({ id: plugin.headers.name }));
     });
@@ -38,7 +37,7 @@
 
         // Update the order of the plugins
         let order = items.map(i => i.id);
-        PluginManager.arrangePlugins(order);
+        PluginManager.arrange(order);
     }
 
     function startDrag() {
@@ -48,36 +47,22 @@
     function importPlugin() {
         readUserFile(".js", (code) => {
             code = code.replaceAll("\r\n", "\n");
-            PluginManager.createPlugin(code);
+            PluginManager.create(code);
         });
     }
 
     function sortEnabled() {
-        let enabled = PluginManager.plugins.filter((p) => p.enabled);
-        let disabled = PluginManager.plugins.filter((p) => !p.enabled);
-        PluginManager.plugins = enabled.concat(disabled);
-        Port.send("pluginsArrange", { order: PluginManager.plugins.map(p => p.headers.name) });
+        let enabled = PluginManager.scripts.filter((p) => p.enabled);
+        let disabled = PluginManager.scripts.filter((p) => !p.enabled);
+        PluginManager.scripts = enabled.concat(disabled);
+        Port.send("pluginArrange", { order: PluginManager.scripts.map(p => p.headers.name) });
     }
 
     function sortAlphabetical() {
-        let sorted = PluginManager.plugins.sort((a, b) => a.headers.name.localeCompare(b.headers.name));
-        PluginManager.plugins = sorted;
-        Port.send("pluginsArrange", { order: sorted.map(p => p.headers.name) });
+        let sorted = PluginManager.scripts.sort((a, b) => a.headers.name.localeCompare(b.headers.name));
+        PluginManager.scripts = sorted;
+        Port.send("pluginArrange", { order: sorted.map(p => p.headers.name) });
     }
-
-    // Stollen from OfficialPlugins.svelte because I do not know the proper place to put the function for sharing.
-    const install = async (url: string) => {
-        try {
-            if(!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
-            const res = await fetch(url);
-            const code = await res.text();
-            await PluginManager.createPlugin(code);
-            toast.success(`Installed ${parseScriptHeaders(code).name}`);
-        } catch (e) {
-            console.error(e);
-            toast.error(`Failed to install plugin from URL`); // Just in case the issue is with the headers.
-        }
-    };
 
     let pluginUrl = $state("");
     let pluginUrlMenuOpen = $state(false);
@@ -88,7 +73,7 @@
         <input placeholder="Plugin URL" bind:value={pluginUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
         <Button
             onclick={() => {
-                install(pluginUrl);
+                downloadPlugin(pluginUrl);
                 pluginUrlMenuOpen = false;
             }}>Install</Button>
     </Dialog.Content>
@@ -120,7 +105,7 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={() => PluginManager.confirmDeleteAll(false)}>Delete all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.deleteAll(false)}>Delete all</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={() => PluginManager.setAll(true)}>Enable all</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={() => PluginManager.setAll(false)}>Disable all</DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -140,7 +125,7 @@
         <ViewControl />
         <Search bind:value={searchValue} />
     </div>
-    {#if PluginManager.plugins.length === 0}
+    {#if PluginManager.scripts.length === 0}
         <h2 class="text-xl w-full text-center">
             No plugins installed! Check out the
             <button class="underline" onclick={() => officialPluginsOpen.set(true)}>
@@ -156,7 +141,7 @@
         onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
-                {@const plugin = PluginManager.getPlugin(item.id)}
+                {@const plugin = PluginManager.getScript(item.id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <Plugin {plugin} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
                 </div>

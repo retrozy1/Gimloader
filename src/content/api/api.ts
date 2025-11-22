@@ -1,5 +1,5 @@
 import type { PluginSettings } from "$types/settings";
-import type { Plugin } from "$core/scripts/scripts.svelte";
+import { Plugin } from "$core/scripts/plugin.svelte";
 import { HotkeysApi, ScopedHotkeysApi } from "./hotkeys";
 import { ParcelApi, ScopedParcelApi } from "./parcel";
 import { NetApi, ScopedNetApi } from "./net";
@@ -145,8 +145,8 @@ class Api {
         this.storage = Object.freeze(new ScopedStorageApi(scoped.id));
         this.patcher = Object.freeze(new ScopedPatcherApi(scoped.id));
         this.commands = Object.freeze(new ScopedCommandsApi(scoped.id));
-        if(scoped.script.type === "Plugin") {
-            this.settings = createSettingsApi(scoped.script as Plugin);
+        if(scoped.script instanceof Plugin) {
+            this.settings = createSettingsApi(scoped.script);
         }
 
         const netOnAny = (channel: string, ...args: any[]) => {

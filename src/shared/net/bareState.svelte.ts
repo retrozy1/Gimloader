@@ -19,27 +19,27 @@ export default new class BareState {
         }, onState);
 
         // sync plugins
-        Port.on("pluginEdit", ({ name, script, newName }) => {
+        Port.on("pluginEdit", ({ name, code, newName }) => {
             const plugin = this.plugins.find(p => p.name === name);
             if(!plugin) return;
 
-            plugin.script = script;
+            plugin.code = code;
             plugin.name = newName;
         });
 
-        Port.on("pluginCreate", ({ name, script }) => {
-            this.plugins.push({ name, script, enabled: true });
+        Port.on("pluginCreate", ({ name, code }) => {
+            this.plugins.push({ name, code, enabled: true });
         });
 
         Port.on("pluginDelete", ({ name }) => {
             this.plugins = this.plugins.filter(p => p.name !== name);
         });
 
-        Port.on("pluginsDeleteAll", () => {
+        Port.on("pluginDeleteAll", () => {
             this.plugins.splice(0, this.plugins.length);
         });
 
-        Port.on("pluginsArrange", ({ order }) => {
+        Port.on("pluginArrange", ({ order }) => {
             const newOrder: PluginInfo[] = [];
             for(const name in order) {
                 newOrder.push(this.plugins.find(p => p.name === name));
@@ -48,19 +48,19 @@ export default new class BareState {
         });
 
         // sync libraries
-        Port.on("libraryCreate", (info) => this.libraries.push(info));
+        Port.on("libraryCreate", (item) => this.libraries.push(item));
 
         Port.on("libraryDelete", ({ name }) => {
             this.libraries = this.libraries.filter(l => l.name !== name);
         });
 
-        Port.on("libraryEdit", ({ name, script }) => {
-            this.libraries.find(l => l.name === name).script = script;
+        Port.on("libraryEdit", ({ name, code }) => {
+            this.libraries.find(l => l.name === name).code = code;
         });
 
-        Port.on("librariesDeleteAll", () => this.libraries = []);
+        Port.on("libraryDeleteAll", () => this.libraries = []);
 
-        Port.on("librariesArrange", ({ order }) => {
+        Port.on("libraryArrange", ({ order }) => {
             const newOrder: LibraryInfo[] = [];
             for(const name in order) {
                 newOrder.push(this.libraries.find(l => l.name === name));

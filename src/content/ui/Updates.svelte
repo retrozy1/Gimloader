@@ -1,7 +1,7 @@
 <script lang="ts">
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import LibManager from "$core/scripts/libManager.svelte";
-    import { checkLibUpdate, checkPluginUpdate } from "$core/net/checkUpdates";
+    import { checkUpdate } from "$core/net/checkUpdates";
     import Update from "svelte-material-icons/Update.svelte";
     import { version } from "../../../package.json";
     import toast from "svelte-5-french-toast";
@@ -31,13 +31,13 @@
         Gimloader v{version}
     </div>
     <div class="font-bold text-xl mt-2">Plugins</div>
-    {#if PluginManager.plugins.length === 0}
+    {#if PluginManager.scripts.length === 0}
         <h2 class="text-lg">No plugins installed</h2>
     {:else}
-        {#each PluginManager.plugins as plugin}
+        {#each PluginManager.scripts as plugin}
             <div class="flex items-center">
                 {#if plugin.headers.downloadUrl}
-                    <button onclick={() => checkPluginUpdate(plugin)}>
+                    <button onclick={() => checkUpdate(plugin)}>
                         <Update size={25} />
                     </button>
                 {/if}
@@ -46,13 +46,13 @@
         {/each}
     {/if}
     <div class="font-bold text-xl mt-2">Libraries</div>
-    {#if LibManager.libs.length === 0}
+    {#if LibManager.scripts.length === 0}
         <h2 class="text-lg">No libraries installed</h2>
     {:else}
-        {#each LibManager.libs as lib}
+        {#each LibManager.scripts as lib}
             <div class="flex items-center">
                 {#if lib.headers.downloadUrl}
-                    <button title="Check for updates" onclick={() => checkLibUpdate(lib)}>
+                    <button title="Check for updates" onclick={() => checkUpdate(lib)}>
                         <Update size={25} />
                     </button>
                 {/if}

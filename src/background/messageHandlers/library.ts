@@ -14,9 +14,9 @@ export default class LibrariesHandler {
     static init() {
         Server.on("libraryEdit", this.onLibraryEdit.bind(this));
         Server.on("libraryDelete", this.onLibraryDelete.bind(this));
-        Server.on("librariesDeleteAll", this.onLibrariesDeleteAll.bind(this));
+        Server.on("libraryDeleteAll", this.onLibrariesDeleteAll.bind(this));
         Server.on("libraryCreate", this.onLibraryCreate.bind(this));
-        Server.on("librariesArrange", this.onLibrariesArrange.bind(this));
+        Server.on("libraryArrange", this.onLibrariesArrange.bind(this));
 
         Server.onMessage("downloadLibraries", this.downloadLibraries.bind(this));
     }
@@ -27,7 +27,7 @@ export default class LibrariesHandler {
 
     static onLibraryEdit(state: State, message: StateMessages["libraryEdit"]) {
         const lib = state.libraries.find((lib) => lib.name === message.name);
-        lib.script = message.script;
+        lib.code = message.code;
         lib.name = message.newName;
         this.save();
     }
@@ -45,12 +45,12 @@ export default class LibrariesHandler {
     static onLibraryCreate(state: State, message: StateMessages["libraryCreate"]) {
         state.libraries.unshift({
             name: message.name,
-            script: message.script
+            code: message.code
         });
         this.save();
     }
 
-    static onLibrariesArrange(state: State, message: StateMessages["librariesArrange"]) {
+    static onLibrariesArrange(state: State, message: StateMessages["libraryArrange"]) {
         const newLibraries = [];
         for(const name of message.order) {
             const lib = state.libraries.find((lib) => lib.name === name);
@@ -111,12 +111,12 @@ export default class LibrariesHandler {
                     const text = await resp.text();
                     res(text);
                 })
-                    .then((script) => {
-                        const message = { name, script };
+                    .then((code) => {
+                        const message = { name, code };
                         this.onLibraryCreate(state, message);
                         Server.send("libraryCreate", message);
 
-                        const headers = parseScriptHeaders(script);
+                        const headers = parseScriptHeaders(code);
                         processLibs(headers.needsLib);
                     })
                     .catch((err) => errors.push(err))

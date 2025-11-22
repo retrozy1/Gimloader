@@ -1,6 +1,6 @@
 <script lang="ts">
     import LibManager from "$core/scripts/libManager.svelte";
-    import { checkLibUpdate } from "$core/net/checkUpdates";
+    import { checkUpdate } from "$core/net/checkUpdates";
     import Net from "$core/net/net";
     import { showErrorMessage } from "../mount";
     import * as Table from "$shared/ui/table";
@@ -9,6 +9,7 @@
     import OpenInNew from "svelte-material-icons/OpenInNew.svelte";
     import Update from "svelte-material-icons/Update.svelte";
     import Download from "svelte-material-icons/Download.svelte";
+    import { downloadLibrary } from "$content/core/net/download";
 
     interface Props {
         name: string;
@@ -38,12 +39,6 @@
     }
 
     let libsInfo: ILibInfo[] = $state(libsInitial);
-
-    function downloadLib(name: string, url: string) {
-        Net.downloadLibrary(url)
-            .then(() => libsInfo = libsInfo)
-            .catch((err) => showErrorMessage(err, `Failed to download library ${name}`));
-    }
 </script>
 
 <Dialog.Root open={true} onOpenChangeComplete={onClose}>
@@ -63,7 +58,7 @@
             </Table.Header>
             <Table.Body>
                 {#each libsInfo as libInfo}
-                    {@const lib = LibManager.getLib(libInfo.name)}
+                    {@const lib = LibManager.getScript(libInfo.name)}
                     <Table.Row>
                         <Table.Cell>
                             {lib ? "Yes" : "No"}
@@ -90,11 +85,11 @@
                         </Table.Cell>
                         <Table.Cell>
                             {#if lib && lib.headers.downloadUrl}
-                                <button onclick={() => checkLibUpdate(lib)}>
+                                <button onclick={() => checkUpdate(lib)}>
                                     <Update size={25} />
                                 </button>
                             {:else if libInfo.url}
-                                <button onclick={() => downloadLib(libInfo.name, libInfo.url)}>
+                                <button onclick={() => downloadLibrary(libInfo.url)}>
                                     <Download size={25} />
                                 </button>
                             {/if}

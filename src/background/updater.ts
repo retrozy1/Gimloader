@@ -49,7 +49,7 @@ export default class Updater {
                             type,
                             name: headers.name,
                             newName: newHeaders.name,
-                            script: text
+                            code: text
                         });
 
                         res();
@@ -58,13 +58,13 @@ export default class Updater {
             };
 
             for(const plugin of state.plugins) {
-                const headers = parseScriptHeaders(plugin.script);
+                const headers = parseScriptHeaders(plugin.code);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "plugin"));
             }
 
             for(const lib of state.libraries) {
-                const headers = parseScriptHeaders(lib.script);
+                const headers = parseScriptHeaders(lib.code);
                 if(!headers.downloadUrl) continue;
                 updaters.push(checkUpdate(headers, "library"));
             }
@@ -130,8 +130,8 @@ export default class Updater {
     }
 
     static async applyUpdate(state: State, update: Update) {
-        const { type, name, newName, script } = update;
-        const message = { name, newName, script, updated: true };
+        const { type, name, newName, code } = update;
+        const message = { name, newName, code, updated: true };
 
         if(type === "plugin") {
             // if a plugin with the new name exists, just overwrite it
@@ -146,7 +146,7 @@ export default class Updater {
             const plugin = state.plugins.find(p => p.name === name);
             if(!plugin) return;
             plugin.name = newName;
-            plugin.script = update.script;
+            plugin.code = update.code;
 
             saveDebounced("plugins");
             Server.send("pluginEdit", message);
@@ -161,7 +161,7 @@ export default class Updater {
             const library = state.libraries.find(l => l.name === name);
             if(!library) return;
             library.name = newName;
-            library.script = update.script;
+            library.code = update.code;
 
             saveDebounced("libraries");
             Server.send("libraryEdit", message);
@@ -199,7 +199,7 @@ export default class Updater {
         if(message.type === "plugin") script = state.plugins.find(p => p.name === message.name);
         else script = state.libraries.find(l => l.name === message.name);
 
-        const headers = parseScriptHeaders(script.script);
+        const headers = parseScriptHeaders(script.code);
         if(!headers.downloadUrl) return respond({ updated: false });
 
         const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
@@ -211,7 +211,7 @@ export default class Updater {
         this.applyUpdate(state, {
             type: message.type,
             name: headers.name,
-            script: text,
+            code: text,
             newName: newHeaders.name
         });
 

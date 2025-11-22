@@ -9,9 +9,9 @@ export default class PluginsHandler {
         Server.on("pluginCreate", this.onPluginCreate.bind(this));
         Server.on("pluginDelete", this.onPluginDelete.bind(this));
         Server.on("pluginToggled", this.onPluginToggled.bind(this));
-        Server.on("pluginsArrange", this.onPluginsArrange.bind(this));
-        Server.on("pluginsSetAll", this.onPluginsSetAll.bind(this));
-        Server.on("pluginsDeleteAll", this.onPluginsDeleteAll.bind(this));
+        Server.on("pluginArrange", this.onPluginsArrange.bind(this));
+        Server.on("pluginSetAll", this.onPluginsSetAll.bind(this));
+        Server.on("pluginDeleteAll", this.onPluginsDeleteAll.bind(this));
     }
 
     static save() {
@@ -20,7 +20,7 @@ export default class PluginsHandler {
 
     static onPluginEdit(state: State, message: StateMessages["pluginEdit"]) {
         const edit = state.plugins.find((plugin) => plugin.name === message.name);
-        edit.script = message.script;
+        edit.code = message.code;
         edit.name = message.newName;
         this.save();
     }
@@ -28,7 +28,7 @@ export default class PluginsHandler {
     static onPluginCreate(state: State, message: StateMessages["pluginCreate"]) {
         state.plugins.unshift({
             name: message.name,
-            script: message.script,
+            code: message.code,
             enabled: true
         });
         this.save();
@@ -41,11 +41,12 @@ export default class PluginsHandler {
 
     static onPluginToggled(state: State, message: StateMessages["pluginToggled"]) {
         const toggle = state.plugins.find(p => p.name === message.name);
+        console.log("TOGGLIGN ", toggle, "to", message.enabled);
         toggle.enabled = message.enabled;
         this.save();
     }
 
-    static onPluginsArrange(state: State, message: StateMessages["pluginsArrange"]) {
+    static onPluginsArrange(state: State, message: StateMessages["pluginArrange"]) {
         const newPlugins = [];
         for(const name of message.order) {
             const plugin = state.plugins.find((plugin) => plugin.name === name);
@@ -55,7 +56,7 @@ export default class PluginsHandler {
         this.save();
     }
 
-    static onPluginsSetAll(state: State, message: StateMessages["pluginsSetAll"]) {
+    static onPluginsSetAll(state: State, message: StateMessages["pluginSetAll"]) {
         for(const plugin of state.plugins) {
             plugin.enabled = message.enabled;
         }

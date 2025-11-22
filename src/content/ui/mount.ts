@@ -1,4 +1,5 @@
-import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
+import type { Script } from "$content/core/scripts/script.svelte";
+import type { Plugin } from "$core/scripts/plugin.svelte";
 import { domLoaded } from "$content/utils";
 import ErrorModal from "./modals/Error.svelte";
 import PluginSettings from "./settings/PluginSettings.svelte";
@@ -56,7 +57,7 @@ export function showPluginSettings(plugin: Plugin) {
     });
 }
 
-export function showScriptLibs(script: Plugin | Lib) {
+export function showScriptLibs(script: Script) {
     const component = mount(ScriptLibraries, {
         target: document.body,
         props: {

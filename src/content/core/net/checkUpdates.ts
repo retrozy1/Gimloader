@@ -1,27 +1,17 @@
-import type { Lib, Plugin } from "$core/scripts/scripts.svelte";
 import toast from "svelte-5-french-toast";
 import Port from "$shared/net/port.svelte";
 import type { UpdateResponse } from "$types/updater";
 import Rewriter from "../rewriter";
+import type { Script } from "../scripts/script.svelte";
 
-export async function checkPluginUpdate(plugin: Plugin) {
+export async function checkUpdate(script: Script) {
     Rewriter.invalidate();
     const updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
-        type: "plugin",
-        name: plugin.headers.name
+        type: script.type,
+        name: script.headers.name
     });
 
-    onUpdated(plugin.headers.name, updated);
-}
-
-export async function checkLibUpdate(lib: Lib) {
-    Rewriter.invalidate();
-    const updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
-        type: "library",
-        name: lib.headers.name
-    });
-
-    onUpdated(lib.headers.name, updated);
+    onUpdated(script.headers.name, updated);
 }
 
 function onUpdated(name: string, updated: UpdateResponse) {

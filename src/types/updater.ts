@@ -2,7 +2,7 @@ export interface Update {
     type: "plugin" | "library";
     name: string;
     newName: string;
-    script: string;
+    code: string;
 }
 
 export interface UpdateResponse {

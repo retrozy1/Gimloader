@@ -33,22 +33,22 @@ export default class Poller {
         if(!res) return;
 
         if(res.status !== 200) return tryAgain();
-        const text = await res.text();
+        const code = await res.text();
         const state = await statePromise;
 
         if(!this.enabled) return;
         Server.executeAndSend("cacheInvalid", { invalid: true });
 
         this.sendRequest();
-        const headers = parseScriptHeaders(text);
+        const headers = parseScriptHeaders(code);
 
         if(headers.isLibrary !== "false") {
             const lib = state.libraries.find(l => l.name === headers.name);
             if(lib) {
-                lib.script = text;
-                Server.send("libraryEdit", { name: lib.name, newName: lib.name, script: text });
+                lib.code = code;
+                Server.send("libraryEdit", { name: lib.name, newName: lib.name, code });
             } else {
-                const obj = { script: text, name: headers.name };
+                const obj = { code, name: headers.name };
                 state.libraries.push(obj);
                 Server.send("libraryCreate", obj);
             }
@@ -58,10 +58,10 @@ export default class Poller {
         } else {
             const plugin = state.plugins.find(p => p.name === headers.name);
             if(plugin) {
-                plugin.script = text;
-                Server.send("pluginEdit", { name: plugin.name, newName: plugin.name, script: text });
+                plugin.code = code;
+                Server.send("pluginEdit", { name: plugin.name, newName: plugin.name, code });
             } else {
-                const obj = { script: text, name: headers.name, enabled: true };
+                const obj = { code, name: headers.name, enabled: true };
                 state.plugins.push(obj);
                 Server.send("pluginCreate", obj);
             }

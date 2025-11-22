@@ -4,7 +4,7 @@ import { validate } from "$content/utils";
 class PluginsApi {
     /** A list of all the plugins installed */
     get list() {
-        return PluginManager.getPluginNames();
+        return PluginManager.getScriptNames();
     }
 
     /** Whether a plugin exists and is enabled */

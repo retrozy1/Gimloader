@@ -1,24 +1,26 @@
 import type { HotkeyTrigger } from "./hotkeys";
 import type { ConfigurableHotkeysState, SavedState, State } from "./state";
 
+export type ScriptType = "plugin" | "library";
+
 // These go both ways
 export interface StateMessages {
     hotkeyUpdate: { id: string; trigger: HotkeyTrigger };
     hotkeysUpdate: { hotkeys: ConfigurableHotkeysState };
 
-    libraryEdit: { name: string; newName: string; script: string; updated?: boolean };
+    libraryEdit: { name: string; newName: string; code: string; updated?: boolean };
     libraryDelete: { name: string };
-    librariesDeleteAll: void;
-    libraryCreate: { name: string; script: string };
-    librariesArrange: { order: string[] };
+    libraryDeleteAll: void;
+    libraryCreate: { name: string; code: string };
+    libraryArrange: { order: string[] };
 
-    pluginEdit: { name: string; newName: string; script: string; updated?: boolean };
+    pluginEdit: { name: string; newName: string; code: string; updated?: boolean };
     pluginDelete: { name: string };
-    pluginsDeleteAll: void;
-    pluginCreate: { name: string; script: string };
-    pluginsArrange: { order: string[] };
+    pluginDeleteAll: void;
+    pluginCreate: { name: string; code: string };
+    pluginArrange: { order: string[] };
     pluginToggled: { name: string; enabled: boolean };
-    pluginsSetAll: { enabled: boolean };
+    pluginSetAll: { enabled: boolean };
 
     settingUpdate: { key: string; value: any };
 
@@ -43,8 +45,8 @@ export interface OnceMessages {
     downloadLibraries: { libraries: string[] };
     applyUpdates: { apply: boolean };
     updateAll: void;
-    updateSingle: { type: "plugin" | "library"; name: string };
-    showEditor: { type: "plugin" | "library"; name?: string };
+    updateSingle: { type: ScriptType; name: string };
+    showEditor: { type: ScriptType; name?: string };
 }
 
 export interface OnceResponses {

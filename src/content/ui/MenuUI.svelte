@@ -1,7 +1,7 @@
 <script lang="ts">
     import LibraryCardsList from "./libraries/LibraryCardsList.svelte";
     import PluginCardsList from "./plugins/PluginCardsList.svelte";
-    import { officialPluginsOpen } from "./stores";
+    import { officialPluginsOpen } from "../stores";
     import Updates from "./Updates.svelte";
     import Settings from "./Settings.svelte";
     import Hotkeys from "./Hotkeys.svelte";
@@ -54,11 +54,8 @@
         }
         let text = await file.text();
 
-        if(currentTab === "plugins") {
-            PluginManager.createPlugin(text);
-        } else {
-            LibManager.createLib(text);
-        }
+        if(currentTab === "plugins") PluginManager.create(text);
+        else LibManager.create(text);
     }
 </script>
 

@@ -1,17 +1,15 @@
 import type { HotkeyTrigger } from "./hotkeys";
 
-export interface PluginInfo {
-    script: string;
+export interface ScriptInfo {
+    code: string;
     name: string;
+}
+
+export interface PluginInfo extends ScriptInfo {
     enabled: boolean;
 }
 
-export interface LibraryInfo {
-    script: string;
-    name: string;
-}
-
-export type ScriptInfo = PluginInfo | LibraryInfo;
+export type LibraryInfo = ScriptInfo;
 
 export type PluginStorage = Record<string, Record<string, any>>;
 export type ConfigurableHotkeysState = Record<string, HotkeyTrigger | null>;

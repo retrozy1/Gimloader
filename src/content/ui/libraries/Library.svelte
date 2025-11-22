@@ -1,11 +1,11 @@
 <script lang="ts">
-    import type { Lib } from "$core/scripts/scripts.svelte";
+    import type { Library } from "$core/scripts/library.svelte";
     import Card from "../components/Card.svelte";
     import LibManager from "$core/scripts/libManager.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import Update from "svelte-material-icons/Update.svelte";
-    import { checkLibUpdate } from "$core/net/checkUpdates";
+    import { checkUpdate } from "$core/net/checkUpdates";
     import ListItem from "../components/ListItem.svelte";
     import Storage from "$core/storage.svelte";
     import { showEditor } from "$content/utils";
@@ -15,17 +15,10 @@
     import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
     import { showScriptLibs } from "../mount";
 
-    function deleteLib() {
-        let conf = confirm(`Are you sure you want to delete ${library.headers.name}?`);
-        if(!conf) return;
-
-        LibManager.deleteLib(library);
-    }
-
     interface Props {
         startDrag: () => void;
         dragDisabled: boolean;
-        library: Lib;
+        library: Library;
         dragAllowed: boolean;
     }
 
@@ -56,14 +49,14 @@
         {library?.headers.description}
     {/snippet}
     {#snippet buttons()}
-        <button title="Delete" onclick={deleteLib}>
+        <button title="Delete" onclick={() => LibManager.deleteConfirm(library.headers.name)}>
             <Delete size={28} />
         </button>
         <button title="Open library in editor" onclick={() => showEditor("library", library.headers.name)}>
             <Pencil size={28} />
         </button>
         {#if library?.headers.downloadUrl}
-            <button title="Check for updates" onclick={() => checkLibUpdate(library)}>
+            <button title="Check for updates" onclick={() => checkUpdate(library)}>
                 <Update size={28} />
             </button>
         {/if}

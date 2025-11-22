@@ -1,4 +1,4 @@
-import type { Plugin } from "$core/scripts/scripts.svelte";
+import type { Plugin } from "$core/scripts/plugin.svelte";
 import type { PluginSetting, PluginSettings, SettingGroup, SettingsMethods } from "$types/settings";
 import { error, validate } from "$content/utils";
 import Storage from "$core/storage.svelte";

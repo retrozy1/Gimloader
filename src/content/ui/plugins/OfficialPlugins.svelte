@@ -3,19 +3,22 @@
     import { onMount } from "svelte";
     import Card from "../components/Card.svelte";
     import { Button } from "$shared/ui/button";
-    import { officialPluginsOpen } from "../stores";
+    import { officialPluginsOpen } from "../../stores";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import Download from "svelte-material-icons/Download.svelte";
-    import toast from "svelte-5-french-toast";
     import Search from "../components/Search.svelte";
+    import { downloadPlugin } from "$content/core/net/download";
 
     let officialPlugins: OfficialScriptInfo[] = $state([]);
     let searchValue = $state("");
-    let plugins = $derived(officialPlugins.filter(p => (
-        !PluginManager.plugins.some(pl => pl.headers.name === p.title)
-        && p.title.toLowerCase().includes(searchValue.toLowerCase())
-    )));
+    let plugins = $derived.by(() => {
+        PluginManager.scripts.length;
+        return officialPlugins.filter(p => (
+            !PluginManager.getScript(p.title)
+            && p.title.toLowerCase().includes(searchValue.toLowerCase())
+        ));
+    });
 
     const saved = localStorage.getItem("gl-officialPlugins");
     if(saved) {
@@ -42,18 +45,6 @@
             return;
         }
     });
-
-    const install = async (name: string, url: string) => {
-        try {
-            const res = await fetch(url);
-            const code = await res.text();
-            await PluginManager.createPlugin(code);
-            toast.success(`Installed ${name}`);
-        } catch (e) {
-            console.error(e);
-            toast.error(`Failed to install ${name}`);
-        }
-    };
 </script>
 
 <div class="flex flex-col max-h-full">
@@ -73,7 +64,7 @@
                         </h2>
                     {/snippet}
                     {#snippet toggle()}
-                        <Button class="px-2 py-2" onclick={() => install(plugin.title, plugin.downloadUrl)}>
+                        <Button class="px-2 py-2" onclick={() => downloadPlugin(plugin.downloadUrl)}>
                             <Download size={20} />
                         </Button>
                     {/snippet}

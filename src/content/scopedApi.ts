@@ -1,12 +1,12 @@
+import type { Script } from "./core/scripts/script.svelte";
 import PluginManager from "$core/scripts/pluginManager.svelte";
 import LibManager from "$core/scripts/libManager.svelte";
-import type { Lib, Plugin } from "./core/scripts/scripts.svelte";
 
 const scriptRegex = /gimloader:\/\/(plugins|libraries)\/(.+?)\.js:\d+:\d+/g;
 
 interface ScopedInfo {
     id: string;
-    script: Plugin | Lib;
+    script: Script;
     onStop: (cb: () => void) => void;
     openSettingsMenu?: (cb: () => void) => void;
 }
@@ -24,8 +24,8 @@ export default function setupScoped(type?: string, name?: string): ScopedInfo {
         name = decodeURIComponent(match[2]);
     }
 
-    if(type === "plugins") {
-        const plugin = PluginManager.getPlugin(name);
+    if(type === "plugin") {
+        const plugin = PluginManager.getScript(name);
         if(!plugin) throw new Error("new GL() called in an invalid context");
 
         return {
@@ -35,7 +35,7 @@ export default function setupScoped(type?: string, name?: string): ScopedInfo {
             openSettingsMenu: (cb: () => void) => plugin.openSettingsMenu.push(cb)
         };
     } else {
-        const library = LibManager.getLib(name);
+        const library = LibManager.getScript(name);
         if(!library) throw new Error("new GL() called in an invalid context");
 
         return {

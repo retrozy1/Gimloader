@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { Plugin } from "$core/scripts/scripts.svelte";
+    import type { Plugin } from "$core/scripts/plugin.svelte";
     import PluginManager from "$core/scripts/pluginManager.svelte";
-    import { checkPluginUpdate } from "$core/net/checkUpdates";
+    import { checkUpdate } from "$core/net/checkUpdates";
     import Card from "../components/Card.svelte";
     import ListItem from "../components/ListItem.svelte";
     import Storage from "$core/storage.svelte";
@@ -33,13 +33,6 @@
         dragAllowed
     }: Props = $props();
 
-    function deletePlugin(plugin: Plugin) {
-        let conf = confirm(`Are you sure you want to delete ${plugin.headers.name}?`);
-        if(!conf) return;
-
-        PluginManager.deletePlugin(plugin);
-    }
-
     let loading = $state(false);
     let enabled = $state(plugin?.enabled ?? false);
     $effect(() => {
@@ -48,7 +41,7 @@
 
     async function setEnabled(enabled: boolean) {
         let loadingTimeout = setTimeout(() => loading = true, 200);
-        await PluginManager.setEnabled(plugin, enabled);
+        await plugin.toggleConfirm(enabled);
 
         clearTimeout(loadingTimeout);
         loading = false;
@@ -83,7 +76,7 @@
         {plugin?.headers.description}
     {/snippet}
     {#snippet buttons()}
-        <button title="Delete" onclick={() => deletePlugin(plugin)}>
+        <button title="Delete" onclick={() => PluginManager.deleteConfirm(plugin.headers.name)}>
             <Delete size={28} />
         </button>
         <button title="Open plugin editor" onclick={() => showEditor("plugin", plugin.headers.name)}>
@@ -103,7 +96,7 @@
             />
         {/if}
         {#if plugin?.headers.downloadUrl}
-            <button title="Check for updates" onclick={() => checkPluginUpdate(plugin)}>
+            <button title="Check for updates" onclick={() => checkUpdate(plugin)}>
                 <Update size={28} />
             </button>
         {/if}

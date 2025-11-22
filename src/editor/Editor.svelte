@@ -31,7 +31,7 @@
     State.init(() => {
         let value: string;
 
-        if(existing) value = existing.script;
+        if(existing) value = existing.code;
         else if(type === "plugin") value = defaultPluginScript;
         else value = defaultLibraryScript;
 
@@ -43,8 +43,8 @@
     });
 
     function save() {
-        let script = editor.getValue();
-        let headers = parseScriptHeaders(script);
+        let code = editor.getValue();
+        let headers = parseScriptHeaders(code);
 
         if(type === "plugin") {
             if(headers.isLibrary !== "false") {
@@ -59,12 +59,12 @@
         }
 
         if(existing) {
-            Port.send(`${type}Edit`, { name, newName: headers.name, script });
+            Port.send(`${type}Edit`, { name, newName: headers.name, code });
             existing.name = headers.name;
         } else {
-            Port.send(`${type}Create`, { name: headers.name, script });
-            if(type === "plugin") State.plugins.push({ name: headers.name, enabled: true, script });
-            else State.libraries.push({ name: headers.name, script });
+            Port.send(`${type}Create`, { name: headers.name, code });
+            if(type === "plugin") State.plugins.push({ name: headers.name, enabled: true, code });
+            else State.libraries.push({ name: headers.name, code });
         }
 
         name = headers.name;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Plugin } from "$core/scripts/scripts.svelte";
+    import type { Plugin } from "$core/scripts/plugin.svelte";
     import * as Dialog from "$shared/ui/dialog";
     import Setting from "./Setting.svelte";
     import SettingsGroup from "./SettingsGroup.svelte";

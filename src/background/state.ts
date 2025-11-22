@@ -40,14 +40,16 @@ export function saveDebounced(key: keyof SavedState) {
 
 export function sanitizeScriptInfo(scripts: PluginInfo[], needsEnabled: true): PluginInfo[];
 export function sanitizeScriptInfo(scripts: LibraryInfo[], needsEnabled: false): LibraryInfo[];
-export function sanitizeScriptInfo(scripts: ScriptInfo[], needsEnabled: boolean) {
+export function sanitizeScriptInfo(scripts: any[], needsEnabled: boolean) {
     if(!Array.isArray(scripts)) return [];
 
     for(let i = 0; i < scripts.length; i++) {
         const item = scripts[i];
+        if(item.script && !item.code) item.code = item.script;
+
         if(
             typeof item.name !== "string"
-            || typeof item.script !== "string"
+            || typeof item.code !== "string"
             || (needsEnabled && typeof (item as PluginInfo).enabled !== "boolean")
         ) {
             scripts.splice(i, 1);
@@ -55,7 +57,7 @@ export function sanitizeScriptInfo(scripts: ScriptInfo[], needsEnabled: boolean)
             continue;
         }
 
-        scripts[i] = { name: item.name, script: item.script };
+        scripts[i] = { name: item.name, code: item.code };
         if(needsEnabled) (scripts[i] as PluginInfo).enabled = (item as PluginInfo).enabled;
     }
 

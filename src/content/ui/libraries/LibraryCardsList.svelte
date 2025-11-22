@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { Lib } from "$core/scripts/scripts.svelte";
     import { flip } from "svelte/animate";
     import { dndzone } from "svelte-dnd-action";
     import Library from "./Library.svelte";
@@ -10,15 +9,14 @@
     import * as DropdownMenu from "$shared/ui/dropdown-menu";
     import { Button } from "$shared/ui/button";
     import ViewControl from "../components/ViewControl.svelte";
-    import toast from "svelte-5-french-toast";
-    import { parseScriptHeaders } from "$shared/parseHeader";
     import * as Dialog from "$shared/ui/dialog";
     import ChevronDown from "@lucide/svelte/icons/chevron-down";
+    import { downloadLibrary } from "$content/core/net/download";
 
     let searchValue = $state("");
-    let items = $state(LibManager.libs.map((lib: Lib) => ({ id: lib.headers.name })));
+    let items = $state(LibManager.scripts.map((lib) => ({ id: lib.headers.name })));
     $effect(() => {
-        items = LibManager.libs
+        items = LibManager.scripts
             .filter((lib) => lib.headers.name.toLowerCase().includes(searchValue.toLowerCase()))
             .map((lib) => ({ id: lib.headers.name }));
     });
@@ -36,7 +34,7 @@
         // Update the order of the libraries
         let order = items.map(i => i.id);
 
-        LibManager.arrangeLibs(order);
+        LibManager.arrange(order);
     }
 
     function startDrag() {
@@ -46,22 +44,9 @@
     function importLib() {
         readUserFile(".js", (code) => {
             code = code.replaceAll("\r\n", "\n");
-            LibManager.createLib(code);
+            LibManager.create(code);
         });
     }
-
-    const install = async (url: string) => {
-        try {
-            if(!url.startsWith("https://") && !url.startsWith("http://")) throw new Error("Invalid URL");
-            const res = await fetch(url);
-            const code = await res.text();
-            LibManager.createLib(code);
-            toast.success(`Installed ${parseScriptHeaders(code).name}`);
-        } catch (e) {
-            console.error(e);
-            toast.error(`Failed to install library from URL`); // Just in case the issue is with the headers.
-        }
-    };
 
     const flipDurationMs = 300;
 
@@ -74,7 +59,7 @@
         <input placeholder="Library URL" bind:value={libUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
         <Button
             onclick={() => {
-                install(libUrl);
+                downloadLibrary(libUrl);
                 libUrlMenuOpen = false;
             }}>Install</Button>
     </Dialog.Content>
@@ -103,7 +88,7 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={() => LibManager.deleteAllConfirm(false)}>
+                <DropdownMenu.Item onclick={() => LibManager.deleteAll(false)}>
                     Delete all
                 </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -111,7 +96,7 @@
         <ViewControl />
         <Search bind:value={searchValue} />
     </div>
-    {#if LibManager.libs.length === 0}
+    {#if LibManager.scripts.length === 0}
         <h2 class="text-xl">No libraries installed!</h2>
     {/if}
     <div
@@ -121,7 +106,7 @@
         onfinalize={handleDndFinalize}>
         {#key searchValue}
             {#each items as item (item.id)}
-                {@const library = LibManager.getLib(item.id)}
+                {@const library = LibManager.getScript(item.id)}
                 <div animate:flip={{ duration: flipDurationMs }}>
                     <Library {library} {startDrag} {dragDisabled} dragAllowed={searchValue == ""} />
                 </div>
