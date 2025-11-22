@@ -12,7 +12,7 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
 
     constructor() {
         super(Plugin, "plugin");
-    
+
         Port.on("pluginSetAll", ({ enabled }) => this.onSetAll(enabled));
         Port.on("pluginToggled", ({ name, enabled }) => this.onToggled(name, enabled));
     }
@@ -55,7 +55,7 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
 
         plugin.onToggled(enabled);
     }
-}
+}();
 
 // import type { PluginInfo } from "$types/state";
 // import { showErrorMessage } from "$content/ui/mount";

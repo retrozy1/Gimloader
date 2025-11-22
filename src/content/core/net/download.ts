@@ -8,11 +8,11 @@ export async function downloadLibrary(url: string) {
     try {
         const resp = await fetch(formatDownloadUrl(url));
         if(resp.status !== 200) throw new Error("Library url returned status " + resp.status);
-    
+
         const text = await resp.text();
         const lib = await LibManager.create(text);
         toastSuccess(lib);
-    } catch(e) {
+    } catch (e) {
         console.error(e);
         toast.error(`Failed to download library`);
     }
@@ -22,11 +22,11 @@ export async function downloadPlugin(url: string) {
     try {
         const resp = await fetch(formatDownloadUrl(url));
         if(resp.status !== 200) throw new Error("Plugin url returned status " + resp.status);
-    
+
         const text = await resp.text();
         const plugin = await PluginManager.create(text);
         toastSuccess(plugin);
-    } catch(e) {
+    } catch (e) {
         console.error(e);
         toast.error(`Failed to download plugin`);
     }

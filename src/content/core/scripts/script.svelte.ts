@@ -99,7 +99,7 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
                         this.onStop.push(exports.onStop);
                     }
 
-                    this.onImport?.(exports)
+                    this.onImport?.(exports);
                     log(`Loaded ${this.type} ${this.headers.name}`);
 
                     res();
@@ -148,7 +148,7 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
         const required: Script[] = [];
         const optional: Script[] = [];
 
-        for(let type in strings) {
+        for(const type in strings) {
             const deps = strings[type as ScriptType];
             const requiredDeps = deps.required?.map(getDepName) ?? [];
             const optionalDeps = deps.optional?.map(getDepName) ?? [];
@@ -184,20 +184,20 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
 
         // Recursively get the plugins that will be enabled
         const getDependents = (script: Script) => {
-            for(let requirer of script.requiredBy) {
+            for(const requirer of script.requiredBy) {
                 if(dependents.has(requirer)) continue;
 
                 dependents.add(requirer);
                 getDependents(requirer);
             }
-        }
+        };
         getDependents(this);
 
         return dependents;
     }
 
     onDependentStopped?(): void;
-    
+
     stopConfirm(action = "Disabling") {
         const willStop = this.recursiveGetDependents();
 
@@ -225,7 +225,7 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
         for(const used of this.optionalRequires) used.unrequire?.(this, false);
 
         const willStop = this.recursiveGetDependents();
-        for(let script of willStop) {
+        for(const script of willStop) {
             script.stop();
             script.onDependentStopped?.();
         }

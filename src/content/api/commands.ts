@@ -14,7 +14,7 @@ const CommandOptionsSchema = z.union([
 
 /**
  * An API for adding commands to the command palette
- * 
+ *
  * ```ts
  * commands.addCommand("MyPlugin", {
  *     text: "Do a thing",
@@ -61,7 +61,7 @@ export class CommandsApi {
 
 /**
  * An API for adding commands to the command palette
- * 
+ *
  * ```ts
  * commands.addCommand({
  *     text: "Do a thing",

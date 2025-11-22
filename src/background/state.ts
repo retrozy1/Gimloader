@@ -1,4 +1,4 @@
-import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage, SavedState, ScriptInfo, Settings, State } from "$types/state";
+import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage, SavedState, Settings, State } from "$types/state";
 import { defaultSettings } from "$shared/consts";
 import debounce from "debounce";
 

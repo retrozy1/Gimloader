@@ -12,9 +12,9 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
     abstract plural: string;
     scripts: T[] = $state([]);
     type: T["type"];
-    ScriptClass: new (info: I, headers?: ScriptHeaders) => T;
+    ScriptClass: new(info: I, headers?: ScriptHeaders) => T;
 
-    constructor(script: new (info: I, headers?: ScriptHeaders) => T, type: T["type"]) {
+    constructor(script: new(info: I, headers?: ScriptHeaders) => T, type: T["type"]) {
         this.ScriptClass = script;
         this.type = type;
 
@@ -163,9 +163,9 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
     }
 
     async create(code: string) {
-        // TODO: Auto-download dependencies        
+        // TODO: Auto-download dependencies
         const created = this.onCreate(code);
-        
+
         const headers = parseScriptHeaders(code);
         Port.send(`${this.type}Create`, { code, name: headers.name });
 

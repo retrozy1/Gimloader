@@ -14,7 +14,7 @@ export default new class LibraryManager extends ScriptManager<Library, LibraryIn
     getScriptInfo(code: string, headers: ScriptHeaders) {
         return { code, name: headers.name };
     }
-}
+}();
 
 // import { parseScriptHeaders } from "$shared/parseHeader";
 // import { Lib } from "./scripts.svelte";

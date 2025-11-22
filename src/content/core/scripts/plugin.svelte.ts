@@ -28,7 +28,7 @@ export class Plugin extends Script<PluginInfo> {
                 required: this.headers.needsLib,
                 optional: this.headers.optionalLib
             }
-        }
+        };
     }
 
     setEnabled(enabled: boolean) {
@@ -61,7 +61,7 @@ export class Plugin extends Script<PluginInfo> {
         Port.send("pluginToggled", { name: this.headers.name, enabled });
         await this.onToggled(enabled);
     }
-    
+
     async onToggled(enabled: boolean) {
         this.enabled = enabled;
 
@@ -82,15 +82,15 @@ export class Plugin extends Script<PluginInfo> {
                 willEnable.add(dep);
                 getWillEnable(dep);
             }
-        }
+        };
         getWillEnable(this);
 
         if(willEnable.size > 0) {
             // TODO: Actual prompt
             const names = englishList(Array.from(willEnable).map(p => p.headers.name));
             if(!confirm(`Enabling ${this.headers.name} will also enable ${names}. Proceed?`)) return false;
-            
-            for(let plugin of willEnable) {
+
+            for(const plugin of willEnable) {
                 plugin.toggle(true);
             }
         }
