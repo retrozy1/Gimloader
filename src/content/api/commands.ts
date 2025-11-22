@@ -14,12 +14,12 @@ const CommandOptionsSchema = z.union([
 
 /**
  * An API for adding commands to the command palette
- * @example
+ * 
  * ```ts
  * commands.addCommand("MyPlugin", {
  *     text: "Do a thing",
- *     group: "My Plugin",
- *     keywords: ["execute", "run"]
+ *     keywords: ["execute", "run"],
+ *     hidden: () => false
  * }, async (context) => {
  *    const choice = await context.select({
  *        title: "Choose an option",
@@ -61,12 +61,12 @@ export class CommandsApi {
 
 /**
  * An API for adding commands to the command palette
- * @example
+ * 
  * ```ts
  * commands.addCommand({
  *     text: "Do a thing",
- *     group: "My Plugin",
- *     keywords: ["execute", "run"]
+ *     keywords: ["execute", "run"],
+ *     hidden: () => false
  * }, async (context) => {
  *    const choice = await context.select({
  *        title: "Choose an option",

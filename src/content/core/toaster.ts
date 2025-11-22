@@ -22,7 +22,7 @@ Port.on("toast", (msg) => {
 });
 
 export function confirmToast(text: string, onconfirmed: (confirmed: boolean) => void) {
-    // @ts-expect-error
+    // @ts-ignore
     return toast(ConfirmToast, {
         duration: Infinity,
         props: {

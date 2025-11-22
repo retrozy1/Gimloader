@@ -2470,9 +2470,9 @@ type CommandCallback = (context: CommandContext) => void | Promise<void>;
 
 
 interface CommandOptions {
-    text: string;
-    group: string;
+    text: string | (() => string);
     keywords?: string[];
+    hidden?: () => boolean;
 }
 
 class CommandsApi {
@@ -2634,18 +2634,18 @@ interface ModalButton {
 }
 
 interface ModalOptions {
-    id: string;
-    title: string;
-    style: string;
-    className: string;
-    closeOnBackgroundClick: boolean;
-    buttons: ModalButton[];
-    onClosed: () => void;
+    id?: string;
+    title?: string;
+    style?: string;
+    className?: string;
+    closeOnBackgroundClick?: boolean;
+    buttons?: ModalButton[];
+    onClosed?: () => void;
 }
 
 class BaseUIApi {
     /** Shows a customizable modal to the user */
-    showModal(element: HTMLElement | import('react').ReactElement, options?: Partial<ModalOptions>): void;
+    showModal(element: HTMLElement | import('react').ReactElement, options?: ModalOptions): void;
 }
 
 class UIApi extends BaseUIApi {
@@ -2688,7 +2688,7 @@ class BaseNetApi extends EventEmitter2 {
     /** Whether the user is the one hosting the current game */
     get isHost(): boolean;
     /** Sends a message to the server on a specific channel */
-    send(channel: string, message: any): void;
+    send(channel: string, message?: any): void;
 }
 
 interface RequesterOptions {
@@ -2743,8 +2743,6 @@ class NetApi extends BaseNetApi {
 }
 
 class ScopedParcelApi extends BaseParcelApi {
-    private readonly id;
-    constructor(id: string);
     /**
      * Waits for a module to be loaded, then runs a callback
      * @returns A function to cancel waiting for the module

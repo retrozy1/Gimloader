@@ -44,7 +44,8 @@
 				"useIterableCallbackReturn": "off",
 				"noAssignInExpressions": "off",
 				"noExplicitAny": "off",
-				"noAsyncPromiseExecutor": "off"
+				"noAsyncPromiseExecutor": "off",
+				"noTsIgnore": "off"
 			}
 		}
 	},

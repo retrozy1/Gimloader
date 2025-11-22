@@ -1,3 +1,4 @@
+/** @inline */
 export interface CommandOptions {
     text: string | (() => string);
     keywords?: string[];
@@ -28,12 +29,14 @@ export interface CommandStringOptions extends BaseCommandOptions {
     maxLength?: number;
 }
 
+/** @inline */
 export interface CommandContext {
     select(options: CommandSelectOptions): Promise<string>;
     number(options: CommandNumberOptions): Promise<number>;
     string(options: CommandStringOptions): Promise<string>;
 }
 
+/** @inline */
 export type CommandCallback = (context: CommandContext) => void | Promise<void>;
 
 export interface BaseCommandAction<T> {
