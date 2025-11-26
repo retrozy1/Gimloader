@@ -27,7 +27,7 @@ export default new class LibraryManager extends ScriptManager<Library, LibraryIn
                 title
             });
             if(!confirmed) return;
-            
+
             this.deleteAllConfirm(true);
         }
     }

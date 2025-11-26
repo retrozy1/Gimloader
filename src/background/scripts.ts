@@ -37,7 +37,7 @@ export default class Scripts {
     static delete(name: string) {
         const entry = this.map.get(name);
         if(!entry) return;
-        
+
         // Remove this as a dependency
         for(const dep of entry.dependencies) {
             const depEntry = this.map.get(dep.name);
@@ -157,7 +157,7 @@ export default class Scripts {
                     return;
                 }
             }
-        }
+        };
         check(name, [name]);
 
         return { error, willDownload, willEnable };
@@ -179,7 +179,7 @@ export default class Scripts {
                     check(depName);
                 }
             }
-        }
+        };
         check(name);
 
         return willDisable;

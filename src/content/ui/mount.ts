@@ -1,4 +1,3 @@
-
 import { domLoaded } from "$content/utils";
 import { mount, unmount } from "svelte";
 import MenuUI from "./MenuUI.svelte";

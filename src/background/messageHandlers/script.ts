@@ -13,7 +13,7 @@ export default abstract class ScriptHandler {
         this.type = type;
         this.key = key;
     }
-    
+
     init() {
         Server.on(`${this.type}Edit`, this.onScriptEdit.bind(this));
         Server.on(`${this.type}Create`, this.onScriptCreate.bind(this));

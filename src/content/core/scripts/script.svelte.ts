@@ -6,7 +6,6 @@ import { getDepName, parseScriptHeaders } from "$shared/parseHeader";
 import { gameState } from "$content/stores";
 import Modals from "../modals.svelte";
 import { scripts } from "./map";
-import { englishList } from "$shared/utils";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -110,7 +109,7 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
         });
 
         this.startPromise.catch((e) => {
-            this.errored = true
+            this.errored = true;
             error(e);
         });
 

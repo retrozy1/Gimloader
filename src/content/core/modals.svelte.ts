@@ -18,7 +18,7 @@ interface ModalProps {
         script: Script | Script[];
         type: string;
         title: string;
-    }
+    };
 }
 
 export default new class Modals {

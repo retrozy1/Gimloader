@@ -10,10 +10,10 @@ export default new class PluginsHandler extends ScriptHandler {
     constructor() {
         super("plugin", "plugins");
     }
-    
+
     init() {
         super.init();
-        
+
         Server.on("pluginToggled", this.onPluginToggled.bind(this));
         Server.on("pluginSetAll", this.onPluginsSetAll.bind(this));
         Server.onMessage("tryTogglePlugin", this.tryTogglePlugin.bind(this));
@@ -62,12 +62,12 @@ export default new class PluginsHandler extends ScriptHandler {
                 respond({ status: "dependencyError", message: error });
                 return;
             }
-    
+
             const warnAbout = willDownload.filter((dep) => (
-                (dep.type === "library" && !state.settings.autoDownloadMissingLibs) ||
-                (dep.type === "plugin" && !state.settings.autoDownloadMissingPlugins)
+                (dep.type === "library" && !state.settings.autoDownloadMissingLibs)
+                || (dep.type === "plugin" && !state.settings.autoDownloadMissingPlugins)
             ));
-    
+
             // Prompt for confirmation if needed
             if((warnAbout.length > 0 || willEnable.length > 0) && !message.confirmed) {
                 let msg = `Enabling ${message.name} `;
@@ -81,11 +81,11 @@ export default new class PluginsHandler extends ScriptHandler {
                     msg += `will enable ${names}`;
                 }
                 msg += ". Continue?";
-    
+
                 respond({ status: "confirm", message: msg });
                 return;
             }
-    
+
             // Download dependencies
             if(willDownload.length > 0) {
                 const failed = await Downloader.downloadDeps(willDownload);
@@ -95,14 +95,14 @@ export default new class PluginsHandler extends ScriptHandler {
                     return;
                 }
             }
-    
+
             // Enable dependencies
             for(const name of willEnable) {
                 await Server.executeAndSend("pluginToggled", { name, enabled: true });
             }
-    
+
             Server.executeAndSend("pluginToggled", { name: message.name, enabled: message.enabled });
-    
+
             respond({ status: "success" });
         } else {
             const willDisable = Scripts.checkDependents(message.name);
@@ -113,9 +113,9 @@ export default new class PluginsHandler extends ScriptHandler {
                 respond({ status: "confirm", message: msg });
                 return;
             }
-            
+
             Server.executeAndSend("pluginToggled", { name: message.name, enabled: message.enabled });
-            
+
             // Disable dependents
             for(const name of willDisable) {
                 await Server.executeAndSend("pluginToggled", { name, enabled: false });
@@ -151,8 +151,10 @@ export default new class PluginsHandler extends ScriptHandler {
                     allDownloads.add(dep.name);
                     downloadDeps.push(dep);
 
-                    if((dep.type === "library" && !state.settings.autoDownloadMissingLibs) ||
-                       (dep.type === "plugin" && !state.settings.autoDownloadMissingPlugins)) {
+                    if(
+                        (dep.type === "library" && !state.settings.autoDownloadMissingLibs)
+                        || (dep.type === "plugin" && !state.settings.autoDownloadMissingPlugins)
+                    ) {
                         warnAbout.add(dep.name);
                     }
                 }
@@ -183,4 +185,4 @@ export default new class PluginsHandler extends ScriptHandler {
             respond({ status: "success" });
         }
     }
-}
+}();

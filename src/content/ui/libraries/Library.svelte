@@ -30,7 +30,7 @@
 
     let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);
     const SvelteComponent = $derived(component);
-    
+
     function deleteLibrary() {
         if(!confirm(`Are you sure you want to delete ${library.headers.name}?`)) return;
         LibManager.deleteConfirm(library.headers.name);

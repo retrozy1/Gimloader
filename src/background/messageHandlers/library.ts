@@ -12,7 +12,7 @@ export default new class LibrariesHandler extends ScriptHandler {
 
     init() {
         super.init();
-        
+
         Server.onMessage("tryDeleteAllLibraries", this.tryDeleteAllLibraries.bind(this));
     }
 
@@ -27,8 +27,7 @@ export default new class LibrariesHandler extends ScriptHandler {
         this.save();
     }
 
-    async tryDeleteAllLibraries(state: State, message: OnceMessages["tryDeleteAllLibraries"],
-        respond: (response: OnceResponses["tryDeleteAllLibraries"]) => void) {
+    async tryDeleteAllLibraries(state: State, message: OnceMessages["tryDeleteAllLibraries"], respond: (response: OnceResponses["tryDeleteAllLibraries"]) => void) {
         const willDisable = new Set<string>();
 
         for(const lib of state.libraries) {
@@ -53,4 +52,4 @@ export default new class LibrariesHandler extends ScriptHandler {
         Server.executeAndSend("libraryDeleteAll", undefined);
         respond({ status: "success" });
     }
-}
+}();

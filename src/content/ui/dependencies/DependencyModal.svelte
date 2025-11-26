@@ -32,10 +32,9 @@
 </script>
 
 <Dialog.Root bind:open onOpenChangeComplete={onOpenChange}>
-    <Dialog.Content class="flex flex-col gap-2 text-gray-600 text-lg"
-        style="max-width: min(760px, calc(100% - 32px))">
+    <Dialog.Content class="flex flex-col gap-2 text-gray-600 text-lg" style="max-width: min(760px, calc(100% - 32px))">
         <Dialog.Header class="text-2xl font-bold! border-b-2">
-            {title} 
+            {title}
         </Dialog.Header>
         {#if Array.isArray(script)}
             {#each script as s}

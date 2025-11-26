@@ -92,7 +92,7 @@ export class Plugin extends Script<PluginInfo> {
             confirmed: downloadConfirmed
         });
 
-        switch(response.status) {
+        switch (response.status) {
             case "dependencyError":
                 Modals.open("dependency", {
                     script: this,
@@ -100,13 +100,14 @@ export class Plugin extends Script<PluginInfo> {
                     title: "Cannot Enable " + this.headers.name
                 });
                 return false;
-            case "downloadError":
+            case "downloadError": {
                 Modals.open("error", {
                     text: response.message,
                     title: "Download Error"
                 });
                 return false;
-            case "confirm":
+            }
+            case "confirm": {
                 const title = "Dependencies need to be downloaded/enabled";
                 const confirmed = await Modals.open("dependency", {
                     script: this,
@@ -117,6 +118,7 @@ export class Plugin extends Script<PluginInfo> {
 
                 this.enableConfirm(true);
                 return;
+            }
         }
     }
 
@@ -134,7 +136,7 @@ export class Plugin extends Script<PluginInfo> {
                 title
             });
             if(!confirmed) return;
-            
+
             this.disableConfirm(true);
         }
     }

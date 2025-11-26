@@ -146,9 +146,9 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
             toast.error(`No ${this.plural} to delete`);
             return;
         }
-        
+
         const deleted = this.scripts.length;
-        
+
         this.onDeleteAll();
         Port.send(`${this.type}DeleteAll`);
         if(shouldToast) toast.success(`Deleted ${deleted} ${deleted === 1 ? this.singular : this.plural}`);

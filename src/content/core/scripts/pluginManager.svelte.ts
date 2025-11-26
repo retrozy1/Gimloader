@@ -44,7 +44,7 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
             confirmed
         });
 
-        switch(response.status) {
+        switch (response.status) {
             case "dependencyError": {
                 const scripts = response.scripts.map(s => this.getScript(s));
                 const title = scripts.length > 1 ? "Could not enable some plugins" : `Could not enable ${scripts[0].headers.name}`;

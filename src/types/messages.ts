@@ -43,7 +43,10 @@ export interface Messages extends StateMessages {
     availableUpdates: string[];
 }
 
-export interface ScriptTryDelete { name: string; confirmed?: boolean };
+export interface ScriptTryDelete {
+    name: string;
+    confirmed?: boolean;
+}
 
 export interface OnceMessages {
     getState: void;
@@ -59,20 +62,49 @@ export interface OnceMessages {
     trySetAllPlugins: { enabled: boolean; confirmed?: boolean };
 }
 
-interface ToggleSuccess { status: "success" };
-interface ToggleDependencyError { status: "dependencyError"; message: string };
-interface ToggleDownloadError { status: "downloadError"; message: string };
-interface ToggleConfirm { status: "confirm"; message: string };
+interface ToggleSuccess {
+    status: "success";
+}
+interface ToggleDependencyError {
+    status: "dependencyError";
+    message: string;
+}
+interface ToggleDownloadError {
+    status: "downloadError";
+    message: string;
+}
+interface ToggleConfirm {
+    status: "confirm";
+    message: string;
+}
 type ToggleResult = ToggleSuccess | ToggleDependencyError | ToggleDownloadError | ToggleConfirm;
 
-interface DeleteSuccess { status: "success" };
-interface DeleteConfirm { status: "confirm"; message: string };
+interface DeleteSuccess {
+    status: "success";
+}
+interface DeleteConfirm {
+    status: "confirm";
+    message: string;
+}
 export type DeleteResult = DeleteSuccess | DeleteConfirm;
 
-interface SetAllSuccess { status: "success" };
-interface SetAllDependencyError { status: "dependencyError"; scripts: string[]; message: string };
-interface SetAllDownloadError { status: "downloadError"; message: string };
-interface SetAllConfirm { status: "confirm"; scripts: string[]; message: string };
+interface SetAllSuccess {
+    status: "success";
+}
+interface SetAllDependencyError {
+    status: "dependencyError";
+    scripts: string[];
+    message: string;
+}
+interface SetAllDownloadError {
+    status: "downloadError";
+    message: string;
+}
+interface SetAllConfirm {
+    status: "confirm";
+    scripts: string[];
+    message: string;
+}
 type SetAllResult = SetAllSuccess | SetAllDependencyError | SetAllDownloadError | SetAllConfirm;
 
 export interface OnceResponses {
