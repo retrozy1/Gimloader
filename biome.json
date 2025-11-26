@@ -45,7 +45,15 @@
 				"noAssignInExpressions": "off",
 				"noExplicitAny": "off",
 				"noAsyncPromiseExecutor": "off",
-				"noTsIgnore": "off"
+				"noTsIgnore": "off",
+				"noConsole": {
+					"level": "error",
+					"options": {
+						"allow": [
+							"error"
+						]
+					}
+				}
 			}
 		}
 	},

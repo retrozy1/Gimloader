@@ -1,14 +1,6 @@
 import Port from "$shared/net/port.svelte";
 import * as z from "zod";
 
-export function log(...args: any[]) {
-    console.log("%c[GL]", "color:#5030f2", ...args);
-}
-
-export function error(...args: any[]) {
-    console.error("%c[GL]", "color:#5030f2", ...args);
-}
-
 export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
     for(let i = 0; i < schema.length; i++) {
         let [name, type] = schema[i];

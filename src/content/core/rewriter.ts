@@ -2,7 +2,7 @@ import { domLoaded, splicer } from "$content/utils";
 import { clear, get, set } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
-import { englishList } from "$shared/utils";
+import { englishList, error } from "$shared/utils";
 import Modals from "./modals.svelte";
 
 interface Import {
@@ -121,7 +121,7 @@ export default class Rewriter {
             URL.revokeObjectURL(blobUrl);
             return imported;
         } catch (e) {
-            console.error("Error importing", src, e);
+            error("Error importing", src, e);
 
             // Create an error message that lists plugins that might be causing the issue
             const usedHooks = this.getHooks(name, root, false)
@@ -180,7 +180,7 @@ export default class Rewriter {
                 const edited = hook.callback(js);
                 if(edited) js = edited;
             } catch (e) {
-                console.error("Error in parse hook:", e);
+                error("Error in parse hook:", e);
             }
         }
 

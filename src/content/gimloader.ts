@@ -2,7 +2,7 @@ import Api from "./api/api";
 import Net from "$core/net/net";
 import UI from "$core/ui/ui";
 import GimkitInternals from "$core/internals";
-import { log } from "./utils";
+import { log } from "$shared/utils";
 import Port from "$shared/net/port.svelte";
 import { version } from "../../package.json";
 import { fixRDT } from "$core/rdt";

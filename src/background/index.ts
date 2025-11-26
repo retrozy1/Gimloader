@@ -2,12 +2,13 @@ import Poller from "./net/poller";
 import Server from "./net/server";
 import { statePromise } from "./state";
 import Updater from "./net/updater";
+import { log } from "$shared/utils";
 
 Server.init();
 Updater.init();
 
 statePromise.then((state) => {
-    console.log(state);
+    log(state);
     Poller.init(state.settings.pollerEnabled);
 });
 

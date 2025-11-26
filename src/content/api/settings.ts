@@ -1,6 +1,7 @@
 import type { Plugin } from "$core/scripts/plugin.svelte";
 import type { PluginSetting, PluginSettings, SettingGroup, SettingsMethods } from "$types/settings";
-import { error, validate } from "$content/utils";
+import { validate } from "$content/utils";
+import { error } from "$shared/utils";
 import Storage from "$core/storage.svelte";
 import * as z from "zod";
 import Modals from "$content/core/modals.svelte";

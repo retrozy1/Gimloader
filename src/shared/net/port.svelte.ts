@@ -2,6 +2,7 @@ import type { State } from "$types/state";
 import EventEmitter2 from "eventemitter2";
 import { algorithm, isFirefox } from "../consts";
 import type { Messages, OnceMessages, OnceResponses, StateMessages } from "$types/messages";
+import { log } from "$shared/utils";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";
 type StateCallback = (state: State) => void;
@@ -63,7 +64,7 @@ export default new class Port extends EventEmitter2 {
         this.port.onMessage.addListener(this.onMessage.bind(this));
 
         this.port.onDisconnect.addListener(() => {
-            console.log("Port disconnected, reconnecting...");
+            log("Port disconnected, reconnecting...");
             this.disconnected = true;
 
             if(this.runtime.lastError) {

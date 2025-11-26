@@ -9,6 +9,7 @@
     import Download from "svelte-material-icons/Download.svelte";
     import Search from "../components/Search.svelte";
     import { downloadPlugin } from "$content/core/net/download";
+    import { error } from "$shared/utils";
 
     let officialPlugins: OfficialScriptInfo[] = $state([]);
     let searchValue = $state("");
@@ -25,7 +26,7 @@
         try {
             officialPlugins = JSON.parse(saved);
         } catch {
-            console.error("Failed to parse saved official plugins:", saved);
+            error("Failed to parse saved official plugins:", saved);
         }
     }
 
@@ -41,7 +42,7 @@
             officialPlugins = await res.json();
             localStorage.setItem("gl-officialPlugins", JSON.stringify(officialPlugins));
         } catch (e) {
-            console.error("Failed to fetch official plugins", e);
+            error("Failed to fetch official plugins", e);
             return;
         }
     });

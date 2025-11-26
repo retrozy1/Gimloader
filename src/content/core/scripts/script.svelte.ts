@@ -1,7 +1,8 @@
 import type { ScriptHeaders } from "$types/scripts";
 import type { ScriptType } from "$types/messages";
 import type { ScriptInfo } from "$types/state";
-import { error, log } from "$content/utils";
+import { error } from "$shared/utils";
+import { log } from "$shared/utils";
 import { getDepName, parseScriptHeaders } from "$shared/parseHeader";
 import { gameState } from "$content/stores";
 import Modals from "../modals.svelte";
@@ -190,7 +191,7 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
         try {
             for(const stop of this.onStop) stop?.();
         } catch (e) {
-            console.error(`Error stopping ${this.headers.name}:`, e);
+            error(`Error stopping ${this.headers.name}:`, e);
         }
 
         for(const used of this.requires) used.unrequire?.(this, true);

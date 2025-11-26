@@ -1,6 +1,8 @@
 import Internals from "$core/internals";
 import EventEmitter2 from "eventemitter2";
-import { clearId, error, log, splicer } from "$content/utils";
+import { clearId, splicer } from "$content/utils";
+import { error } from "$shared/utils";
+import { log } from "$shared/utils";
 import Patcher from "../patcher";
 import Rewriter from "../rewriter";
 import wildcardMatch from "wildcard-match";
