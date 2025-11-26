@@ -52,6 +52,11 @@
 
     let libUrl = $state("");
     let libUrlMenuOpen = $state(false);
+
+    function deleteAll() {
+        if(!confirm("Are you sure you want to delete all libraries?")) return;
+        LibManager.deleteAllConfirm();
+    }
 </script>
 
 <Dialog.Root open={libUrlMenuOpen} onOpenChangeComplete={() => libUrl = ""}>
@@ -88,7 +93,7 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={() => LibManager.deleteAll(false)}>
+                <DropdownMenu.Item onclick={() => deleteAll()}>
                     Delete all
                 </DropdownMenu.Item>
             </DropdownMenu.Content>

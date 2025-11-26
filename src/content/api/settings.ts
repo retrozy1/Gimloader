@@ -2,8 +2,8 @@ import type { Plugin } from "$core/scripts/plugin.svelte";
 import type { PluginSetting, PluginSettings, SettingGroup, SettingsMethods } from "$types/settings";
 import { error, validate } from "$content/utils";
 import Storage from "$core/storage.svelte";
-import { showPluginSettings } from "$content/ui/mount";
 import * as z from "zod";
+import Modals from "$content/core/modals.svelte";
 
 const BaseSchema = z.object({
     id: z.string(),
@@ -153,7 +153,7 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
             validate("settings.create", arguments, ["description", DescriptionSchema]);
 
             plugin.settingsDescription = description;
-            plugin.openSettingsMenu.push(() => showPluginSettings(plugin));
+            plugin.openSettingsMenu.push(() => Modals.open("pluginSettings", { plugin }));
 
             Storage.pluginSettings[id] ??= {};
             applyDefaults(id, description);

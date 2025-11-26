@@ -2,15 +2,15 @@ import type { ScriptType } from "$types/messages";
 import type { ScriptHeaders } from "$types/scripts";
 import type { PluginSettingsDescription } from "$types/settings";
 import type { PluginInfo } from "$types/state";
-import { englishList } from "$content/utils";
 import Port from "$shared/net/port.svelte";
 import { Script } from "./script.svelte";
+import Modals from "../modals.svelte";
 
 export class Plugin extends Script<PluginInfo> {
     type: ScriptType = "plugin";
     warnAbout = true;
     enabled: boolean = $state();
-    openSettingsMenu: (() => void)[] = [];
+    openSettingsMenu: (() => void)[] = $state([]);
     settingsDescription?: PluginSettingsDescription;
 
     constructor(info: PluginInfo, headers?: ScriptHeaders) {
@@ -36,13 +36,21 @@ export class Plugin extends Script<PluginInfo> {
         Port.send("pluginToggled", { name: this.headers.name, enabled });
     }
 
-    onDependentStopped() {
-        this.setEnabled(false);
+    edit(code: string, headers?: ScriptHeaders) {
+        super.edit(code, headers);
+        if(this.started) this.stop();
+        if(this.enabled) {
+            this.start(false).catch((e) => {
+                Modals.open("error", {
+                    text: e,
+                    title: `Error starting ${this.headers.name}`
+                });
+            });
+        }
     }
 
     stop() {
         super.stop();
-
         this.openSettingsMenu = [];
     }
 
@@ -65,43 +73,69 @@ export class Plugin extends Script<PluginInfo> {
     async onToggled(enabled: boolean) {
         this.enabled = enabled;
 
-        if(enabled) await this.start(false);
-        else this.stop();
-    }
-
-    async enableConfirm() {
-        const willEnable = new Set<Plugin>();
-
-        // Recursively get the plugins that will be enabled
-        const getWillEnable = (plugin: Plugin) => {
-            const deps = plugin.getDependencies();
-            const pluginDeps = deps.required.filter(d => d instanceof Plugin);
-
-            for(const dep of pluginDeps) {
-                if(willEnable.has(dep) || dep.enabled) continue;
-                willEnable.add(dep);
-                getWillEnable(dep);
-            }
-        };
-        getWillEnable(this);
-
-        if(willEnable.size > 0) {
-            // TODO: Actual prompt
-            const names = englishList(Array.from(willEnable).map(p => p.headers.name));
-            if(!confirm(`Enabling ${this.headers.name} will also enable ${names}. Proceed?`)) return false;
-
-            for(const plugin of willEnable) {
-                plugin.toggle(true);
-            }
+        if(enabled) {
+            await this.start(false).catch((e) => {
+                Modals.open("error", {
+                    text: e,
+                    title: `Error starting ${this.headers.name}`
+                });
+            });
+        } else {
+            this.stop();
         }
-
-        this.setEnabled(true);
-        this.start(false);
-        return true;
     }
 
-    disableConfirm() {
-        this.stopConfirm();
-        this.setEnabled(false);
+    async enableConfirm(downloadConfirmed = false) {
+        const response = await Port.sendAndRecieve("tryTogglePlugin", {
+            name: this.headers.name,
+            enabled: true,
+            confirmed: downloadConfirmed
+        });
+
+        switch(response.status) {
+            case "dependencyError":
+                Modals.open("dependency", {
+                    script: this,
+                    type: "error",
+                    title: "Cannot Enable " + this.headers.name
+                });
+                return false;
+            case "downloadError":
+                Modals.open("error", {
+                    text: response.message,
+                    title: "Download Error"
+                });
+                return false;
+            case "confirm":
+                const title = "Dependencies need to be downloaded/enabled";
+                const confirmed = await Modals.open("dependency", {
+                    script: this,
+                    type: "confirm",
+                    title
+                });
+                if(!confirmed) return;
+
+                this.enableConfirm(true);
+                return;
+        }
+    }
+
+    async disableConfirm(stopConfirmed = false) {
+        const response = await Port.sendAndRecieve("tryTogglePlugin", {
+            name: this.headers.name,
+            enabled: false,
+            confirmed: stopConfirmed
+        });
+
+        if(response.status === "confirm") {
+            const title = "Other plugins depend on this plugin";
+            const confirmed = await Modals.open("confirm", {
+                text: response.message,
+                title
+            });
+            if(!confirmed) return;
+            
+            this.disableConfirm(true);
+        }
     }
 }

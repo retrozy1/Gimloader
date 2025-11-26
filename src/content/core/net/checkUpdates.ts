@@ -6,7 +6,7 @@ import type { Script } from "../scripts/script.svelte";
 
 export async function checkUpdate(script: Script) {
     Rewriter.invalidate();
-    const updated: UpdateResponse = await Port.sendAndRecieve("updateSingle", {
+    const updated = await Port.sendAndRecieve("updateSingle", {
         type: script.type,
         name: script.headers.name
     });

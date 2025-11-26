@@ -3,11 +3,11 @@
 
     interface Props {
         title: string;
-        msg: string;
+        text: string;
         onClose: () => void;
     }
 
-    let { title, msg, onClose }: Props = $props();
+    let { title, text, onClose }: Props = $props();
 </script>
 
 <Dialog.Root open onOpenChangeComplete={onClose}>
@@ -15,6 +15,6 @@
         <Dialog.Header class="font-bold text-lg w-full border-b">
             {title}
         </Dialog.Header>
-        <pre class="whitespace-pre-wrap">{msg}</pre>
+        <pre class="whitespace-pre-wrap">{text}</pre>
     </Dialog.Content>
 </Dialog.Root>

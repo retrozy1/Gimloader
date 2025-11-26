@@ -1,6 +1,8 @@
 import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, PluginStorage, SavedState, Settings, State } from "$types/state";
 import { defaultSettings } from "$shared/consts";
 import debounce from "debounce";
+import type { ScriptType } from "$types/messages";
+import Scripts from "./scripts";
 
 export const statePromise = new Promise<State>(async (res) => {
     const savedState = await chrome.storage.local.get<SavedState>({
@@ -38,13 +40,14 @@ export function saveDebounced(key: keyof SavedState) {
     debounced[key]();
 }
 
-export function sanitizeScriptInfo(scripts: PluginInfo[], needsEnabled: true): PluginInfo[];
-export function sanitizeScriptInfo(scripts: LibraryInfo[], needsEnabled: false): LibraryInfo[];
-export function sanitizeScriptInfo(scripts: any[], needsEnabled: boolean) {
-    if(!Array.isArray(scripts)) return [];
+export function sanitizeScriptInfo(info: PluginInfo[], type: "plugin"): PluginInfo[];
+export function sanitizeScriptInfo(info: LibraryInfo[], type: "library"): LibraryInfo[];
+export function sanitizeScriptInfo(info: any[], type: ScriptType) {
+    if(!Array.isArray(info)) return [];
 
-    for(let i = 0; i < scripts.length; i++) {
-        const item = scripts[i];
+    const needsEnabled = type === "plugin";
+    for(let i = 0; i < info.length; i++) {
+        const item = info[i];
         if(item.script && !item.code) item.code = item.script;
 
         if(
@@ -52,34 +55,36 @@ export function sanitizeScriptInfo(scripts: any[], needsEnabled: boolean) {
             || typeof item.code !== "string"
             || (needsEnabled && typeof (item as PluginInfo).enabled !== "boolean")
         ) {
-            scripts.splice(i, 1);
+            info.splice(i, 1);
             i--;
             continue;
         }
 
-        scripts[i] = { name: item.name, code: item.code };
-        if(needsEnabled) (scripts[i] as PluginInfo).enabled = (item as PluginInfo).enabled;
+        info[i] = { name: item.name, code: item.code };
+        if(needsEnabled) (info[i] as PluginInfo).enabled = (item as PluginInfo).enabled;
     }
 
-    // remove duplicates
-    for(let i = 0; i < scripts.length - 1; i++) {
-        for(let j = i + 1; j < scripts.length; j++) {
-            if(scripts[j].name === scripts[i].name) {
-                scripts.splice(j, 1);
-                j--;
-            }
+    // Remove duplicates
+    for(let i = 0; i < info.length; i++) {
+        let failed = false;
+        if(Scripts.has(info[i].name)) failed = true;
+        else failed = Scripts.createScript(type, info[i]);
+
+        if(failed) {
+            info.splice(i, 1);
+            i--;
         }
     }
 
-    return scripts;
+    return info;
 }
 
 export function sanitizePlugins(plugins: PluginInfo[]) {
-    return sanitizeScriptInfo(plugins, true);
+    return sanitizeScriptInfo(plugins, "plugin");
 }
 
 export function sanitizeLibraries(libraries: LibraryInfo[]) {
-    return sanitizeScriptInfo(libraries, false);
+    return sanitizeScriptInfo(libraries, "library");
 }
 
 export function sanitizePluginStorage(storage: PluginStorage) {

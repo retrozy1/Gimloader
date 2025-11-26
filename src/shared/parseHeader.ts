@@ -76,3 +76,18 @@ export function parseHeader<T>(code: string, headers: T): T {
 
     return headers;
 }
+
+export function getDepName(dependency: string) {
+    const index = dependency.indexOf("|");
+    if(index === -1) return dependency.trim();
+    return dependency.slice(0, index).trim();
+}
+
+export function parseDep(dependency: string) {
+    const index = dependency.indexOf("|");
+    if(index === -1) return [dependency.trim()];
+
+    const name = dependency.slice(0, index).trim();
+    const url = dependency.slice(index + 1).trim();
+    return [name, url];
+}

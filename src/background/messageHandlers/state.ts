@@ -1,6 +1,6 @@
-import Server from "$bg/server";
+import Server from "$bg/net/server";
 import { sanitizeHotkeys, sanitizeLibraries, sanitizePlugins, sanitizePluginStorage, sanitizeSettings, saveDebounced } from "$bg/state";
-import Updater from "$bg/updater";
+import Updater from "$bg/net/updater";
 import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { State } from "$types/state";
 

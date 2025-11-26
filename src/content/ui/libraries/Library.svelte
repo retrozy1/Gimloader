@@ -13,7 +13,6 @@
     import BookSettings from "svelte-material-icons/BookSettings.svelte";
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
-    import { showScriptLibs } from "../mount";
 
     interface Props {
         startDrag: () => void;
@@ -31,6 +30,11 @@
 
     let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);
     const SvelteComponent = $derived(component);
+    
+    function deleteLibrary() {
+        if(!confirm(`Are you sure you want to delete ${library.headers.name}?`)) return;
+        LibManager.deleteConfirm(library.headers.name);
+    }
 </script>
 
 <SvelteComponent {dragDisabled} {startDrag} {dragAllowed} deprecated={library?.headers.deprecated !== null}>
@@ -49,7 +53,7 @@
         {library?.headers.description}
     {/snippet}
     {#snippet buttons()}
-        <button title="Delete" onclick={() => LibManager.deleteConfirm(library.headers.name)}>
+        <button title="Delete" onclick={deleteLibrary}>
             <Delete size={28} />
         </button>
         <button title="Open library in editor" onclick={() => showEditor("library", library.headers.name)}>
@@ -61,7 +65,7 @@
             </button>
         {/if}
         {#if library?.headers.needsLib?.length || library?.headers.optionalLib?.length}
-            <button title="See libraries used by this library" onclick={() => showScriptLibs(library)}>
+            <button title="See libraries used by this library" onclick={() => {/* TODO showScriptLibs(library) */}}>
                 <BookSettings size={24} />
             </button>
         {/if}

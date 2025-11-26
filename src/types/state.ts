@@ -18,6 +18,7 @@ export interface Settings {
     pollerEnabled: boolean;
     autoUpdate: boolean;
     autoDownloadMissingLibs: boolean;
+    autoDownloadMissingPlugins: boolean;
     menuView: "grid" | "list";
     showPluginButtons: boolean;
 }

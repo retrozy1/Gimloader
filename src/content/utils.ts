@@ -109,15 +109,3 @@ export class Deferred<T = void> extends Promise<T> {
         return new Deferred<T>(() => {});
     }
 }
-
-export function englishList(items: string[], combiner = "and") {
-    if(items.length === 1) return items[0];
-    else if(items.length === 2) return `${items[0]} ${combiner} ${items[1]}`;
-    else return `${items.slice(0, -1).join(", ")}, ${combiner} ${items.at(-1)}`;
-}
-
-export function getDepName(dependency: string) {
-    const index = dependency.indexOf("|");
-    if(index === -1) return dependency.trim();
-    return dependency.slice(0, index).trim();
-}

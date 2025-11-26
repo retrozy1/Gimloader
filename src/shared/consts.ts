@@ -11,6 +11,7 @@ export const defaultSettings: Settings = {
     pollerEnabled: false,
     autoUpdate: true,
     autoDownloadMissingLibs: true,
+    autoDownloadMissingPlugins: false,
     menuView: "grid",
     showPluginButtons: true
 };

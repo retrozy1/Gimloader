@@ -73,5 +73,3 @@
         </div>
     {/if}
 </div>
-
-<style src="./loadAnim.css"></style>

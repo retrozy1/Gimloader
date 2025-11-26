@@ -66,6 +66,11 @@
 
     let pluginUrl = $state("");
     let pluginUrlMenuOpen = $state(false);
+
+    function deleteAll() {
+        if(!confirm("Are you sure you want to delete all plugins?")) return;
+        PluginManager.deleteAll(false);
+    }
 </script>
 
 <Dialog.Root open={pluginUrlMenuOpen} onOpenChangeComplete={() => pluginUrl = ""}>
@@ -105,9 +110,9 @@
                 </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                <DropdownMenu.Item onclick={() => PluginManager.deleteAll(false)}>Delete all</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => PluginManager.setAll(true)}>Enable all</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => PluginManager.setAll(false)}>Disable all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => deleteAll()}>Delete all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.setAllConfirm(true)}>Enable all</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => PluginManager.setAllConfirm(false)}>Disable all</DropdownMenu.Item>
             </DropdownMenu.Content>
         </DropdownMenu.Root>
         <DropdownMenu.Root>

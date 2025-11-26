@@ -8,7 +8,6 @@
     import { showEditor } from "$content/utils";
     import * as Tooltip from "$shared/ui/tooltip";
     import { Switch } from "$shared/ui/switch";
-    import { showScriptLibs } from "../mount";
 
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
@@ -47,6 +46,11 @@
         loading = false;
     }
 
+    function deletePlugin() {
+        if(!confirm(`Are you sure you want to delete ${plugin.headers.name}?`)) return;
+        PluginManager.deleteConfirm(plugin.headers.name);
+    }
+
     let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);
     const SvelteComponent = $derived(component);
 </script>
@@ -76,7 +80,7 @@
         {plugin?.headers.description}
     {/snippet}
     {#snippet buttons()}
-        <button title="Delete" onclick={() => PluginManager.deleteConfirm(plugin.headers.name)}>
+        <button title="Delete" onclick={deletePlugin}>
             <Delete size={28} />
         </button>
         <button title="Open plugin editor" onclick={() => showEditor("plugin", plugin.headers.name)}>
@@ -101,7 +105,7 @@
             </button>
         {/if}
         {#if plugin?.headers.needsLib?.length || plugin?.headers.optionalLib?.length}
-            <button title="See libraries used by this plugin" onclick={() => showScriptLibs(plugin)}>
+            <button title="See libraries used by this plugin" onclick={() => {/* TODO showScriptLibs(plugin) */}}>
                 <BookSettings size={24} />
             </button>
         {/if}

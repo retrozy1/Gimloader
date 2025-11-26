@@ -3,8 +3,8 @@ import type { ScriptHeaders } from "$types/scripts";
 import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { LibraryInfo, PluginInfo, State } from "$types/state";
 import type { Update } from "$types/updater";
-import Server from "./server";
-import { saveDebounced, statePromise } from "./state";
+import Server from "$bg/net/server";
+import { saveDebounced, statePromise } from "../state";
 import { formatDownloadUrl } from "$shared/net/util";
 
 export default class Updater {

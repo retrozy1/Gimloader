@@ -1,6 +1,6 @@
 import type { StateMessages } from "$types/messages";
 import type { State } from "$types/state";
-import Server from "$bg/server";
+import Server from "$bg/net/server";
 import { saveDebounced } from "../state";
 
 export default class StorageHandler {

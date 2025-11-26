@@ -1,8 +1,8 @@
 import type { StateMessages } from "$types/messages";
 import type { State } from "$types/state";
-import Server from "$bg/server";
+import Server from "$bg/net/server";
 import { saveDebounced } from "$bg/state";
-import Updater from "$bg/updater";
+import Updater from "$bg/net/updater";
 import EventEmitter2 from "eventemitter2";
 
 export default new class SettingsHandler extends EventEmitter2 {

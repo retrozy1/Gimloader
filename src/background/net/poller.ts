@@ -1,7 +1,7 @@
-import SettingsHandler from "./messageHandlers/settings";
-import { saveDebounced, statePromise } from "./state";
+import SettingsHandler from "$bg/messageHandlers/settings";
+import { saveDebounced, statePromise } from "$bg/state";
 import { parseScriptHeaders } from "$shared/parseHeader";
-import Server from "./server";
+import Server from "$bg/net/server";
 
 export default class Poller {
     static enabled = false;

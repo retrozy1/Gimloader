@@ -1,7 +1,7 @@
-import Poller from "./poller";
-import Server from "./server";
+import Poller from "./net/poller";
+import Server from "./net/server";
 import { statePromise } from "./state";
-import Updater from "./updater";
+import Updater from "./net/updater";
 
 Server.init();
 Updater.init();
@@ -13,9 +13,10 @@ statePromise.then((state) => {
 
 // open the editor when requested
 Server.onMessage("showEditor", async (_, { type, name }) => {
-    const params = new URLSearchParams();
-    params.set("type", type);
-    if(name) params.set("name", name);
+    const params = new URLSearchParams({
+        type,
+        name
+    });
 
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 

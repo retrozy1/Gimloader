@@ -1,4 +1,4 @@
-import Server from "$bg/server";
+import Server from "$bg/net/server";
 import { saveDebounced } from "$bg/state";
 import type { StateMessages } from "$types/messages";
 import type { State } from "$types/state";

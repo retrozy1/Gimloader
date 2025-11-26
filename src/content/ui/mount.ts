@@ -1,10 +1,6 @@
-import type { Script } from "$content/core/scripts/script.svelte";
-import type { Plugin } from "$core/scripts/plugin.svelte";
+
 import { domLoaded } from "$content/utils";
-import ErrorModal from "./modals/Error.svelte";
-import PluginSettings from "./settings/PluginSettings.svelte";
 import { mount, unmount } from "svelte";
-import ScriptLibraries from "./components/ScriptLibraries.svelte";
 import MenuUI from "./MenuUI.svelte";
 import Command from "./Command.svelte";
 
@@ -32,39 +28,4 @@ export function showMenu(tab = "plugins", officialOpen = false) {
 export async function mountCommand() {
     await domLoaded;
     mount(Command, { target: document.body });
-}
-
-export async function showErrorMessage(msg: string, title: string = "Error") {
-    await domLoaded;
-
-    const component = mount(ErrorModal, {
-        target: document.body,
-        props: {
-            title,
-            msg,
-            onClose: () => unmount(component)
-        }
-    });
-}
-
-export function showPluginSettings(plugin: Plugin) {
-    const component = mount(PluginSettings, {
-        target: document.body,
-        props: {
-            plugin,
-            onClose: () => unmount(component)
-        }
-    });
-}
-
-export function showScriptLibs(script: Script) {
-    const component = mount(ScriptLibraries, {
-        target: document.body,
-        props: {
-            name: script.headers.name,
-            needsLib: script.headers.needsLib,
-            optionalLib: script.headers.optionalLib,
-            onClose: () => unmount(component)
-        }
-    });
 }

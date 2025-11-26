@@ -1,8 +1,9 @@
-import { domLoaded, englishList, splicer } from "$content/utils";
+import { domLoaded, splicer } from "$content/utils";
 import { clear, get, set } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
-import { showErrorMessage } from "$content/ui/mount";
+import { englishList } from "$shared/utils";
+import Modals from "./modals.svelte";
 
 interface Import {
     text: string;
@@ -129,17 +130,17 @@ export default class Rewriter {
             // If no hooks were used, just give up
             if(usedHooks.length === 0) {
                 this.invalidate();
-                const message = `Critical error loading script ${name}.\n\n`
+                const text = `Critical error loading script ${name}.\n\n`
                     + "This error is likely caused by Gimloader itself. Please try reloading the page. "
                     + "If this issue persists open an issue at https://github.com/Gimloader/Gimloader.";
-                showErrorMessage(message, "Error loading script");
+                Modals.open("error", { text, title: "Error loading script" });
                 return;
             }
 
-            const message = `Error loading script ${name}. Gimloader may still be intact, but some plugins may not work as expected.\n\n`
+            const text = `Error loading script ${name}. Gimloader may still be intact, but some plugins may not work as expected.\n\n`
                 + `This error is likely caused by ${englishList(usedHooks, "or")}. `
                 + `Try disabling ${usedHooks.length > 1 ? "these plugins" : "this plugin"} and reloading.`;
-            showErrorMessage(message, "Error loading script");
+            Modals.open("error", { text, title: "Error loading script" });
 
             // Load it again without hooks
             this.loadingSrcs.delete(name);

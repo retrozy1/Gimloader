@@ -14,7 +14,6 @@
         buttons?: Snippet;
         author?: Snippet;
         description?: Snippet;
-        border?: string;
         hasDrag?: boolean;
         deprecated?: boolean;
     }
@@ -30,7 +29,6 @@
         buttons,
         author,
         description,
-        border,
         hasDrag = true,
         deprecated
     }: Props = $props();
@@ -88,5 +86,3 @@
         </div>
     {/if}
 </div>
-
-<style src="./loadAnim.css"></style>

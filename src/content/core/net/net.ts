@@ -88,7 +88,6 @@ export default new class Net extends EventEmitter2 {
 
             return (options: RequesterOptions) => {
                 for(const callback of requestCallbacks) {
-                    console.log(callback);
                     if(!callback.match(options.url)) continue;
                     const result = callback.callback(options);
 

@@ -1,7 +1,7 @@
 import type { State } from "$types/state";
 import EventEmitter2 from "eventemitter2";
 import { algorithm, isFirefox } from "../consts";
-import type { Messages, OnceMessages, StateMessages } from "$types/messages";
+import type { Messages, OnceMessages, OnceResponses, StateMessages } from "$types/messages";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";
 type StateCallback = (state: State) => void;
@@ -135,7 +135,7 @@ export default new class Port extends EventEmitter2 {
     }
 
     sendAndRecieve<Channel extends keyof OnceMessages>(type: Channel, message: OnceMessages[Channel] = undefined) {
-        return new Promise<any>((res) => {
+        return new Promise<OnceResponses[Channel]>((res) => {
             const returnId = crypto.randomUUID();
             this.pendingMessages.set(returnId, res);
             this.postMessage(type, message, returnId);

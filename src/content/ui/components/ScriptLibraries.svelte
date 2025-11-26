@@ -1,8 +1,6 @@
 <script lang="ts">
     import LibManager from "$core/scripts/libManager.svelte";
     import { checkUpdate } from "$core/net/checkUpdates";
-    import Net from "$core/net/net";
-    import { showErrorMessage } from "../mount";
     import * as Table from "$shared/ui/table";
     import * as Dialog from "$shared/ui/dialog";
 
@@ -10,6 +8,7 @@
     import Update from "svelte-material-icons/Update.svelte";
     import Download from "svelte-material-icons/Download.svelte";
     import { downloadLibrary } from "$content/core/net/download";
+    import { parseDep } from "$shared/parseHeader";
 
     interface Props {
         name: string;
@@ -29,13 +28,13 @@
     let libsInitial: ILibInfo[] = [];
 
     for(let lib of needsLib) {
-        let parts = lib.split("|").map((p: string) => p.trim());
-        libsInitial.push({ name: parts[0], url: parts[1], required: true });
+        let [name, url] = parseDep(lib);
+        libsInitial.push({ name, url, required: true });
     }
 
     for(let lib of optionalLib) {
-        let parts = lib.split("|").map((p: string) => p.trim());
-        libsInitial.push({ name: parts[0], url: parts[1], required: false });
+        let [name, url] = parseDep(lib);
+        libsInitial.push({ name, url, required: false });
     }
 
     let libsInfo: ILibInfo[] = $state(libsInitial);

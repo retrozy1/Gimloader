@@ -1,13 +1,13 @@
 import type { Messages, OnceMessages, OnceResponses, StateMessages } from "$types/messages";
 import type { State } from "$types/state";
-import HotkeysHandler from "./messageHandlers/hotkeys";
-import JsCacheHandler from "./messageHandlers/jsCache";
-import LibrariesHandler from "./messageHandlers/library";
-import PluginsHandler from "./messageHandlers/plugin";
-import SettingsHandler from "./messageHandlers/settings";
-import StateHandler from "./messageHandlers/state";
-import StorageHandler from "./messageHandlers/storage";
-import { statePromise } from "./state";
+import HotkeysHandler from "$bg/messageHandlers/hotkeys";
+import JsCacheHandler from "$bg/messageHandlers/jsCache";
+import LibrariesHandler from "$bg/messageHandlers/library";
+import PluginsHandler from "$bg/messageHandlers/plugin";
+import SettingsHandler from "$bg/messageHandlers/settings";
+import StateHandler from "$bg/messageHandlers/state";
+import StorageHandler from "$bg/messageHandlers/storage";
+import { statePromise } from "$bg/state";
 
 type Port = chrome.runtime.Port;
 
@@ -17,7 +17,7 @@ interface Message {
     returnId?: string;
 }
 
-type UpdateCallback<Channel extends keyof StateMessages> = (state: State, message: StateMessages[Channel]) => void;
+type UpdateCallback<Channel extends keyof StateMessages> = (state: State, message: StateMessages[Channel]) => void | Promise<void>;
 type MessageCallback<Channel extends keyof OnceMessages> = (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void;
 
 export default new class Server {
@@ -92,7 +92,7 @@ export default new class Server {
             const callback = this.listeners.get(type);
             if(!callback) return;
 
-            callback(await statePromise, message);
+            await callback(await statePromise, message);
 
             // send the message to other connected ports
             for(const openPort of this.open) {

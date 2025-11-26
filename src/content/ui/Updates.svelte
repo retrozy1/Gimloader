@@ -7,7 +7,7 @@
     import toast from "svelte-5-french-toast";
     import Port from "$shared/net/port.svelte";
     import Rewriter from "$core/rewriter";
-    import { englishList } from "$content/utils";
+    import { englishList } from "$shared/utils";
 
     async function checkAll() {
         if(!confirm("Do you want to try to update all plugins and all libraries?")) return;

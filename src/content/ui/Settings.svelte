@@ -3,19 +3,17 @@
     import { Switch } from "$shared/ui/switch";
     import Storage from "$core/storage.svelte";
     import StateManager from "$core/state";
+    import type { Settings } from "$types/state";
 
-    function saveAutoUpdate() {
-        Storage.updateSetting("autoUpdate", Storage.settings.autoUpdate);
-    }
-
-    function saveAutoDownloadLibs() {
-        Storage.updateSetting("autoDownloadMissingLibs", Storage.settings.autoDownloadMissingLibs);
+    function saveKey(key: keyof Settings) {
+        Storage.updateSetting(key, Storage.settings[key]);
     }
 </script>
 
 <h2 class="text-xl font-bold! mb-0!">General Settings</h2>
 <div class="flex items-center gap-2">
-    <Switch bind:checked={Storage.settings.autoUpdate} onCheckedChange={saveAutoUpdate} />
+    <Switch bind:checked={Storage.settings.autoUpdate}
+        onCheckedChange={() => saveKey("autoUpdate")} />
     Automatically check for plugin updates
 </div>
 <div class="flex items-center gap-2 mt-2!">
@@ -38,7 +36,13 @@
     Show buttons to open Gimloader menu
 </div>
 <div class="flex items-center gap-2 mt-2!">
-    <Switch bind:checked={Storage.settings.autoDownloadMissingLibs} onCheckedChange={saveAutoDownloadLibs} />
+    <Switch bind:checked={Storage.settings.autoDownloadMissingLibs}
+        onCheckedChange={() => saveKey("autoDownloadMissingLibs")} />
+    Attempt to automatically download missing libraries
+</div>
+<div class="flex items-center gap-2 mt-2!">
+    <Switch bind:checked={Storage.settings.autoDownloadMissingPlugins}
+        onCheckedChange={() => saveKey("autoDownloadMissingPlugins")} />
     Attempt to automatically download missing libraries
 </div>
 

@@ -1,7 +1,7 @@
 import type { State } from "$types/state";
 import type { StateMessages } from "$types/messages";
 import { saveDebounced } from "$bg/state";
-import Server from "$bg/server";
+import Server from "$bg/net/server";
 
 export default class HotkeysHandler {
     static init() {

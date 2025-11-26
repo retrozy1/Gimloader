@@ -112,15 +112,19 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
         script.edit(code, headers);
     }
 
-    deleteConfirm(name: string) {
-        // TODO: Actual prompt
-        if(!confirm(`Are you sure you want to delete ${name}?`)) return;
+    async deleteConfirm(name: string, confirmed = false) {
+        const response = await Port.sendAndRecieve(`${this.type}TryDelete`, { name, confirmed });
 
-        const script = this.getScript(name);
-        if(!script) return;
+        if(response.status === "confirm") {
+            const title = `Plugins depend on this ${this.singular}`;
+            const confirmed = await Modals.open("confirm", {
+                text: response.message,
+                title
+            });
+            if(!confirmed) return;
 
-        if(!script.stopConfirm("Deleting")) return;
-        this.delete(name);
+            this.deleteConfirm(name, true);
+        }
     }
 
     delete(name: string) {
@@ -142,15 +146,12 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
             toast.error(`No ${this.plural} to delete`);
             return;
         }
-
-        if(!confirm(`Are you sure you want to delete all ${this.plural}?`)) return;
-
+        
         const deleted = this.scripts.length;
-        this.onDeleteAll();
-        if(shouldToast) toast.success(`Deleted ${deleted} ${deleted === 1 ? this.singular : this.plural}`);
-
+        
         this.onDeleteAll();
         Port.send(`${this.type}DeleteAll`);
+        if(shouldToast) toast.success(`Deleted ${deleted} ${deleted === 1 ? this.singular : this.plural}`);
     }
 
     onDeleteAll() {
