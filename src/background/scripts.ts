@@ -126,10 +126,10 @@ export default class Scripts {
         const willEnable: string[] = [];
 
         // Confirm there are no missing undownloadable scripts or circular dependencies
-        const check = (name: string, stack: string[]) => {
+        const check = (checkName: string, stack: string[]) => {
             if(error) return;
 
-            const script = this.map.get(name);
+            const script = this.map.get(checkName);
             if(!script) return;
 
             for(const dep of script.dependencies) {
@@ -153,7 +153,7 @@ export default class Scripts {
                         willDownload.push(dep);
                     }
                 } else {
-                    error = `${dep.name} cannot be automatically downloaded`;
+                    error = `${name} requires ${dep.name}, which cannot be automatically downloaded`;
                     return;
                 }
             }

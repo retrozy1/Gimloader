@@ -2,7 +2,7 @@ import type { Script } from "$core/scripts/script.svelte";
 import { formatDownloadUrl } from "$shared/net/util";
 import PluginManager from "$core/scripts/pluginManager.svelte";
 import LibManager from "$core/scripts/libManager.svelte";
-import toast from "svelte-5-french-toast";
+import { toast } from "svelte-sonner";
 
 export async function downloadLibrary(url: string) {
     try {

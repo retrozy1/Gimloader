@@ -4,7 +4,7 @@
     import { checkUpdate } from "$core/net/checkUpdates";
     import Update from "svelte-material-icons/Update.svelte";
     import { version } from "../../../package.json";
-    import toast from "svelte-5-french-toast";
+    import { toast } from "svelte-sonner";
     import Port from "$shared/net/port.svelte";
     import Rewriter from "$core/rewriter";
     import { englishList } from "$shared/utils";

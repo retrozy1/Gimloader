@@ -1,5 +1,5 @@
 @import "tailwindcss" source(".");
-@import "../shared/vars";
+@import "../shared/vars.css";
 
 button {
     @apply cursor-pointer;

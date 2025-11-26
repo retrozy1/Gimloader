@@ -6,7 +6,7 @@ import Hotkeys from "$core/hotkeys/hotkeys.svelte";
 import UpdateNotifier from "$core/updateNotifier.svelte";
 import Port from "$shared/net/port.svelte";
 import { readUserFile } from "$content/utils";
-import toast from "svelte-5-french-toast";
+import { toast } from "svelte-sonner";
 import Rewriter from "./rewriter";
 import { version } from "../../../package.json";
 import Modals from "./modals.svelte";

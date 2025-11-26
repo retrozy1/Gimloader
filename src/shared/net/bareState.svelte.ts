@@ -36,7 +36,7 @@ export default new class BareState {
         });
 
         Port.on("pluginDeleteAll", () => {
-            this.plugins.splice(0, this.plugins.length);
+            this.plugins = [];
         });
 
         Port.on("pluginArrange", ({ order }) => {
@@ -45,6 +45,14 @@ export default new class BareState {
                 newOrder.push(this.plugins.find(p => p.name === name));
             }
             this.plugins = newOrder;
+        });
+
+        Port.on("pluginSetAll", ({ enabled }) => {
+            this.plugins.forEach(p => p.enabled = enabled);
+        });
+
+        Port.on("pluginToggled", ({ name, enabled }) => {
+            this.plugins.find(p => p.name === name).enabled = enabled;
         });
 
         // sync libraries

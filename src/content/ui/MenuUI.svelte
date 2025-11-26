@@ -7,7 +7,7 @@
     import Hotkeys from "./Hotkeys.svelte";
     import OfficialPlugins from "./plugins/OfficialPlugins.svelte";
     import Port from "$shared/net/port.svelte";
-    import toast from "svelte-5-french-toast";
+    import { toast } from "svelte-sonner";
     import PluginManager from "$core/scripts/pluginManager.svelte";
     import LibManager from "$core/scripts/libManager.svelte";
     import * as Dialog from "$shared/ui/dialog";

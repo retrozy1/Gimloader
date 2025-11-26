@@ -8,6 +8,9 @@ import { version } from "../../package.json";
 import { fixRDT } from "$core/rdt";
 import StateManager from "$core/state";
 import setupModals from "./core/ui/setupModals";
+import { toast } from "svelte-sonner";
+import { createToaster } from "$shared/toast/create";
+import { domLoaded } from "./utils";
 
 Object.defineProperty(window, "GL", {
     value: Api,
@@ -20,6 +23,13 @@ Net.init();
 GimkitInternals.init();
 StateManager.init();
 setupModals();
+domLoaded.then(createToaster);
+
+Port.on("toast", (msg) => {
+    if(msg.type === "success") toast.success(msg.message);
+    else if(msg.type === "error") toast.error(msg.message);
+    else toast(msg.message);
+});
 
 Port.init((state) => {
     StateManager.initState(state);

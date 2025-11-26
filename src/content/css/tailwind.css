@@ -4,7 +4,7 @@
 @import "tailwindcss/utilities.css" layer(utilities) source("../ui");
 @import "tw-animate-css";
 @import "../../shared/vars.css";
-@source "../../shared/ui";
+@source "../../shared";
 
 @layer theme {
     .preflight, .preflight::after, .preflight::before, .preflight::backdrop, .preflight *, .preflight ::after, .preflight ::before, .preflight ::backdrop, .preflight ::file-selector-button {

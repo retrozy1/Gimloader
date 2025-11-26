@@ -4,7 +4,7 @@ import type { ScriptInfo } from "$types/state";
 import Port from "$shared/net/port.svelte";
 import { parseScriptHeaders } from "$shared/parseHeader";
 import Modals from "../modals.svelte";
-import toast from "svelte-5-french-toast";
+import { toast } from "svelte-sonner";
 import { scripts } from "./map";
 
 export default abstract class ScriptManager<T extends Script, I extends ScriptInfo> {

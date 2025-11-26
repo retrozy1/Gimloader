@@ -76,7 +76,7 @@ export default new class PluginsHandler extends ScriptHandler {
                     msg += `will download ${names}`;
                 }
                 if(willEnable.length > 0) {
-                    if(msg.length > 0) msg += " and ";
+                    if(warnAbout.length > 0) msg += " and ";
                     const names = englishList(willEnable);
                     msg += `will enable ${names}`;
                 }

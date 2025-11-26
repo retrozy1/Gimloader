@@ -1,4 +1,4 @@
-import toast from "svelte-5-french-toast";
+import { toast } from "svelte-sonner";
 import Port from "$shared/net/port.svelte";
 import type { UpdateResponse } from "$types/updater";
 import Rewriter from "../rewriter";

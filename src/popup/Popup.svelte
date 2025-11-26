@@ -1,33 +1,12 @@
 <script lang="ts">
-    import type { PluginInfo } from "$types/state";
-    import { Switch } from "$shared/ui/switch";
     import state from "$shared/net/bareState.svelte";
-    import Port from "$shared/net/port.svelte";
-    import DeleteOutline from "svelte-material-icons/DeleteOutline.svelte";
     import Web from "svelte-material-icons/Web.svelte";
     import GithubIcon from "$assets/github-mark-white.svg";
     import Xml from "svelte-material-icons/Xml.svelte";
     import { version } from "../../package.json";
     import { parseScriptHeaders } from "$shared/parseHeader";
-    import { toast, Toaster } from "svelte-5-french-toast";
-
-    function onToggle(plugin: PluginInfo) {
-        Port.send("pluginToggled", { name: plugin.name, enabled: plugin.enabled });
-    }
-
-    let deleting: PluginInfo | null = null;
-
-    function onDeleteClick(e: MouseEvent, plugin: PluginInfo) {
-        if(deleting === plugin) {
-            Port.send("pluginDelete", { name: plugin.name });
-            state.plugins.splice(state.plugins.indexOf(plugin), 1);
-            deleting = null;
-            return;
-        }
-
-        e.stopPropagation();
-        deleting = plugin;
-    }
+    import { toast, Toaster } from "svelte-sonner";
+    import Plugin from "./Plugin.svelte";
 
     function openSite() {
         chrome.tabs.create({ url: "https://gimloader.github.io" });
@@ -58,9 +37,7 @@
     }
 </script>
 
-<svelte:window onclick={() => deleting = null} />
-
-<Toaster position="bottom-right" toastOptions={{ duration: 5000 }} />
+<Toaster richColors />
 
 <div class="w-full h-full bg-slate-900 text-white">
     <div class="flex items-center gap-2 px-1 border-b">
@@ -77,15 +54,7 @@
             </div>
         {:else}
             {#each state.plugins as plugin}
-                <div class="text-lg flex items-center px-1" class:bg-red-600={deleting === plugin}>
-                    <Switch onCheckedChange={() => onToggle(plugin)} bind:checked={plugin.enabled} />
-                    <div class="pl-2 grow whitespace-nowrap overflow-ellipsis overflow-x-hidden">
-                        {plugin.name}
-                    </div>
-                    <button onclick={(e) => onDeleteClick(e, plugin)}>
-                        <DeleteOutline size={24} />
-                    </button>
-                </div>
+                <Plugin {plugin} />
             {/each}
         {/if}
     </div>
