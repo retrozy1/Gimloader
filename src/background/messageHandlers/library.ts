@@ -16,7 +16,9 @@ export default new class LibrariesHandler extends ScriptHandler {
         Server.onMessage("tryDeleteAllLibraries", this.tryDeleteAllLibraries.bind(this));
     }
 
-    onScriptCreate(state: State, message: ScriptCreate) {
+    async onScriptCreate(state: State, message: ScriptCreate) {
+        await super.onScriptCreate(state, message);
+
         const info: LibraryInfo = {
             name: message.name,
             code: message.code

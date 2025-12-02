@@ -20,7 +20,9 @@ export default new class PluginsHandler extends ScriptHandler {
         Server.onMessage("trySetAllPlugins", this.trySetAll.bind(this));
     }
 
-    onScriptCreate(state: State, message: ScriptCreate) {
+    async onScriptCreate(state: State, message: ScriptCreate) {
+        await super.onScriptCreate(state, message);
+
         const info: PluginInfo = {
             name: message.name,
             code: message.code,

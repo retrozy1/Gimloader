@@ -119,7 +119,7 @@ export default new class Server {
     async executeAndSend<Channel extends keyof Messages>(type: Channel, message: Messages[Channel]) {
         const callback = this.listeners.get(type);
         if(callback) {
-            callback(await statePromise, message);
+            await callback(await statePromise, message);
         }
 
         for(const port of this.open) {

@@ -8,7 +8,7 @@
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import Download from "svelte-material-icons/Download.svelte";
     import Search from "../components/Search.svelte";
-    import { downloadPlugin } from "$content/core/net/download";
+    import { downloadScript } from "$content/core/net/download";
     import { error } from "$shared/utils";
 
     let officialPlugins: OfficialScriptInfo[] = $state([]);
@@ -65,7 +65,7 @@
                         </h2>
                     {/snippet}
                     {#snippet toggle()}
-                        <Button class="px-2 py-2" onclick={() => downloadPlugin(plugin.downloadUrl)}>
+                        <Button class="px-2 py-2" onclick={() => downloadScript(plugin.downloadUrl, "plugin")}>
                             <Download size={20} />
                         </Button>
                     {/snippet}

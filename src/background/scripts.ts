@@ -30,6 +30,10 @@ type ScriptEntry = PluginEntry | LibraryEntry;
 export default class Scripts {
     static map = new Map<string, ScriptEntry>();
 
+    static get(name: string) {
+        return this.map.get(name);
+    }
+
     static has(name: string) {
         return this.map.has(name);
     }

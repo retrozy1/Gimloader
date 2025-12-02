@@ -11,7 +11,7 @@
     import ViewControl from "../components/ViewControl.svelte";
     import * as Dialog from "$shared/ui/dialog";
     import ChevronDown from "@lucide/svelte/icons/chevron-down";
-    import { downloadLibrary } from "$content/core/net/download";
+    import UrlInstall from "../components/UrlInstall.svelte";
 
     let searchValue = $state("");
     let items = $state(LibManager.scripts.map((lib) => ({ id: lib.headers.name })));
@@ -50,25 +50,15 @@
 
     const flipDurationMs = 300;
 
-    let libUrl = $state("");
-    let libUrlMenuOpen = $state(false);
-
     function deleteAll() {
         if(!confirm("Are you sure you want to delete all libraries?")) return;
         LibManager.deleteAllConfirm();
     }
+
+    let urlInstallOpen = $state(false);
 </script>
 
-<Dialog.Root open={libUrlMenuOpen} onOpenChangeComplete={() => libUrl = ""}>
-    <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
-        <input placeholder="Library URL" bind:value={libUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
-        <Button
-            onclick={() => {
-                downloadLibrary(libUrl);
-                libUrlMenuOpen = false;
-            }}>Install</Button>
-    </Dialog.Content>
-</Dialog.Root>
+<UrlInstall bind:open={urlInstallOpen} placeholder="Library URL" type="library" />
 
 <div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
@@ -82,7 +72,7 @@
             <DropdownMenu.Content>
                 <DropdownMenu.Item onclick={() => showEditor("library")}>Create Blank</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={importLib}>Upload File</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => libUrlMenuOpen = true}>Install From URL</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => urlInstallOpen = true}>Install From URL</DropdownMenu.Item>
             </DropdownMenu.Content>
         </DropdownMenu.Root>
         <DropdownMenu.Root>

@@ -14,7 +14,7 @@
     import * as DropdownMenu from "$shared/ui/dropdown-menu";
     import * as Dialog from "$shared/ui/dialog";
     import ChevronDown from "@lucide/svelte/icons/chevron-down";
-    import { downloadPlugin } from "$content/core/net/download";
+    import UrlInstall from "../components/UrlInstall.svelte";
 
     let searchValue = $state("");
     let items = $state(PluginManager.scripts.map((plugin) => ({ id: plugin.headers.name })));
@@ -64,25 +64,15 @@
         Port.send("pluginArrange", { order: sorted.map(p => p.headers.name) });
     }
 
-    let pluginUrl = $state("");
-    let pluginUrlMenuOpen = $state(false);
-
     function deleteAll() {
         if(!confirm("Are you sure you want to delete all plugins?")) return;
         PluginManager.deleteAll(false);
     }
+
+    let urlInstallOpen = $state(false);
 </script>
 
-<Dialog.Root open={pluginUrlMenuOpen} onOpenChangeComplete={() => pluginUrl = ""}>
-    <Dialog.Content class="text-gray-600 max-w-110 min-h-35 flex items-center justify-center">
-        <input placeholder="Plugin URL" bind:value={pluginUrl} class="border-primary border-3 px-3 py-2 rounded-md" />
-        <Button
-            onclick={() => {
-                downloadPlugin(pluginUrl);
-                pluginUrlMenuOpen = false;
-            }}>Install</Button>
-    </Dialog.Content>
-</Dialog.Root>
+<UrlInstall bind:open={urlInstallOpen} placeholder="Plugin URL" type="plugin" />
 
 <div class="flex flex-col max-h-full">
     <div class="flex items-center mb-[3px]">
@@ -99,7 +89,7 @@
             <DropdownMenu.Content>
                 <DropdownMenu.Item onclick={() => showEditor("plugin")}>Create Blank</DropdownMenu.Item>
                 <DropdownMenu.Item onclick={importPlugin}>Upload File</DropdownMenu.Item>
-                <DropdownMenu.Item onclick={() => pluginUrlMenuOpen = true}>Install From URL</DropdownMenu.Item>
+                <DropdownMenu.Item onclick={() => urlInstallOpen = true}>Install From URL</DropdownMenu.Item>
             </DropdownMenu.Content>
         </DropdownMenu.Root>
         <DropdownMenu.Root>

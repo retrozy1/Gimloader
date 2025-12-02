@@ -27,11 +27,20 @@ export default abstract class ScriptHandler {
         saveDebounced(this.key);
     }
 
-    onScriptEdit(state: State, message: ScriptEdit) {
+    async deleteConflicting(name: string) {
+        const existing = Scripts.get(name);
+        if(!existing) return;
+
+        await Server.executeAndSend(`${existing.type}Delete`, { name });
+    }
+
+    async onScriptEdit(state: State, message: ScriptEdit) {
         const index = state[this.key].findIndex((s) => s.name === message.name);
         if(index === -1) return;
 
         const script = state[this.key][index];
+        if(script.name !== message.newName) await this.deleteConflicting(message.newName);
+
         script.code = message.code;
         script.name = message.newName;
 
@@ -42,7 +51,9 @@ export default abstract class ScriptHandler {
         this.save();
     }
 
-    abstract onScriptCreate(state: State, message: ScriptCreate): void;
+    async onScriptCreate(_: State, message: ScriptCreate) {
+        await this.deleteConflicting(message.name);
+    }
 
     onScriptDelete(state: State, message: ScriptDelete) {
         const index = state[this.key].findIndex((s) => s.name === message.name);

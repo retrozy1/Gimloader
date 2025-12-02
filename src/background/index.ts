@@ -3,9 +3,11 @@ import Server from "./net/server";
 import { statePromise } from "./state";
 import Updater from "./net/updater";
 import { log } from "$shared/utils";
+import Downloader from "./net/downloader";
 
 Server.init();
 Updater.init();
+Downloader.init();
 
 statePromise.then((state) => {
     log(state);

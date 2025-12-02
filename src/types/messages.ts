@@ -60,52 +60,40 @@ export interface OnceMessages {
     tryDeleteAllLibraries: { confirmed?: boolean };
     tryTogglePlugin: { name: string; enabled: boolean; confirmed?: boolean };
     trySetAllPlugins: { enabled: boolean; confirmed?: boolean };
+    downloadScript: { url: string; confirmed?: boolean; type?: ScriptType };
 }
 
-interface ToggleSuccess {
+interface Success {
     status: "success";
 }
-interface ToggleDependencyError {
+
+interface DependencyError {
     status: "dependencyError";
     message: string;
 }
-interface ToggleDownloadError {
+
+interface DownloadError {
     status: "downloadError";
     message: string;
 }
-interface ToggleConfirm {
-    status: "confirm";
-    message: string;
-}
-type ToggleResult = ToggleSuccess | ToggleDependencyError | ToggleDownloadError | ToggleConfirm;
 
-interface DeleteSuccess {
-    status: "success";
-}
-interface DeleteConfirm {
+interface Confirm {
     status: "confirm";
     message: string;
 }
-export type DeleteResult = DeleteSuccess | DeleteConfirm;
 
-interface SetAllSuccess {
-    status: "success";
-}
-interface SetAllDependencyError {
-    status: "dependencyError";
+interface MultipleDependencyError extends DependencyError {
     scripts: string[];
-    message: string;
 }
-interface SetAllDownloadError {
-    status: "downloadError";
-    message: string;
-}
-interface SetAllConfirm {
-    status: "confirm";
+
+interface MultipleConfirm extends Confirm {
     scripts: string[];
-    message: string;
 }
-type SetAllResult = SetAllSuccess | SetAllDependencyError | SetAllDownloadError | SetAllConfirm;
+
+type ToggleResult = Success | DependencyError | DownloadError | Confirm;
+export type DeleteResult = Success | Confirm;
+type SetAllResult = Success | MultipleDependencyError | DownloadError | MultipleConfirm;
+type DownloadResult = Success | Confirm | DownloadError;
 
 export interface OnceResponses {
     getState: State;
@@ -119,4 +107,5 @@ export interface OnceResponses {
     tryDeleteAllLibraries: DeleteResult;
     tryTogglePlugin: ToggleResult;
     trySetAllPlugins: SetAllResult;
+    downloadScript: DownloadResult;
 }

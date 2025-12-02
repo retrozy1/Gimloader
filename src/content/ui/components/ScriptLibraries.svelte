@@ -7,7 +7,7 @@
     import OpenInNew from "svelte-material-icons/OpenInNew.svelte";
     import Update from "svelte-material-icons/Update.svelte";
     import Download from "svelte-material-icons/Download.svelte";
-    import { downloadLibrary } from "$content/core/net/download";
+    import { downloadScript } from "$content/core/net/download";
     import { parseDep } from "$shared/parseHeader";
 
     interface Props {
@@ -88,7 +88,7 @@
                                     <Update size={25} />
                                 </button>
                             {:else if libInfo.url}
-                                <button onclick={() => downloadLibrary(libInfo.url)}>
+                                <button onclick={() => downloadScript(libInfo.url, "library")}>
                                     <Download size={25} />
                                 </button>
                             {/if}
