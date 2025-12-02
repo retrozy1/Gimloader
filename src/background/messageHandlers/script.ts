@@ -32,6 +32,9 @@ export default abstract class ScriptHandler {
         if(!existing) return;
 
         await Server.executeAndSend(`${existing.type}Delete`, { name });
+
+        const message = `Overwrote ${existing.type} ${name}`;
+        Server.send("toast", { type: "warning", message });
     }
 
     async onScriptEdit(state: State, message: ScriptEdit) {

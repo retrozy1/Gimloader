@@ -18,5 +18,5 @@ export async function downloadScript(url: string, type: ScriptType, confirmed = 
         return downloadScript(url, type, true);
     }
 
-    toast.success("Script downloaded successfully");
+    toast.success(`Downloaded ${result.name}`);
 }

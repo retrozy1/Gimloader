@@ -39,7 +39,7 @@ export interface StateMessages {
 // These only go from the background to content
 export interface Messages extends StateMessages {
     setState: SavedState;
-    toast: { type: "success" | "error" | "normal"; message: string };
+    toast: { type: "success" | "error" | "warning" | "normal"; message: string };
     availableUpdates: string[];
 }
 
@@ -90,10 +90,14 @@ interface MultipleConfirm extends Confirm {
     scripts: string[];
 }
 
+interface DownloadSuccess extends Success {
+    name: string;
+}
+
 type ToggleResult = Success | DependencyError | DownloadError | Confirm;
 export type DeleteResult = Success | Confirm;
 type SetAllResult = Success | MultipleDependencyError | DownloadError | MultipleConfirm;
-type DownloadResult = Success | Confirm | DownloadError;
+type DownloadResult = DownloadSuccess | Confirm | DownloadError;
 
 export interface OnceResponses {
     getState: State;

@@ -8,7 +8,8 @@ export function createToaster() {
         props: {
             richColors: true,
             class: "pointer-events-auto",
-            onclick: (e) => e.stopPropagation()
+            onclick: (e) => e.stopPropagation(),
+            expand: true
         }
     });
 }

@@ -21,14 +21,16 @@ export default class Downloader {
         }
 
         if(message.confirmed) {
-            const errors = await this.download(message.url, 0);
+            const result = await this.download(message.url, 0, message.type);
             this.fetchCache.clear();
 
-            if(errors.length > 0) {
-                const message = `Download failed: ${errors.join("\n")}`;
+            if(result.errors.length > 0) {
+                const message = `Download failed: ${result.errors.join("\n")}`;
                 respond({ status: "downloadError", message });
                 return;
             }
+
+            respond({ status: "success", name: result.name });
             return;
         }
 
@@ -52,18 +54,18 @@ export default class Downloader {
         }
 
         // Actually download it
-        const errors = await this.download(message.url, 0);
+        const result = await this.download(message.url, 0, message.type);
         this.fetchCache.clear();
-        if(errors.length > 0) {
-            const message = `Download failed: ${errors.join("\n")}`;
+        if(result.errors.length > 0) {
+            const message = `Download failed: ${result.errors.join("\n")}`;
             respond({ status: "downloadError", message });
             return;
         }
 
-        respond({ status: "success" });
+        respond({ status: "success", name: result.name });
     }
 
-    static async checkMissing(url: string) {
+    static async checkMissing(url: string, expectType?: ScriptType) {
         let error: string | null = null;
         const willDownload: Dependency[] = [];
 
@@ -74,8 +76,13 @@ export default class Downloader {
             }
 
             try {
-                const { text, dependencies } = await this.fetchScript(url, true);
+                const { text, type, dependencies } = await this.fetchScript(url, true);
                 this.fetchCache.set(url, text);
+
+                if(depth === 0 && expectType && type !== expectType) {
+                    error = `Expected a ${expectType} but got a ${type}`;
+                    return;
+                }
 
                 // Check if missing dependencies can be downloaded
                 for(const dep of dependencies) {
@@ -131,40 +138,44 @@ export default class Downloader {
     }
 
     static async downloadDeps(dependencies: Dependency[]) {
-        const failed: string[] = [];
+        const errors: string[] = [];
 
         for(const dep of dependencies) {
             const downloadRes = await this.download(dep.url, 0);
-            failed.push(...downloadRes);
+            errors.push(...downloadRes.errors);
         }
 
-        return failed;
+        return errors;
     }
 
-    static async download(url: string, depth: number) {
-        if(depth > this.maxDepth) return [`Maximum dependency depth exceeded`];
+    static async download(url: string, depth: number, expectType?: ScriptType) {
+        if(depth > this.maxDepth) return { errors: [`Maximum dependency depth exceeded`] };
 
         try {
             const { text, headers, dependencies, type } = await this.fetchScript(url);
 
-            const failed: string[] = [];
+            if(expectType && type !== expectType) {
+                return { errors: [`Expected a ${expectType} but got a ${type}`] };
+            }
+
+            const errors: string[] = [];
             for(const dep of dependencies) {
                 if(Scripts.has(dep.name)) continue;
                 if(!dep.url) {
-                    failed.push(`${dep.name} is required and cannot be automatically downloaded`);
+                    errors.push(`${dep.name} is required and cannot be automatically downloaded`);
                     continue;
                 }
 
                 const childRes = await this.download(dep.url, depth + 1);
-                failed.push(...childRes);
+                errors.push(...childRes.errors);
             }
 
             // Create the script after dependencies are installed
             await Server.executeAndSend(`${type}Create`, { name: headers.name, code: text });
 
-            return failed;
+            return { errors, name: headers.name };
         } catch {
-            return [`Could not download ${url}`];
+            return { errors: [`Could not download ${url}`] };
         }
     }
 }

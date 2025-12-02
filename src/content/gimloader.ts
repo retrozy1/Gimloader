@@ -28,6 +28,7 @@ domLoaded.then(createToaster);
 Port.on("toast", (msg) => {
     if(msg.type === "success") toast.success(msg.message);
     else if(msg.type === "error") toast.error(msg.message);
+    else if(msg.type === "warning") toast.warning(msg.message);
     else toast(msg.message);
 });
 
