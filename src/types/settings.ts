@@ -79,7 +79,7 @@ export type SettingsChangeCallback = (value: any, remote: boolean) => void;
 
 export interface SettingsMethods {
     create: (description: PluginSettingsDescription) => void;
-    listen: (key: string, callback: SettingsChangeCallback) => () => void;
+    listen: (key: string, callback: SettingsChangeCallback, immediate?: boolean) => () => void;
 }
 
 export type PluginSettings = SettingsMethods & Record<string, any>;

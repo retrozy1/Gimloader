@@ -160,9 +160,10 @@ export default function createSettingsApi(plugin: Plugin): PluginSettings {
             applyDefaults(id, description);
             registerListeners(id, description);
         },
-        listen(key, callback) {
-            validate("settings.listen", arguments, ["key", "string"], ["callback", "function"]);
+        listen(key, callback, immediate = false) {
+            validate("settings.listen", arguments, ["key", "string"], ["callback", "function"], ["immediate?", "boolean"]);
 
+            if(immediate) callback(Storage.pluginSettings[id]?.[key], false);
             return Storage.onPluginSettingUpdate(id, key, callback);
         }
     };

@@ -2276,19 +2276,6 @@ interface Stores {
 type SettingsChangeCallback = (value: any, remote: boolean) => void;
 
 
-interface CustomSection {
-    type: "customsection";
-    id: string;
-    default?: any;
-    onChange?: (value: any, remote: boolean) => void;
-    render: (container: HTMLElement, currentValue: any, onChange: (newValue: any) => void) => (() => void) | void;
-}
-
-interface CustomSetting extends BaseSetting<any> {
-    type: "custom";
-    render: (container: HTMLElement, currentValue: any, update: (newValue: any) => void) => (() => void) | void;
-}
-
 interface ColorSetting extends BaseSetting<string> {
     type: "color";
     rgba?: boolean;
@@ -2367,7 +2354,7 @@ type PluginSettingsDescription = (PluginSetting | SettingGroup)[];
 
 interface SettingsMethods {
     create: (description: PluginSettingsDescription) => void;
-    listen: (key: string, callback: SettingsChangeCallback) => () => void;
+    listen: (key: string, callback: SettingsChangeCallback, immediate?: boolean) => () => void;
 }
 
 type PluginSettings = SettingsMethods & Record<string, any>;
@@ -2379,22 +2366,7 @@ class PluginsApi {
     /** Whether a plugin exists and is enabled */
     isEnabled(name: string): boolean;
     /** Gets the headers of a plugin, such as version, author, and description */
-    getHeaders(name: string): {
-        name: string;
-        description: string;
-        author: string;
-        version: string | null;
-        reloadRequired: string;
-        isLibrary: string;
-        downloadUrl: string | null;
-        webpage: string | null;
-        needsLib: string[];
-        optionalLib: string[];
-        deprecated: string | null;
-        gamemode: string[];
-        changelog: string[];
-        hasSettings: string;
-    };
+    getHeaders(name: string): import("types/scripts").ScriptHeaders;
     /** Gets the exported values of a plugin, if it has been enabled */
     get(name: string): any;
     /**
@@ -2412,22 +2384,7 @@ class LibsApi {
     /** Gets whether or not a plugin is installed and enabled */
     isEnabled(name: string): boolean;
     /** Gets the headers of a library, such as version, author, and description */
-    getHeaders(name: string): {
-        name: string;
-        description: string;
-        author: string;
-        version: string | null;
-        reloadRequired: string;
-        isLibrary: string;
-        downloadUrl: string | null;
-        webpage: string | null;
-        needsLib: string[];
-        optionalLib: string[];
-        deprecated: string | null;
-        gamemode: string[];
-        changelog: string[];
-        hasSettings: string;
-    };
+    getHeaders(name: string): import("types/scripts").ScriptHeaders;
     /** Gets the exported values of a library */
     get(name: string): any;
 }
