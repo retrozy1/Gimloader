@@ -1,5 +1,4 @@
 import type { Command, CommandAction, CommandCallback, CommandContext, CommandOptions } from "$types/commands";
-import { mountCommand } from "$content/ui/mount";
 import Hotkeys from "./hotkeys/hotkeys.svelte";
 import { clearId, validate } from "$content/utils";
 import * as z from "zod";
@@ -38,8 +37,6 @@ export default new class Commands {
     open = $state(false);
 
     init() {
-        mountCommand();
-
         const chromeDefault = {
             key: "KeyP",
             ctrl: true,

@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { Library } from "$core/scripts/library.svelte";
     import Card from "../components/Card.svelte";
-    import LibManager from "$core/scripts/libManager.svelte";
     import Delete from "svelte-material-icons/Delete.svelte";
     import Pencil from "svelte-material-icons/Pencil.svelte";
     import Update from "svelte-material-icons/Update.svelte";
@@ -33,7 +32,7 @@
 
     function deleteLibrary() {
         if(!confirm(`Are you sure you want to delete ${library.headers.name}?`)) return;
-        LibManager.deleteConfirm(library.headers.name);
+        library.deleteConfirm();
     }
 </script>
 

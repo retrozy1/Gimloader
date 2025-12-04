@@ -112,26 +112,6 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
         script.edit(code, headers);
     }
 
-    async deleteConfirm(name: string, confirmed = false) {
-        const response = await Port.sendAndRecieve(`${this.type}TryDelete`, { name, confirmed });
-
-        if(response.status === "confirm") {
-            const title = `Plugins depend on this ${this.singular}`;
-            const confirmed = await Modals.open("confirm", {
-                text: response.message,
-                title
-            });
-            if(!confirmed) return;
-
-            this.deleteConfirm(name, true);
-        }
-    }
-
-    delete(name: string) {
-        this.onDelete(name);
-        Port.send(`${this.type}Delete`, { name });
-    }
-
     onDelete(name: string) {
         const index = this.scripts.findIndex(s => s.headers.name === name);
         if(index === -1) return;

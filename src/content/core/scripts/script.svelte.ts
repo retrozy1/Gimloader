@@ -7,6 +7,8 @@ import { getDepName, parseScriptHeaders } from "$shared/parseHeader";
 import { gameState } from "$content/stores";
 import Modals from "../modals.svelte";
 import { scripts } from "./map";
+import Commands from "../commands.svelte";
+import Port from "$shared/net/port.svelte";
 
 const apiCreatedRegex = /new\s+GL\s*\(/;
 
@@ -23,11 +25,18 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
     exported: any;
     errored: boolean = $state(false);
 
+    cleanupDeleteCommand: () => void;
+
     constructor(info: T, headers?: ScriptHeaders) {
         this.code = info.code;
         this.updateHeaders(headers);
 
-        // TODO: Command palette
+        this.cleanupDeleteCommand = Commands.addCommand(null, {
+            text: `Delete ${this.headers.name}`,
+            keywords: ["remove", "uninstall"]
+        }, () => {
+            this.deleteConfirm();
+        });
     }
 
     updateHeaders(headers?: ScriptHeaders) {
@@ -215,7 +224,26 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
         this.updateHeaders(headers);
     }
 
+    async deleteConfirm(confirmed = false) {
+        const response = await Port.sendAndRecieve(`${this.type}TryDelete`, {
+            name: this.headers.name,
+            confirmed
+        });
+
+        if(response.status === "confirm") {
+            const title = `Plugins depend on ${this.headers.name}`;
+            const confirmed = await Modals.open("confirm", {
+                text: response.message,
+                title
+            });
+            if(!confirmed) return;
+
+            this.deleteConfirm(true);
+        }
+    }
+
     delete() {
         this.stop();
+        this.cleanupDeleteCommand();
     }
 }

@@ -7,6 +7,7 @@ import DependencyModal from "$content/ui/dependencies/DependencyModal.svelte";
 import ErrorModal from "$content/ui/modals/Error.svelte";
 import PluginSettings from "$content/ui/settings/PluginSettings.svelte";
 import ConfirmModal from "$content/ui/modals/Confirm.svelte";
+import Command from "$content/ui/Command.svelte";
 
 export default async function setupModals() {
     Modals.register("dependency", DependencyModal);
@@ -19,4 +20,5 @@ export default async function setupModals() {
     const target = document.body;
     mount(ReloadConfirm, { target });
     mount(Changelog, { target });
+    mount(Command, { target: document.body });
 }

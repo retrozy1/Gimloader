@@ -180,8 +180,9 @@ export default class Scripts {
 
                 if(entry.type === "plugin" && entry.info.enabled) {
                     willDisable.push(depName);
-                    check(depName);
                 }
+
+                check(depName);
             }
         };
         check(name);

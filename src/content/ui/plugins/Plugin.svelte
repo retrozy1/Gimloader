@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Plugin } from "$core/scripts/plugin.svelte";
-    import PluginManager from "$core/scripts/pluginManager.svelte";
     import { checkUpdate } from "$core/net/checkUpdates";
     import Card from "../components/Card.svelte";
     import ListItem from "../components/ListItem.svelte";
@@ -48,7 +47,7 @@
 
     function deletePlugin() {
         if(!confirm(`Are you sure you want to delete ${plugin.headers.name}?`)) return;
-        PluginManager.deleteConfirm(plugin.headers.name);
+        plugin.deleteConfirm();
     }
 
     let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);

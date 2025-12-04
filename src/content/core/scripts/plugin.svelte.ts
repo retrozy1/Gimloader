@@ -5,6 +5,7 @@ import type { PluginInfo } from "$types/state";
 import Port from "$shared/net/port.svelte";
 import { Script } from "./script.svelte";
 import Modals from "../modals.svelte";
+import Commands from "../commands.svelte";
 
 export class Plugin extends Script<PluginInfo> {
     type: ScriptType = "plugin";
@@ -13,10 +14,28 @@ export class Plugin extends Script<PluginInfo> {
     openSettingsMenu: (() => void)[] = $state([]);
     settingsDescription?: PluginSettingsDescription;
 
+    cleanupToggleCommand: () => void;
+    cleanupSettingsCommand: () => void;
+
     constructor(info: PluginInfo, headers?: ScriptHeaders) {
         // The initial plugin.start call is handled externally
         super(info, headers);
         this.enabled = info.enabled;
+
+        this.cleanupToggleCommand = Commands.addCommand(null, {
+            text: () => `${this.enabled ? "Disable" : "Enable"} ${this.headers.name}`,
+            keywords: ["toggle"]
+        }, () => {
+            this.toggleConfirm(!this.enabled);
+        });
+
+        this.cleanupSettingsCommand = Commands.addCommand(null, {
+            text: `Open ${this.headers.name} Settings`,
+            keywords: ["preferences", "options", "configure"],
+            hidden: () => this.openSettingsMenu.length === 0
+        }, () => {
+            this.openSettingsMenu.forEach((c) => c());
+        });
     }
 
     getDependencyStrings() {
@@ -139,5 +158,12 @@ export class Plugin extends Script<PluginInfo> {
 
             this.disableConfirm(true);
         }
+    }
+
+    delete() {
+        super.delete();
+
+        this.cleanupToggleCommand();
+        this.cleanupSettingsCommand();
     }
 }
