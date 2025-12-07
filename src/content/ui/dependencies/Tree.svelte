@@ -52,7 +52,7 @@
     async function download() {
         if(!url) return;
         await downloadScript(url);
-        
+
         script = scripts.get(name);
         error = getError();
         warning = getWarning();
