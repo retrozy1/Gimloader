@@ -95,4 +95,11 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
 
         plugin.onToggled(enabled);
     }
+
+    onCreate(code: string) {
+        const plugin = super.onCreate(code);
+        plugin.start(false);
+
+        return plugin;
+    }
 }();
