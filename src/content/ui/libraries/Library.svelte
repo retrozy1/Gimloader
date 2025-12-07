@@ -12,6 +12,7 @@
     import BookSettings from "svelte-material-icons/BookSettings.svelte";
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
+    import Modals from "$content/core/modals.svelte";
 
     interface Props {
         startDrag: () => void;
@@ -33,6 +34,14 @@
     function deleteLibrary() {
         if(!confirm(`Are you sure you want to delete ${library.headers.name}?`)) return;
         library.deleteConfirm();
+    }
+
+    function showDependencies() {
+        Modals.open("dependency", {
+            script: library,
+            type: "info",
+            title: `Dependencies for ${library.headers.name}`
+        });
     }
 </script>
 
@@ -64,7 +73,7 @@
             </button>
         {/if}
         {#if library?.headers.needsLib?.length || library?.headers.optionalLib?.length}
-            <button title="See libraries used by this library" onclick={() => {/* TODO showScriptLibs(library) */}}>
+            <button title="See libraries used by this library" onclick={showDependencies}>
                 <BookSettings size={24} />
             </button>
         {/if}

@@ -5,10 +5,12 @@
     import ArrowRightBottom from "svelte-material-icons/ArrowRightBottom.svelte";
     import AlertCircle from "svelte-material-icons/AlertCircleOutline.svelte";
     import AlertTriangle from "svelte-material-icons/AlertOutline.svelte";
-    import ArrowLeft from "svelte-material-icons/ArrowLeft.svelte";
+    import ArrowUp from "svelte-material-icons/ArrowUp.svelte";
     import Link from "svelte-material-icons/Link.svelte";
     import LinkOff from "svelte-material-icons/LinkOff.svelte";
+    import Download from "svelte-material-icons/Download.svelte";
     import { Plugin } from "$core/scripts/plugin.svelte";
+    import { downloadScript } from "$content/core/net/download";
 
     interface Props {
         name: string;
@@ -20,76 +22,101 @@
     }
 
     let { name, type, stack, root = false, optional = false, url }: Props = $props();
+    let script = $state(scripts.get(name));
 
-    const script = scripts.get(name);
+    function getError() {
+        if(root) return null;
+        if(stack.includes(name)) return "circular dependency";
+        if(!script && !optional && !url) return "missing and cannot be downloaded";
+        return null;
+    }
+
+    function getWarning() {
+        if(root) return null;
+        if(script) {
+            if(type === "confirm" && script.type === "plugin" && !(script as Plugin).enabled && !optional) {
+                return "will be enabled";
+            }
+            return null;
+        }
+        if(!optional && url) {
+            if(type === "confirm") return "needs to be downloaded";
+            return "missing, can be downloaded";
+        }
+        return null;
+    }
+
+    let error = $state(getError());
+    let warning = $state(getWarning());
+
+    async function download() {
+        if(!url) return;
+        await downloadScript(url);
+        
+        script = scripts.get(name);
+        error = getError();
+        warning = getWarning();
+    }
 </script>
-
-{#snippet scriptName()}
-    {name}
-    {#if optional}
-        <span class="text-sm text-gray-500">(optional)</span>
-    {/if}
-    {#if url}
-        <a href={url} target="_blank">
-            <Link size={18} />
-        </a>
-    {:else if !root}
-        <LinkOff size={18} />
-    {/if}
-{/snippet}
 
 {#snippet dependency(dep: string, optional: boolean)}
     {@const [scriptName, url] = parseDep(dep)}
-    <div class="flex items-start gap-2">
+    <div class="flex items-start gap-2 w-full">
         <ArrowRightBottom size={24} />
         <Tree name={scriptName} {type} stack={[...stack, name]} {url} {optional} />
     </div>
 {/snippet}
 
-{#if !script}
-    {#if !optional && !url}
-        <div class="text-red-500 flex items-center gap-2">
-            {name}
-            <AlertCircle size={20} />
-            <ArrowLeft size={20} />
-            missing and cannot be downloaded
-        </div>
-    {:else if type === "confirm" && !optional && url}
-        <div class="text-yellow-400 flex items-center gap-2">
-            {name}
-            <AlertTriangle size={20} />
-            <ArrowLeft size={20} />
-            needs to be downloaded
-            <a href={url} target="_blank">
-                <Link size={18} />
-            </a>
-        </div>
-    {:else}
-        <div class="flex items-center gap-2">
-            {@render scriptName()}
-        </div>
-    {/if}
-{:else if stack.includes(name)}
-    <div class="flex items-center gap-2 text-red-500">
-        {name}
-        <AlertCircle size={20} />
-        <ArrowLeft size={20} />
-        circular dependency
-    </div>
-{:else}
-    <div class="flex flex-col">
-        {#if type === "confirm" && !root && script.type === "plugin" && !optional && !(script as Plugin).enabled}
-            <div class="text-yellow-400 flex items-center gap-2">
+<div class="flex flex-col w-full">
+    <div class="flex items-center gap-2 w-full">
+        <div class:text-red-500={error} class:text-yellow-400={warning} class:font-bold={root}>
+            <div class="flex items-center gap-2" class:opacity-60={!error && !warning && !script}>
                 {name}
-                <AlertTriangle size={20} />
-                <ArrowLeft size={20} />
-                will be enabled
+                {#if error}
+                    <AlertCircle size={18} />
+                {:else if warning}
+                    <AlertTriangle size={18} />
+                {/if}
             </div>
+            <div class="flex items-center gap-2">
+                {#if error}
+                    <ArrowUp size={18} />
+                    {error}
+                {:else if warning}
+                    <ArrowUp size={18} />
+                    {warning}
+                {/if}
+            </div>
+        </div>
+        <div class="grow"></div>
+        {#if root}
+            <div class="font-bold text-sm w-[70px]">Installed?</div>
+            <div class="font-bold text-sm w-[70px]">Required?</div>
+            <div class="font-bold text-sm w-[30px]">Link</div>
         {:else}
-            <div class="flex items-center gap-2" class:font-bold={root}>
-                {@render scriptName()}
+            {#if type === "info" && !script && url}
+                <button class="w-[30px]" onclick={download}>
+                    <Download size={18} />
+                </button>
+            {/if}
+            <div class="text-sm text-gray-500 w-[70px]">
+                {script ? "Yes" : "No"}
+            </div>
+            <div class="text-sm text-gray-500 w-[70px]">
+                {optional ? "No" : "Yes"}
+            </div>
+            <div class="w-[30px]">
+                {#if url}
+                    <a href={url} target="_blank">
+                        <Link size={18} />
+                    </a>
+                {:else}
+                    <LinkOff size={18} />
+                {/if}
             </div>
         {/if}
+    </div>
+    {#if script}
         {#each Object.values(script.getDependencyStrings()) as deps}
             {#each deps.required as dep}
                 {@render dependency(dep, false)}
@@ -98,5 +125,5 @@
                 {@render dependency(dep, true)}
             {/each}
         {/each}
-    </div>
-{/if}
+    {/if}
+</div>

@@ -3,7 +3,7 @@ import { toast } from "svelte-sonner";
 import Port from "$shared/net/port.svelte";
 import Modals from "../modals.svelte";
 
-export async function downloadScript(url: string, type: ScriptType, confirmed = false) {
+export async function downloadScript(url: string, type?: ScriptType, confirmed = false) {
     const result = await Port.sendAndRecieve("downloadScript", { url, type, confirmed });
 
     if(result.status === "downloadError") {

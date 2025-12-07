@@ -16,6 +16,7 @@
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import AlertCircleOutline from "svelte-material-icons/AlertCircleOutline.svelte";
     import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
+    import Modals from "$content/core/modals.svelte";
 
     interface Props {
         startDrag: () => void;
@@ -52,6 +53,14 @@
 
     let component = $derived(Storage.settings.menuView === "grid" ? Card : ListItem);
     const SvelteComponent = $derived(component);
+
+    function showDependencies() {
+        Modals.open("dependency", {
+            script: plugin,
+            type: "info",
+            title: `Dependencies for ${plugin.headers.name}`
+        });
+    }
 </script>
 
 <SvelteComponent
@@ -103,8 +112,9 @@
                 <Update size={28} />
             </button>
         {/if}
-        {#if plugin?.headers.needsLib?.length || plugin?.headers.optionalLib?.length}
-            <button title="See libraries used by this plugin" onclick={() => {/* TODO showScriptLibs(plugin) */}}>
+        {#if plugin?.headers.needsLib?.length || plugin?.headers.optionalLib?.length
+            || plugin?.headers.needsPlugin?.length}
+            <button title="View dependencies" onclick={showDependencies}>
                 <BookSettings size={24} />
             </button>
         {/if}
