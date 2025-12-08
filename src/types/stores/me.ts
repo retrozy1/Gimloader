@@ -71,7 +71,7 @@ interface MeCustomAssets {
 }
 
 interface MeDeviceUI {
-    current: { deviceId: string; props: any };
+    current: { deviceId: string; props: Record<string, any> };
     desiredOpenDeviceId?: string;
     serverVersionOpenDeviceId: string;
 }
@@ -81,14 +81,31 @@ interface CurrentlyEditedDevice {
     id: string;
 }
 
+interface SortingState {
+    depth: number;
+    deviceId: string;
+    deviceName: string;
+    globalDepth: number;
+    layer: string;
+    y: number;
+}
+
+interface VisualEditing {
+    active: boolean;
+    cursor: string;
+    id: string;
+    instruction: string;
+    keyboardHelpers: { trigger: string; action: string }[];
+}
+
 interface EditingDevice {
     currentlyEditedDevice: CurrentlyEditedDevice;
     currentlyEditedGridId: string;
     currentlySortedDeviceId: string;
     screen: string;
-    sortingState: any[];
+    sortingState: SortingState[];
     usingMultiselect: boolean;
-    visualEditing: any;
+    visualEditing: VisualEditing;
 }
 
 interface EditingPreferences {
