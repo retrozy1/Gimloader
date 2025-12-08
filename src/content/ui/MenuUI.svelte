@@ -54,7 +54,7 @@
         }
         let text = await file.text();
 
-        if(currentTab === "plugins") PluginManager.create(text);
+        if(currentTab === "plugins") PluginManager.create(text, false);
         else LibManager.create(text);
     }
 </script>

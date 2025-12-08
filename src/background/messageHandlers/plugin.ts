@@ -1,6 +1,6 @@
 import type { PluginInfo, State } from "$types/state";
 import Server from "$bg/net/server";
-import type { OnceMessages, OnceResponses, ScriptCreate, ScriptEdit, StateMessages } from "$types/messages";
+import type { Messages, OnceMessages, OnceResponses, ScriptEdit, StateMessages } from "$types/messages";
 import ScriptHandler from "./script";
 import Scripts, { type Dependency } from "$bg/scripts";
 import { englishList } from "$shared/utils";
@@ -14,22 +14,23 @@ export default new class PluginsHandler extends ScriptHandler {
     init() {
         super.init();
 
+        Server.on("pluginCreate", this.onScriptCreate.bind(this));
         Server.on("pluginToggled", this.onPluginToggled.bind(this));
         Server.on("pluginSetAll", this.onPluginsSetAll.bind(this));
         Server.onMessage("tryTogglePlugin", this.tryTogglePlugin.bind(this));
         Server.onMessage("trySetAllPlugins", this.trySetAll.bind(this));
     }
 
-    async onScriptCreate(state: State, message: ScriptCreate) {
-        await super.onScriptCreate(state, message);
+    async onScriptCreate(state: State, message: Messages["pluginCreate"]) {
+        await this.deleteConflicting(message.name);
 
         const info: PluginInfo = {
             name: message.name,
             code: message.code,
-            enabled: true
+            enabled: message.enabled
         };
 
-        state.plugins.unshift(info);
+        state.plugins.push(info);
         Scripts.createPlugin(info);
         this.save();
     }

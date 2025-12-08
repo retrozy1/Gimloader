@@ -1,5 +1,5 @@
 import type { LibraryInfo, State } from "$types/state";
-import type { OnceMessages, OnceResponses, ScriptCreate } from "$types/messages";
+import type { Messages, OnceMessages, OnceResponses } from "$types/messages";
 import ScriptHandler from "./script";
 import Scripts from "$bg/scripts";
 import Server from "$bg/net/server";
@@ -13,18 +13,19 @@ export default new class LibrariesHandler extends ScriptHandler {
     init() {
         super.init();
 
+        Server.on("libraryCreate", this.onScriptCreate.bind(this));
         Server.onMessage("tryDeleteAllLibraries", this.tryDeleteAllLibraries.bind(this));
     }
 
-    async onScriptCreate(state: State, message: ScriptCreate) {
-        await super.onScriptCreate(state, message);
+    async onScriptCreate(state: State, message: Messages["libraryCreate"]) {
+        await this.deleteConflicting(message.name);
 
         const info: LibraryInfo = {
             name: message.name,
             code: message.code
         };
 
-        state.libraries.unshift(info);
+        state.libraries.push(info);
         Scripts.createLibrary(info);
         this.save();
     }

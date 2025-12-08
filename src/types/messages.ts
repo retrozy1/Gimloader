@@ -1,10 +1,9 @@
 import type { HotkeyTrigger } from "./hotkeys";
-import type { ConfigurableHotkeysState, SavedState, State } from "./state";
+import type { ConfigurableHotkeysState, LibraryInfo, PluginInfo, SavedState, State } from "./state";
 
 export type ScriptType = "plugin" | "library";
 export type ScriptEdit = { name: string; newName: string; code: string; updated?: boolean };
 export type ScriptDelete = { name: string };
-export type ScriptCreate = { name: string; code: string };
 export type ScriptArrange = { order: string[] };
 
 // These go both ways
@@ -15,13 +14,13 @@ export interface StateMessages {
     libraryEdit: ScriptEdit;
     libraryDelete: ScriptDelete;
     libraryDeleteAll: void;
-    libraryCreate: ScriptCreate;
+    libraryCreate: LibraryInfo;
     libraryArrange: ScriptArrange;
 
     pluginEdit: ScriptEdit;
     pluginDelete: ScriptDelete;
     pluginDeleteAll: void;
-    pluginCreate: ScriptCreate;
+    pluginCreate: PluginInfo;
     pluginArrange: ScriptArrange;
     pluginToggled: { name: string; enabled: boolean };
     pluginSetAll: { enabled: boolean };

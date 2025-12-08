@@ -1,9 +1,9 @@
 import ScriptManager from "./scriptManager.svelte";
 import { Library } from "./library.svelte";
 import type { LibraryInfo } from "$types/state";
-import type { ScriptHeaders } from "$types/scripts";
 import Port from "$shared/net/port.svelte";
 import Modals from "../modals.svelte";
+import { parseScriptHeaders } from "$shared/parseHeader";
 
 export default new class LibraryManager extends ScriptManager<Library, LibraryInfo> {
     singular = "library";
@@ -11,10 +11,17 @@ export default new class LibraryManager extends ScriptManager<Library, LibraryIn
 
     constructor() {
         super(Library, "library");
+
+        Port.on("libraryCreate", (info) => this.onCreate(info));
     }
 
-    getScriptInfo(code: string, headers: ScriptHeaders) {
-        return { code, name: headers.name };
+    async create(code: string) {
+        const headers = parseScriptHeaders(code);
+        const info = { name: headers.name, code };
+        const created = this.onCreate(info);
+        Port.send("libraryCreate", info);
+
+        return created;
     }
 
     async deleteAllConfirm(confirmed = false) {

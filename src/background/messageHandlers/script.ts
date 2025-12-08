@@ -1,4 +1,4 @@
-import type { DeleteResult, ScriptArrange, ScriptCreate, ScriptDelete, ScriptEdit, ScriptTryDelete, ScriptType } from "$types/messages";
+import type { DeleteResult, ScriptArrange, ScriptDelete, ScriptEdit, ScriptTryDelete, ScriptType } from "$types/messages";
 import type { State } from "$types/state";
 import Server from "$bg/net/server";
 import { saveDebounced } from "$bg/state";
@@ -16,7 +16,6 @@ export default abstract class ScriptHandler {
 
     init() {
         Server.on(`${this.type}Edit`, this.onScriptEdit.bind(this));
-        Server.on(`${this.type}Create`, this.onScriptCreate.bind(this));
         Server.on(`${this.type}Delete`, this.onScriptDelete.bind(this));
         Server.on(`${this.type}Arrange`, this.onScriptArrange.bind(this));
         Server.on(`${this.type}DeleteAll`, this.onScriptDeleteAll.bind(this));
@@ -52,10 +51,6 @@ export default abstract class ScriptHandler {
         Scripts.createScript(this.type, script);
 
         this.save();
-    }
-
-    async onScriptCreate(_: State, message: ScriptCreate) {
-        await this.deleteConflicting(message.name);
     }
 
     onScriptDelete(state: State, message: ScriptDelete) {

@@ -21,7 +21,6 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
         Port.on(`${type}Edit`, ({ name, code, updated }) => this.onEdit(name, code, updated));
         Port.on(`${type}Delete`, ({ name }) => this.onDelete(name));
         Port.on(`${type}DeleteAll`, () => this.onDeleteAll());
-        Port.on(`${type}Create`, ({ code }) => this.onCreate(code));
         Port.on(`${type}Arrange`, ({ order }) => this.onArrange(order));
     }
 
@@ -37,7 +36,7 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
         // check if any scripts were added
         for(const info of scriptInfo) {
             if(!this.getScript(info.name)) {
-                this.onCreate(info.code);
+                this.onCreate(info);
             }
         }
 
@@ -143,21 +142,8 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
         this.scripts = [];
     }
 
-    async create(code: string) {
-        // TODO: Auto-download dependencies
-        const created = this.onCreate(code);
-
-        const headers = parseScriptHeaders(code);
-        Port.send(`${this.type}Create`, { code, name: headers.name });
-
-        return created;
-    }
-
-    abstract getScriptInfo(code: string, headers: ScriptHeaders): I;
-
-    onCreate(code: string) {
-        const headers = parseScriptHeaders(code);
-        const info = this.getScriptInfo(code, headers);
+    onCreate(info: I) {
+        const headers = parseScriptHeaders(info.code);
         const script = new this.ScriptClass(info, headers);
         this.scripts.push(script);
         scripts.set(script.headers.name, script);

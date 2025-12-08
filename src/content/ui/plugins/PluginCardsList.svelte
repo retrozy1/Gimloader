@@ -47,7 +47,7 @@
     function importPlugin() {
         readUserFile(".js", (code) => {
             code = code.replaceAll("\r\n", "\n");
-            PluginManager.create(code);
+            PluginManager.create(code, false);
         });
     }
 

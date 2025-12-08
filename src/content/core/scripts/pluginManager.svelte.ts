@@ -3,8 +3,8 @@ import { Plugin } from "./plugin.svelte";
 import Port from "$shared/net/port.svelte";
 import { Deferred } from "$content/utils";
 import type { PluginInfo } from "$types/state";
-import type { ScriptHeaders } from "$types/scripts";
 import Modals from "../modals.svelte";
+import { parseScriptHeaders } from "$shared/parseHeader";
 
 export default new class PluginManager extends ScriptManager<Plugin, PluginInfo> {
     singular = "plugin";
@@ -14,6 +14,7 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
     constructor() {
         super(Plugin, "plugin");
 
+        Port.on("pluginCreate", (info) => this.onCreate(info));
         Port.on("pluginSetAll", ({ enabled }) => this.onSetAll(enabled));
         Port.on("pluginToggled", ({ name, enabled }) => this.onToggled(name, enabled));
     }
@@ -25,10 +26,6 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
         await Promise.allSettled(toRun.map(p => p.onToggled(true)));
 
         this.loaded.resolve();
-    }
-
-    getScriptInfo(code: string, headers: ScriptHeaders) {
-        return { code, name: headers.name, enabled: true };
     }
 
     isEnabled(name: string) {
@@ -96,9 +93,18 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
         plugin.onToggled(enabled);
     }
 
-    onCreate(code: string) {
-        const plugin = super.onCreate(code);
-        plugin.start(false);
+    async create(code: string, enabled: boolean) {
+        const headers = parseScriptHeaders(code);
+        const info = { name: headers.name, code, enabled };
+        const created = this.onCreate(info);
+        Port.send("pluginCreate", info);
+
+        return created;
+    }
+
+    onCreate(info: PluginInfo) {
+        const plugin = super.onCreate(info);
+        if(info.enabled) plugin.start(false);
 
         return plugin;
     }
