@@ -148,7 +148,7 @@ interface VisualEditingCircle {
     onChange(value: RotatedCircle): void;
 }
 
-interface VisualEditing {
+interface DeviceVisualEditing {
     add: {
         box(options: VisualEditingBox): void;
         circle(options: VisualEditingCircle): void;
@@ -223,7 +223,7 @@ interface BaseDevice {
     id: string;
     scene: Scene;
     deviceOption: DeviceOption;
-    visualEditing: VisualEditing;
+    visualEditing: DeviceVisualEditing;
     shadows: Shadows;
     input: DeviceInput;
     parts: any;
