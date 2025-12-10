@@ -93,11 +93,14 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
         plugin.onToggled(enabled);
     }
 
-    async create(code: string, enabled: boolean) {
+    async create(code: string) {
         const headers = parseScriptHeaders(code);
-        const info = { name: headers.name, code, enabled };
+        const info = { name: headers.name, code, enabled: false };
         const created = this.onCreate(info);
+
+        // Create it disabled and enable it to 
         Port.send("pluginCreate", info);
+        created.toggleConfirm(true);
 
         return created;
     }

@@ -13,11 +13,11 @@ export default new class LibrariesHandler extends ScriptHandler {
     init() {
         super.init();
 
-        Server.on("libraryCreate", this.onScriptCreate.bind(this));
+        Server.on("libraryCreate", this.onLibraryCreate.bind(this));
         Server.onMessage("tryDeleteAllLibraries", this.tryDeleteAllLibraries.bind(this));
     }
 
-    async onScriptCreate(state: State, message: Messages["libraryCreate"]) {
+    async onLibraryCreate(state: State, message: Messages["libraryCreate"]) {
         await this.deleteConflicting(message.name);
 
         const info: LibraryInfo = {

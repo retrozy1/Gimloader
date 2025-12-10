@@ -171,7 +171,11 @@ export default class Downloader {
             }
 
             // Create the script after dependencies are installed
-            await Server.executeAndSend(`${type}Create`, { name: headers.name, code: text });
+            if(type === "library") {
+                await Server.executeAndSend("libraryCreate", { name: headers.name, code: text });
+            } else {
+                await Server.executeAndSend("pluginCreate", { name: headers.name, code: text, enabled: true });
+            }
 
             return { errors, name: headers.name };
         } catch {

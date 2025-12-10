@@ -14,14 +14,14 @@ export default new class PluginsHandler extends ScriptHandler {
     init() {
         super.init();
 
-        Server.on("pluginCreate", this.onScriptCreate.bind(this));
+        Server.on("pluginCreate", this.onPluginCreate.bind(this));
         Server.on("pluginToggled", this.onPluginToggled.bind(this));
         Server.on("pluginSetAll", this.onPluginsSetAll.bind(this));
         Server.onMessage("tryTogglePlugin", this.tryTogglePlugin.bind(this));
         Server.onMessage("trySetAllPlugins", this.trySetAll.bind(this));
     }
 
-    async onScriptCreate(state: State, message: Messages["pluginCreate"]) {
+    async onPluginCreate(state: State, message: Messages["pluginCreate"]) {
         await this.deleteConflicting(message.name);
 
         const info: PluginInfo = {
