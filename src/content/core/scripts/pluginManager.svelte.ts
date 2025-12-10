@@ -5,6 +5,7 @@ import { Deferred } from "$content/utils";
 import type { PluginInfo } from "$types/state";
 import Modals from "../modals.svelte";
 import { parseScriptHeaders } from "$shared/parseHeader";
+import { toast } from "svelte-sonner";
 
 export default new class PluginManager extends ScriptManager<Plugin, PluginInfo> {
     singular = "plugin";
@@ -95,10 +96,17 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
 
     async create(code: string) {
         const headers = parseScriptHeaders(code);
+        if(headers.isLibrary !== "false") {
+            toast.error("Plugins must not have the @isLibrary header set");
+            return;
+        }
+
         const info = { name: headers.name, code, enabled: false };
+        this.deleteConflicting(info.name);
+
         const created = this.onCreate(info);
 
-        // Create it disabled and enable it to 
+        // Create it disabled and enable it
         Port.send("pluginCreate", info);
         created.toggleConfirm(true);
 

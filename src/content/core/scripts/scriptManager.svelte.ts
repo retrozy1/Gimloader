@@ -166,4 +166,14 @@ export default abstract class ScriptManager<T extends Script, I extends ScriptIn
 
         this.scripts = newOrder;
     }
+
+    deleteConflicting(name: string) {
+        const index = this.scripts.findIndex(s => s.headers.name === name);
+        if(index === -1) return;
+
+        this.scripts.splice(index, 1);
+        scripts.delete(name);
+        Port.send(`${this.type}Delete`, { name });
+        toast.warning(`Overwrote ${this.singular} ${name}`);
+    }
 }

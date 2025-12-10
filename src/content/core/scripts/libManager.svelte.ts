@@ -4,6 +4,7 @@ import type { LibraryInfo } from "$types/state";
 import Port from "$shared/net/port.svelte";
 import Modals from "../modals.svelte";
 import { parseScriptHeaders } from "$shared/parseHeader";
+import { toast } from "svelte-sonner";
 
 export default new class LibraryManager extends ScriptManager<Library, LibraryInfo> {
     singular = "library";
@@ -17,7 +18,14 @@ export default new class LibraryManager extends ScriptManager<Library, LibraryIn
 
     async create(code: string) {
         const headers = parseScriptHeaders(code);
+        if(headers.isLibrary === "false") {
+            toast.error("Libraries must have the @isLibrary header set");
+            return;
+        }
+
         const info = { name: headers.name, code };
+        this.deleteConflicting(info.name);
+
         const created = this.onCreate(info);
         Port.send("libraryCreate", info);
 
