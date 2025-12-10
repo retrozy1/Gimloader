@@ -102,11 +102,13 @@ export abstract class Script<T extends ScriptInfo = ScriptInfo> {
                 import(url)
                     .then((exports) => {
                         if(!initial) this.checkReloadNeeded();
-                        this.exported = exports;
 
                         if(exports.onStop && typeof exports.onStop === "function") {
                             this.onStop.push(exports.onStop);
                         }
+
+                        if(exports.default) exports = exports.default;
+                        this.exported = exports;
 
                         this.onImport?.(exports);
                         log(`Loaded ${this.type} ${this.headers.name}`);
