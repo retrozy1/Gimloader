@@ -11,13 +11,11 @@ export interface StateMessages {
     hotkeyUpdate: { id: string; trigger: HotkeyTrigger };
     hotkeysUpdate: { hotkeys: ConfigurableHotkeysState };
 
-    libraryEdit: ScriptEdit;
     libraryDelete: ScriptDelete;
     libraryDeleteAll: void;
     libraryCreate: LibraryInfo;
     libraryArrange: ScriptArrange;
 
-    pluginEdit: ScriptEdit;
     pluginDelete: ScriptDelete;
     pluginDeleteAll: void;
     pluginCreate: PluginInfo;
@@ -37,6 +35,8 @@ export interface StateMessages {
 
 // These only go from the background to content
 export interface Messages extends StateMessages {
+    pluginEdit: ScriptEdit;
+    libraryEdit: ScriptEdit;
     setState: SavedState;
     toast: { type: "success" | "error" | "warning" | "normal"; message: string };
     availableUpdates: string[];
@@ -60,6 +60,7 @@ export interface OnceMessages {
     tryTogglePlugin: { name: string; enabled: boolean; confirmed?: boolean };
     trySetAllPlugins: { enabled: boolean; confirmed?: boolean };
     downloadScript: { url: string; confirmed?: boolean; type?: ScriptType };
+    editScript: { name: string; code: string; updated?: boolean };
 }
 
 interface Success {
@@ -111,4 +112,5 @@ export interface OnceResponses {
     tryTogglePlugin: ToggleResult;
     trySetAllPlugins: SetAllResult;
     downloadScript: DownloadResult;
+    editScript: void;
 }

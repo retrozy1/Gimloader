@@ -4,7 +4,7 @@ import type { OnceMessages, OnceResponses } from "$types/messages";
 import type { LibraryInfo, PluginInfo, State } from "$types/state";
 import type { Update } from "$types/updater";
 import Server from "$bg/net/server";
-import { saveDebounced, statePromise } from "../state";
+import { statePromise } from "../state";
 import { formatDownloadUrl } from "$shared/net/util";
 
 export default class Updater {
@@ -35,7 +35,7 @@ export default class Updater {
             const state = await statePromise;
             const updaters: (() => Promise<void>)[] = [];
 
-            const checkUpdate = (headers: ScriptHeaders, type: "plugin" | "library") => {
+            const checkUpdate = (headers: ScriptHeaders) => {
                 return () => {
                     return new Promise<void>(async (res) => {
                         const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
@@ -46,9 +46,7 @@ export default class Updater {
                         if(!this.shouldUpdate(headers, newHeaders)) return res();
 
                         this.updates.push({
-                            type,
                             name: headers.name,
-                            newName: newHeaders.name,
                             code: text
                         });
 
@@ -60,13 +58,13 @@ export default class Updater {
             for(const plugin of state.plugins) {
                 const headers = parseScriptHeaders(plugin.code);
                 if(!headers.downloadUrl) continue;
-                updaters.push(checkUpdate(headers, "plugin"));
+                updaters.push(checkUpdate(headers));
             }
 
             for(const lib of state.libraries) {
                 const headers = parseScriptHeaders(lib.code);
                 if(!headers.downloadUrl) continue;
-                updaters.push(checkUpdate(headers, "library"));
+                updaters.push(checkUpdate(headers));
             }
 
             let finished = false;
@@ -129,43 +127,14 @@ export default class Updater {
         });
     }
 
-    static async applyUpdate(state: State, update: Update) {
-        const { type, name, newName, code } = update;
-        const message = { name, newName, code, updated: true };
+    static async applyUpdate(_: State, update: Update) {
+        const { name, code } = update;
 
-        if(type === "plugin") {
-            // if a plugin with the new name exists, just overwrite it
-            // not the best solution but this should almost never happen and the consequences are bad if it's not adressed
-            if(name !== newName) {
-                const existing = state.plugins.find(p => p.name === newName);
-                if(existing) {
-                    await Server.executeAndSend("pluginDelete", { name: newName });
-                }
-            }
-
-            const plugin = state.plugins.find(p => p.name === name);
-            if(!plugin) return;
-            plugin.name = newName;
-            plugin.code = update.code;
-
-            saveDebounced("plugins");
-            Server.send("pluginEdit", message);
-        } else {
-            if(name !== newName) {
-                const existing = state.libraries.find(l => l.name === newName);
-                if(existing) {
-                    await Server.executeAndSend("libraryDelete", { name: newName });
-                }
-            }
-
-            const library = state.libraries.find(l => l.name === name);
-            if(!library) return;
-            library.name = newName;
-            library.code = update.code;
-
-            saveDebounced("libraries");
-            Server.send("libraryEdit", message);
-        }
+        await Server.trigger("editScript", {
+            name,
+            code,
+            updated: true
+        });
     }
 
     static applyUpdates(state: State, apply: boolean) {
@@ -209,10 +178,8 @@ export default class Updater {
         if(!this.shouldUpdate(headers, newHeaders)) return respond({ updated: false });
 
         this.applyUpdate(state, {
-            type: message.type,
             name: headers.name,
-            code: text,
-            newName: newHeaders.name
+            code: text
         });
 
         respond({ updated: true, version: newHeaders.version });

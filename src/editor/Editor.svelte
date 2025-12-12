@@ -45,24 +45,29 @@
     function save() {
         let code = editor.getValue();
         let headers = parseScriptHeaders(code);
+        const isLibrary = headers.isLibrary !== "false";
 
         if(type === "plugin") {
-            if(headers.isLibrary !== "false") {
+            if(isLibrary) {
                 alert("Plugins must not have the @isLibrary header");
                 return;
             }
         } else {
-            if(headers.isLibrary === "false") {
+            if(!isLibrary) {
                 alert("Libraries must have the @isLibrary header");
                 return;
             }
         }
 
         if(existing) {
-            Port.send(`${type}Edit`, { name, newName: headers.name, code });
+            Port.sendAndRecieve("editScript", { name, code });
             existing.name = headers.name;
         } else {
-            Port.send(`${type}Create`, { name: headers.name, code });
+            if(type === "plugin") {
+                Port.send("pluginCreate", { name: headers.name, code, enabled: true });
+            } else {
+                Port.send("libraryCreate", { name: headers.name, code });
+            }
             if(type === "plugin") State.plugins.push({ name: headers.name, enabled: true, code });
             else State.libraries.push({ name: headers.name, code });
         }

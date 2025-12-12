@@ -1,7 +1,5 @@
 export interface Update {
-    type: "plugin" | "library";
     name: string;
-    newName: string;
     code: string;
 }
 

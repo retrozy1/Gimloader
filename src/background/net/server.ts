@@ -1,24 +1,24 @@
-import type { Messages, OnceMessages, OnceResponses, StateMessages } from "$types/messages";
+import type { Messages, OnceMessages, OnceResponses } from "$types/messages";
 import type { State } from "$types/state";
 import HotkeysHandler from "$bg/messageHandlers/hotkeys";
 import JsCacheHandler from "$bg/messageHandlers/jsCache";
 import LibrariesHandler from "$bg/messageHandlers/library";
 import PluginsHandler from "$bg/messageHandlers/plugin";
 import SettingsHandler from "$bg/messageHandlers/settings";
-import StateHandler from "$bg/messageHandlers/state";
 import StorageHandler from "$bg/messageHandlers/storage";
+import MiscHandler from "$bg/messageHandlers/misc";
 import { statePromise } from "$bg/state";
 
 type Port = chrome.runtime.Port;
 
 interface Message {
-    type: keyof StateMessages;
+    type: keyof Messages;
     message: any;
     returnId?: string;
 }
 
-type UpdateCallback<Channel extends keyof StateMessages> = (state: State, message: StateMessages[Channel]) => void | Promise<void>;
-type MessageCallback<Channel extends keyof OnceMessages> = (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void;
+type UpdateCallback<Channel extends keyof Messages> = (state: State, message: Messages[Channel]) => void | Promise<void>;
+type MessageCallback<Channel extends keyof OnceMessages> = (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void | Promise<void>;
 
 export default new class Server {
     open = new Set<Port>();
@@ -39,7 +39,7 @@ export default new class Server {
         StorageHandler.init();
         SettingsHandler.init();
         JsCacheHandler.init();
-        StateHandler.init();
+        MiscHandler.init();
     }
 
     onConnect(port: Port) {
@@ -59,7 +59,7 @@ export default new class Server {
     async onPortMessage(port: Port, msg: Message) {
         const { type, message, returnId } = msg;
 
-        const invalidateMessages: (keyof StateMessages)[] = [
+        const invalidateMessages: Message["type"][] = [
             "pluginCreate",
             "pluginDelete",
             "pluginEdit",
@@ -102,7 +102,7 @@ export default new class Server {
         }
     }
 
-    on<Channel extends keyof StateMessages>(type: Channel, callback: UpdateCallback<Channel>) {
+    on<Channel extends keyof Messages>(type: Channel, callback: UpdateCallback<Channel>) {
         this.listeners.set(type, callback);
     }
 
@@ -125,5 +125,12 @@ export default new class Server {
         for(const port of this.open) {
             port.postMessage({ type, message });
         }
+    }
+
+    async trigger<Channel extends keyof OnceMessages>(type: Channel, message: OnceMessages[Channel]) {
+        const listener = this.messageListeners.get(type);
+        if(!listener) return;
+
+        await listener(await statePromise, message, () => {});
     }
 }();
