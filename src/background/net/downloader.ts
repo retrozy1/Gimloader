@@ -3,8 +3,9 @@ import type { State } from "$types/state";
 import Server from "$bg/net/server";
 import { formatDownloadUrl } from "$shared/net/util";
 import { parseDep, parseScriptHeaders } from "$shared/parseHeader";
-import Scripts, { type Dependency } from "$bg/scripts";
+import Scripts from "$bg/scripts";
 import { englishList } from "$shared/utils";
+import type { Dependency } from "$types/downloads";
 
 export default class Downloader {
     static maxDepth = 16;
@@ -141,6 +142,7 @@ export default class Downloader {
         const errors: string[] = [];
 
         for(const dep of dependencies) {
+            if(Scripts.has(dep.name)) continue;
             const downloadRes = await this.download(dep.url, 0);
             errors.push(...downloadRes.errors);
         }

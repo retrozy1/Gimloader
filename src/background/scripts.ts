@@ -1,13 +1,8 @@
 import { parseDep, parseScriptHeaders } from "$shared/parseHeader";
+import type { Dependency } from "$types/downloads";
 import type { ScriptType } from "$types/messages";
 import type { ScriptHeaders } from "$types/scripts";
 import type { LibraryInfo, PluginInfo } from "$types/state";
-
-export interface Dependency {
-    name: string;
-    type: ScriptType;
-    url?: string;
-}
 
 interface BaseEntry {
     // Only direct dependents/dependencies

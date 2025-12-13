@@ -10,7 +10,7 @@ export default class MiscHandler {
     static init() {
         Server.onMessage("getState", this.onGetState.bind(this));
         Server.onMessage("setState", this.onSetState.bind(this));
-        Server.onMessage("editScript", this.onEdit.bind(this));
+        Server.onMessage("editOrCreate", this.onEditOrCreate.bind(this));
     }
 
     static onGetState(state: State, _: OnceMessages["getState"], respond: (response: OnceResponses["getState"]) => void) {
@@ -41,44 +41,51 @@ export default class MiscHandler {
         respond();
     }
 
-    static async onEdit(_: State, message: OnceMessages["editScript"], respond: () => void) {
-        const old = Scripts.get(message.name);
-        if(!old) return;
-
+    static async onEditOrCreate(_: State, message: OnceMessages["editOrCreate"], respond: () => void) {
         const headers = parseScriptHeaders(message.code);
         const type: ScriptType = headers.isLibrary !== "false" ? "library" : "plugin";
 
-        // Delete and recreate the script if it changed types
-        if(type !== old.type) {
-            await Server.executeAndSend(`${old.type}Delete`, { name: message.name });
+        if(message.name && Scripts.has(message.name)) {
+            const old = Scripts.get(message.name);
 
-            if(type === "plugin") {
-                await Server.executeAndSend("pluginCreate", {
-                    name: headers.name,
-                    code: message.code,
-                    enabled: false
-                });
-
-                // Enable the plugin by default if there won't be any issues
-                const { error, willDownload, willEnable } = Scripts.checkDependencies(headers.name);
-                if(!error && willDownload.length === 0 && willEnable.length === 0) {
-                    await Server.executeAndSend("pluginToggled", { name: headers.name, enabled: true });
-                }
+            // Delete and recreate the script if it changed types
+            if(type !== old.type) {
+                await Server.executeAndSend(`${old.type}Delete`, { name: message.name });
+                await this.createScript(type, headers.name, message.code);
             } else {
-                await Server.executeAndSend("libraryCreate", {
-                    name: headers.name,
-                    code: message.code
+                await Server.executeAndSend(`${type}Edit`, {
+                    name: message.name,
+                    newName: headers.name,
+                    code: message.code,
+                    updated: message.updated
                 });
             }
         } else {
-            await Server.executeAndSend(`${type}Edit`, {
-                name: message.name,
-                newName: headers.name,
-                code: message.code,
-                updated: message.updated
+            await this.createScript(type, headers.name, message.code);
+        }        
+
+        await Server.executeAndSend("cacheInvalid", { invalid: true });
+        respond();
+    }
+
+    static async createScript(type: ScriptType, name: string, code: string) {
+        if(type === "plugin") {
+            await Server.executeAndSend("pluginCreate", {
+                name,
+                code,
+                enabled: false
+            });
+
+            // Enable the plugin by default if there won't be any issues
+            const { error, willDownload, willEnable } = Scripts.checkDependencies(name);
+            if(!error && willDownload.length === 0 && willEnable.length === 0) {
+                await Server.executeAndSend("pluginToggled", { name, enabled: true });
+            }
+        } else {
+            await Server.executeAndSend("libraryCreate", {
+                name,
+                code
             });
         }
-
-        respond();
     }
 }

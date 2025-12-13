@@ -7,11 +7,12 @@
     import State from "$shared/net/bareState.svelte";
     import { parseScriptHeaders } from "$shared/parseHeader";
     import type { CreateEditor, Editor } from "$types/editor";
+    import type { ScriptType } from "$types/messages";
 
     let { createEditor }: { createEditor: CreateEditor } = $props();
 
     const params = new URLSearchParams(location.search);
-    const type = params.get("type") as "plugin" | "library";
+    const type = params.get("type") as ScriptType;
     let name: string | undefined = $state(params.get("name"));
 
     let existing = $derived.by(() => {
@@ -59,18 +60,7 @@
             }
         }
 
-        if(existing) {
-            Port.sendAndRecieve("editScript", { name, code });
-            existing.name = headers.name;
-        } else {
-            if(type === "plugin") {
-                Port.send("pluginCreate", { name: headers.name, code, enabled: true });
-            } else {
-                Port.send("libraryCreate", { name: headers.name, code });
-            }
-            if(type === "plugin") State.plugins.push({ name: headers.name, enabled: true, code });
-            else State.libraries.push({ name: headers.name, code });
-        }
+        Port.sendAndRecieve("editOrCreate", { name, code });
 
         name = headers.name;
         saved = true;

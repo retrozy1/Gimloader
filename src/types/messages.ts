@@ -52,7 +52,7 @@ export interface OnceMessages {
     setState: SavedState;
     applyUpdates: { apply: boolean };
     updateAll: void;
-    updateSingle: { type: ScriptType; name: string };
+    updateSingle: { name: string };
     showEditor: { type: ScriptType; name?: string };
     pluginTryDelete: ScriptTryDelete;
     libraryTryDelete: ScriptTryDelete;
@@ -60,7 +60,7 @@ export interface OnceMessages {
     tryTogglePlugin: { name: string; enabled: boolean; confirmed?: boolean };
     trySetAllPlugins: { enabled: boolean; confirmed?: boolean };
     downloadScript: { url: string; confirmed?: boolean; type?: ScriptType };
-    editScript: { name: string; code: string; updated?: boolean };
+    editOrCreate: { code: string; name?: string; updated?: boolean };
 }
 
 interface Success {
@@ -112,5 +112,5 @@ export interface OnceResponses {
     tryTogglePlugin: ToggleResult;
     trySetAllPlugins: SetAllResult;
     downloadScript: DownloadResult;
-    editScript: void;
+    editOrCreate: void;
 }

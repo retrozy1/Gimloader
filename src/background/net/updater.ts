@@ -1,11 +1,12 @@
-import { parseScriptHeaders } from "$shared/parseHeader";
 import type { ScriptHeaders } from "$types/scripts";
 import type { OnceMessages, OnceResponses } from "$types/messages";
-import type { LibraryInfo, PluginInfo, State } from "$types/state";
-import type { Update } from "$types/updater";
+import type { State } from "$types/state";
+import type { Dependency, Update } from "$types/downloads";
+import { parseScriptHeaders } from "$shared/parseHeader";
 import Server from "$bg/net/server";
 import { statePromise } from "../state";
-import { formatDownloadUrl } from "$shared/net/util";
+import Scripts from "$bg/scripts";
+import Downloader from "./downloader";
 
 export default class Updater {
     static updates: Update[] = [];
@@ -36,22 +37,19 @@ export default class Updater {
             const updaters: (() => Promise<void>)[] = [];
 
             const checkUpdate = (headers: ScriptHeaders) => {
-                return () => {
-                    return new Promise<void>(async (res) => {
-                        const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
-                        if(!text) return res();
-
-                        // it doesn't matter whether we use parse lib or plugin header here
-                        const newHeaders = parseScriptHeaders(text);
-                        if(!this.shouldUpdate(headers, newHeaders)) return res();
+                return async () => {
+                    try {
+                        const response = await Downloader.fetchScript(headers.downloadUrl);
+                        if(!this.shouldUpdate(headers, response.headers)) return;
 
                         this.updates.push({
                             name: headers.name,
-                            code: text
+                            code: response.text,
+                            dependencies: response.dependencies
                         });
-
-                        res();
-                    });
+                    } catch(e) {
+                        console.error("Error downloading", headers.downloadUrl, e);
+                    }
                 };
             };
 
@@ -111,36 +109,13 @@ export default class Updater {
         }
 
         if(newParts.length > oldParts.length) return true;
-
         return false;
     }
 
-    static getText(url: string) {
-        return new Promise<string | null>((res) => {
-            fetch(url)
-                .catch(() => res(null))
-                .then((resp) => {
-                    if(!resp) return res(null);
-                    if(resp.status !== 200) return res(null);
-                    resp.text().then(res, () => res(null));
-                });
-        });
-    }
-
-    static async applyUpdate(_: State, update: Update) {
-        const { name, code } = update;
-
-        await Server.trigger("editScript", {
-            name,
-            code,
-            updated: true
-        });
-    }
-
-    static applyUpdates(state: State, apply: boolean) {
+    static async applyUpdates(state: State, apply: boolean) {
         if(apply) {
             for(const update of this.updates) {
-                this.applyUpdate(state, update);
+                this.applyUpdate(update.name, update.code, update.dependencies);
             }
         }
 
@@ -163,25 +138,36 @@ export default class Updater {
         respond(names);
     }
 
-    static async updateSingle(state: State, message: OnceMessages["updateSingle"], respond: (updated: OnceResponses["updateSingle"]) => void) {
-        let script: PluginInfo | LibraryInfo;
-        if(message.type === "plugin") script = state.plugins.find(p => p.name === message.name);
-        else script = state.libraries.find(l => l.name === message.name);
+    static async updateSingle(_: State, message: OnceMessages["updateSingle"], respond: (updated: OnceResponses["updateSingle"]) => void) {
+        const script = Scripts.get(message.name);
 
-        const headers = parseScriptHeaders(script.code);
+        const headers = parseScriptHeaders(script.info.code);
         if(!headers.downloadUrl) return respond({ updated: false });
 
-        const text = await this.getText(formatDownloadUrl(headers.downloadUrl));
-        if(!text) return respond({ updated: false, failed: true });
+        try {
+            const result = await Downloader.fetchScript(headers.downloadUrl);
+            if(!this.shouldUpdate(headers, result.headers)) return respond({ updated: false });
 
-        const newHeaders = parseScriptHeaders(text);
-        if(!this.shouldUpdate(headers, newHeaders)) return respond({ updated: false });
+            await this.applyUpdate(message.name, result.text, result.dependencies);
 
-        this.applyUpdate(state, {
-            name: headers.name,
-            code: text
+            respond({ updated: true, version: result.headers.version });
+        } catch {
+            respond({ updated: false, failed: true });
+        }
+    }
+
+    static async applyUpdate(name: string, code: string, dependencies: Dependency[]) {
+        await Server.trigger("editOrCreate", {
+            name,
+            code,
+            updated: true
         });
 
-        respond({ updated: true, version: newHeaders.version });
+        for(const dep of dependencies) {
+            // TODO: Some kind of confirmation
+            if(!dep.url || Scripts.has(dep.name)) continue;
+
+            await Downloader.downloadDeps(dependencies);
+        }
     }
 }

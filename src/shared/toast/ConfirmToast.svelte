@@ -17,7 +17,7 @@
     }
 </script>
 
-<div class="flex items-center gap-1">
+<div class="flex items-center gap-1" onpointerdown={(e) => e.stopPropagation()}>
     <div class="pb-2 grow">{text}</div>
     <button onclick={() => onClick(true)}>
         <Check size={24} color="#925dfe" />

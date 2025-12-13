@@ -1,4 +1,5 @@
 import Port from "$shared/net/port.svelte";
+import type { ScriptType } from "$types/messages";
 import * as z from "zod";
 
 export function validate(fnName: string, args: IArguments, ...schema: [string, string | z.ZodType][]) {
@@ -65,7 +66,7 @@ export function readUserFile(accept: string, callback: (text: string) => void) {
     input.click();
 }
 
-export function showEditor(type: "plugin" | "library", name?: string) {
+export function showEditor(type: ScriptType, name?: string) {
     Port.sendAndRecieve("showEditor", { type, name });
 }
 
