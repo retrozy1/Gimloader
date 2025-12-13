@@ -47,7 +47,7 @@ export default class Updater {
                             code: response.text,
                             dependencies: response.dependencies
                         });
-                    } catch(e) {
+                    } catch (e) {
                         console.error("Error downloading", headers.downloadUrl, e);
                     }
                 };

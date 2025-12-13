@@ -62,7 +62,7 @@ export default class MiscHandler {
             }
         } else {
             await this.createScript(type, headers.name, message.code);
-        }        
+        }
 
         await Server.executeAndSend("cacheInvalid", { invalid: true });
         respond();
