@@ -15,8 +15,8 @@ export async function checkUpdate(script: Script) {
 
 function onUpdated(name: string, updated: UpdateResponse) {
     if(updated.updated) {
-        if(updated.version) toast.success(`Updated ${name} to the latest version`);
-        else toast.success(`Updated ${name} to v${updated.version}`);
+        if(updated.version) toast.success(`Updated ${name} to v${updated.version}`);
+        else toast.success(`Updated ${name} to the latest version`);
     } else {
         if(updated.failed) {
             toast.error(`Failed to fetch the update for ${name}`);
