@@ -1,6 +1,2 @@
-Internally overhauled how scripts are handled
-Improved script dependency popup
-Added dialog to confirm downloading missing dependencies rather than throwing an error
-Added needsPlugin header to allow plugins to depend on one another
-Added third argument for settings.listen to trigger immediately
-Improved stores type
+Fixed plugins asking for a reload even after reloading
+Fixed plugin downloading setting being mislabeled as for libraries

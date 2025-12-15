@@ -24,7 +24,7 @@ export default new class PluginManager extends ScriptManager<Plugin, PluginInfo>
         super.init(info);
 
         const toRun = this.scripts.filter(p => p.enabled);
-        await Promise.allSettled(toRun.map(p => p.onToggled(true)));
+        await Promise.allSettled(toRun.map(p => p.onToggled(true, true)));
 
         this.loaded.resolve();
     }

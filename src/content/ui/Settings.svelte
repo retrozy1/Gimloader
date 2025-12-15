@@ -46,7 +46,7 @@
         bind:checked={Storage.settings.autoDownloadMissingPlugins}
         onCheckedChange={() => saveKey("autoDownloadMissingPlugins")}
     />
-    Attempt to automatically download missing libraries
+    Attempt to automatically download missing plugins
 </div>
 
 <h2 class="text-xl font-bold! mt-3! mb-0!">Developer Settings</h2>

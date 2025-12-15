@@ -89,11 +89,11 @@ export class Plugin extends Script<PluginInfo> {
         await this.onToggled(enabled);
     }
 
-    async onToggled(enabled: boolean) {
+    async onToggled(enabled: boolean, initial = false) {
         this.enabled = enabled;
 
         if(enabled) {
-            await this.start(false).catch((e) => {
+            await this.start(initial).catch((e) => {
                 Modals.open("error", {
                     text: e,
                     title: `Error starting ${this.headers.name}`
