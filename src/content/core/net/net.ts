@@ -1,7 +1,7 @@
 import Internals from "$core/internals";
 import EventEmitter2 from "eventemitter2";
 import { clearId, splicer } from "$content/utils";
-import { error } from "$shared/utils";
+import { error, nop } from "$shared/utils";
 import { log } from "$shared/utils";
 import Patcher from "../patcher";
 import Rewriter from "../rewriter";
@@ -325,7 +325,7 @@ export default new class Net extends EventEmitter2 {
 
         if(this.loaded) {
             callback(this.type, this.gamemode);
-            return () => {};
+            return nop;
         }
 
         const obj = {

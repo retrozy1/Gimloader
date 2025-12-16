@@ -1,3 +1,5 @@
+import { nop } from "$shared/utils";
+
 class BaseParcelApi {
     /**
      * Gets a module based on a filter, returns null if none are found
@@ -24,7 +26,7 @@ class ParcelApi extends BaseParcelApi {
      * @returns A function to cancel waiting for the module
      */
     getLazy() {
-        return () => {};
+        return nop;
     }
 
     /** Cancels any calls to getLazy with the same id */
@@ -53,7 +55,7 @@ class ScopedParcelApi extends BaseParcelApi {
      * @returns A function to cancel waiting for the module
      */
     getLazy() {
-        return () => {};
+        return nop;
     }
 }
 

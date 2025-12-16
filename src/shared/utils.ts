@@ -12,3 +12,5 @@ export function englishList(items: string[], combiner = "and") {
     else if(items.length === 2) return `${items[0]} ${combiner} ${items[1]}`;
     else return `${items.slice(0, -1).join(", ")}, ${combiner} ${items.at(-1)}`;
 }
+
+export const nop = () => {};

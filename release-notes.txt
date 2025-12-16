@@ -1,2 +1,2 @@
-Fixed plugins asking for a reload even after reloading
-Fixed plugin downloading setting being mislabeled as for libraries
+Added rewriter.runInScope option to allow certain plugins to start without needing a reload
+Fixed cache not being properly cleared sometimes

@@ -1,9 +1,9 @@
-import { splicer } from "$content/utils";
+import { clearId, splicer } from "$content/utils";
 import { domLoaded } from "$content/utils";
 import { clear, get, set } from "idb-keyval";
 import PluginManager from "./scripts/pluginManager.svelte";
 import Port from "$shared/net/port.svelte";
-import { englishList, error } from "$shared/utils";
+import { englishList, error, nop } from "$shared/utils";
 import Modals from "./modals.svelte";
 
 interface Import {
@@ -20,16 +20,32 @@ interface ParsedJs {
 type Prefix = string | boolean;
 
 interface ParseHook {
-    pluginName?: string;
+    id?: string;
     prefix: Prefix;
     callback: (code: string) => string | undefined;
+}
+
+/** @inline */
+export type RunInScopeCallback = (code: string, run: (evalCode: string) => void) => void | true;
+
+interface RunInScope {
+    id?: string;
+    prefix: Prefix;
+    callback: RunInScopeCallback;
 }
 
 export default class Rewriter {
     static base: URL;
     static cleared = false;
-    static shared: Record<string, any> = {};
+    static evaluate: Record<string, (code: string) => any> = {};
+    static shared: Record<string, any> = {
+        onload: this.onload.bind(this)
+    };
     static sharedPluginNames: Record<string, string[]> = {};
+    static rootScript = "";
+    static scriptCode: Record<string, string> = {};
+    static parseHooks: ParseHook[] = [];
+    static runInScopes: RunInScope[] = [];
 
     static async init(cacheInvalid: boolean) {
         if(cacheInvalid) this.invalidate(true);
@@ -84,7 +100,7 @@ export default class Rewriter {
     }
 
     static loadingSrcs = new Map<string, Promise<string>>();
-    static getBlobUrl(name: string, root: boolean, skipPluginHooks = false) {
+    static fetchScript(name: string, root: boolean, skipPluginHooks = false): Promise<string> {
         const existing = this.loadingSrcs.get(name);
         if(existing) return existing;
 
@@ -101,6 +117,8 @@ export default class Rewriter {
             }
 
             const code = await this.prepareJs(parsed);
+            this.scriptCode[name] = code;
+
             const blob = new Blob([code], { type: "text/javascript" });
             res(URL.createObjectURL(blob));
         });
@@ -112,7 +130,8 @@ export default class Rewriter {
     static async import(src: string, root: boolean) {
         const url = new URL(src, this.base);
         const name = this.getName(url.pathname);
-        const blobUrl = await this.getBlobUrl(name, root);
+        if(root) this.rootScript = name;
+        const blobUrl = await this.fetchScript(name, root);
 
         // Negligible impact on load time
         await PluginManager.loaded;
@@ -123,10 +142,11 @@ export default class Rewriter {
             return imported;
         } catch (e) {
             error("Error importing", src, e);
+            URL.revokeObjectURL(blobUrl);
 
             // Create an error message that lists plugins that might be causing the issue
-            const usedHooks = this.getHooks(name, root, false)
-                .map(hook => hook.pluginName).filter(name => name);
+            const usedHooks = this.getParseHooks(name, root, false)
+                .map(hook => hook.id).filter(name => name);
 
             // If no hooks were used, just give up
             if(usedHooks.length === 0) {
@@ -145,17 +165,16 @@ export default class Rewriter {
 
             // Load it again without hooks
             this.loadingSrcs.delete(name);
-            const newUrl = await this.getBlobUrl(name, root, true);
+            const newUrl = await this.fetchScript(name, root, true);
 
             // If this fails, whatever
-            const imported = await import(newUrl);
-            URL.revokeObjectURL(newUrl);
+            const imported = await import(newUrl)
+                .finally(() => URL.revokeObjectURL(newUrl));
             return imported;
         }
     }
 
     static importRegex = /(import(?:.+?from)?)"([^"]+)";/g;
-    static parseHooks: ParseHook[] = [];
     static parse(js: string, name: string, root: boolean, skipPluginHooks: boolean): ParsedJs {
         // Remove dependency preloading
         if(js.startsWith("const __vite__mapDeps")) {
@@ -175,7 +194,7 @@ export default class Rewriter {
         js = js.replace(this.importRegex, "");
 
         // Run parse hooks
-        const hooks = this.getHooks(name, root, skipPluginHooks);
+        const hooks = this.getParseHooks(name, root, skipPluginHooks);
         for(const hook of hooks) {
             try {
                 const edited = hook.callback(js);
@@ -185,8 +204,10 @@ export default class Rewriter {
             }
         }
 
-        // Tack on a source mapping url
-        js += `\n//# sourceURL=https://www.gimkit.com/assets/${name}`;
+        // Tack on a source mapping url and evaluator
+        const onloadCall = `GLShared["onload"]("${name}",(code)=>eval(code));`;
+        const sourceUrl = `//# sourceURL=https://www.gimkit.com/assets/${name}`;
+        js += `${onloadCall}\n${sourceUrl}`;
 
         return {
             code: js,
@@ -196,37 +217,56 @@ export default class Rewriter {
 
     static async prepareJs(parsed: ParsedJs) {
         const imports = await Promise.all(parsed.imports.map(async (imported) => {
-            const url = await this.getBlobUrl(imported.name, false);
+            const url = await this.fetchScript(imported.name, false);
             return imported.text + `"${url}";`;
         }));
 
         return imports.join("") + parsed.code;
     }
 
-    static getHooks(name: string, root: boolean, skipPluginHooks: boolean) {
+    static getParseHooks(name: string, root: boolean, skipPluginHooks: boolean) {
         return this.parseHooks.filter((hook) => {
-            if(skipPluginHooks && hook.pluginName) return false;
-            if(hook.prefix === false) return true;
-            if(hook.prefix === true) return root;
-            return name.startsWith(hook.prefix);
+            if(skipPluginHooks && hook.id) return false;
+            return this.shouldRunHook(name, root, hook.prefix);
         });
+    }
+
+    static shouldRunHook(name: string, root: boolean, prefix: Prefix) {
+        if(prefix === false) return true;
+        if(prefix === true) return root;
+        return name.startsWith(prefix);
+    }
+
+    static onload(name: string, evalCode: (code: string) => any) {
+        this.evaluate[name] = evalCode;
+        const root = name === this.rootScript;
+        const code = this.scriptCode[name];
+        
+        for(let i = 0; i < this.runInScopes.length; i++) {
+            const hook = this.runInScopes[i];
+            if(!this.shouldRunHook(name, root, hook.prefix)) continue;
+
+            try {
+                const result = hook.callback(code, evalCode);
+                if(result === true) {
+                    this.runInScopes.splice(i, 1);
+                    i--;
+                }
+            } catch(e) {
+                console.error("Error in runInScope hook:", e);
+            }
+        }
     }
 
     static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
         const object: ParseHook = { prefix, callback };
-        if(pluginName) object.pluginName = pluginName;
+        if(pluginName) object.id = pluginName;
 
         return splicer(this.parseHooks, object);
     }
 
     static removeParseHooks(pluginName: string) {
-        for(let i = 0; i < this.parseHooks.length; i++) {
-            const hook = this.parseHooks[i];
-            if(hook.pluginName === pluginName) {
-                this.parseHooks.splice(i, 1);
-                i--;
-            }
-        }
+        clearId(this.parseHooks, pluginName);
     }
 
     static createShared(pluginName: string | null, id: string, value: any) {
@@ -254,6 +294,29 @@ export default class Rewriter {
 
     static removeSharedById(pluginName: string, id: string) {
         delete this.shared[`${pluginName}-${id}`];
+    }
+
+    static runInScope(pluginName: string | null, prefix: Prefix, callback: RunInScopeCallback) {
+        for(let name in this.scriptCode) {
+            if(!this.shouldRunHook(name, name === this.rootScript, prefix)) continue;
+
+            try {
+                const evalCode = this.evaluate[name];
+                const result = callback(this.scriptCode[name], evalCode);
+                if(result === true) return nop;
+            } catch(e) {
+                console.error("Error in runInScope hook:", e);
+            }
+        }
+
+        const object: RunInScope = { prefix, callback };
+        if(pluginName) object.id = pluginName;
+
+        return splicer(this.runInScopes, object);
+    }
+
+    static removeRunInScope(pluginName: string) {
+        clearId(this.runInScopes, pluginName);
     }
 
     static createMemoized(id: string, getter: () => any) {

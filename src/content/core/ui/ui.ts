@@ -5,6 +5,7 @@ import styles from "$content/css/styles.css";
 import tailwindStyles from "$content/css/tailwind.css";
 import { domLoaded } from "$content/utils";
 import Rewriter from "../rewriter";
+import { nop } from "$shared/utils";
 
 export default class UI {
     static React: typeof React;
@@ -31,7 +32,7 @@ export default class UI {
         // wait for document to be ready
         domLoaded.then(() => document.head.appendChild(style));
 
-        if(id === null) return () => {};
+        if(id === null) return nop;
 
         // add to map
         if(!this.styles.has(id)) this.styles.set(id, []);

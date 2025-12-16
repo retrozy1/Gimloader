@@ -2530,7 +2530,15 @@ class ScopedRewriterApi {
     createShared(id: string, value: any): string;
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(id: string): void;
+    /**
+     * Runs code in the scope of modules when they are loaded, or when runInScope is called with them already loaded.
+     * Returning true from the callback will remove the hook.
+     */
+    runInScope(prefix: string | boolean, callback: RunInScopeCallback): void;
 }
+
+type RunInScopeCallback = (code: string, run: (evalCode: string) => void) => void | true;
+
 
 class RewriterApi {
     /**
@@ -2543,7 +2551,7 @@ class RewriterApi {
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(pluginName: string, prefix: string | boolean, callback: (code: string) => string): () => void;
-    /** Removes all hooks created by a certain plugin */
+    /** Removes all parse hooks created by a certain plugin */
     removeParseHooks(pluginName: string): void;
     /**
      * Creates a shared value that can be accessed from any script.
@@ -2557,6 +2565,13 @@ class RewriterApi {
     removeShared(pluginName: string): void;
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(pluginName: string, id: string): void;
+    /**
+     * Runs code in the scope of modules when they are loaded, or when runInScope is called with them already loaded.
+     * Returning true from the callback will remove the hook.
+     */
+    runInScope(pluginName: string, prefix: string | boolean, callback: RunInScopeCallback): void;
+    /** Stops all hooks created by {@link runInScope} */
+    removeRunInScope(pluginName: string): void;
 }
 
 class ScopedPatcherApi {

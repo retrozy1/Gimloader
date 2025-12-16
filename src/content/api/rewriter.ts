@@ -1,4 +1,4 @@
-import Rewriter from "$core/rewriter";
+import Rewriter, { type RunInScopeCallback } from "$core/rewriter";
 import { validate } from "$content/utils";
 
 /**
@@ -35,7 +35,7 @@ class RewriterApi {
         return Rewriter.addParseHook(pluginName, prefix, callback);
     }
 
-    /** Removes all hooks created by a certain plugin */
+    /** Removes all parse hooks created by a certain plugin */
     removeParseHooks(pluginName: string) {
         validate("rewriter.removeParseHooks", arguments, ["pluginName", "string"]);
 
@@ -67,6 +67,23 @@ class RewriterApi {
         validate("rewriter.removeSharedById", arguments, ["pluginName", "string"], ["id", "string"]);
 
         Rewriter.removeSharedById(pluginName, id);
+    }
+
+    /**
+     * Runs code in the scope of modules when they are loaded, or when runInScope is called with them already loaded.
+     * Returning true from the callback will remove the hook.
+     */
+    runInScope(pluginName: string, prefix: string | boolean, callback: RunInScopeCallback) {
+        validate("rewriter.runInScope", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["callback", "function"]);
+
+        Rewriter.runInScope(pluginName, prefix, callback);
+    }
+
+    /** Stops all hooks created by {@link runInScope} */
+    removeRunInScope(pluginName: string) {
+        validate("rewriter.removeRunInScopeHooks", arguments, ["pluginName", "string"]);
+
+        Rewriter.removeRunInScope(pluginName);
     }
 }
 
@@ -124,6 +141,16 @@ class ScopedRewriterApi {
         validate("rewriter.removeSharedById", arguments, ["id", "string"]);
 
         Rewriter.removeSharedById(this.id, id);
+    }
+
+    /**
+     * Runs code in the scope of modules when they are loaded, or when runInScope is called with them already loaded.
+     * Returning true from the callback will remove the hook.
+     */
+    runInScope(prefix: string | boolean, callback: RunInScopeCallback) {
+        validate("rewriter.runInScope", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
+
+        Rewriter.runInScope(this.id, prefix, callback);
     }
 }
 

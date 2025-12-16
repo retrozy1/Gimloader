@@ -20,6 +20,7 @@ import Storage from "$core/storage.svelte";
 import Rewriter from "$core/rewriter";
 import createSettingsApi from "./settings";
 import Commands from "$content/core/commands.svelte";
+import { nop } from "$shared/utils";
 
 class Api {
     /**
@@ -93,7 +94,7 @@ class Api {
      * @hidden
      */
     static get contextMenu() {
-        return { showContextMenu: () => {}, createReactContextMenu: () => {} };
+        return { showContextMenu: nop, createReactContextMenu: nop };
     }
 
     /**
@@ -159,6 +160,7 @@ class Api {
         const cleanup = () => {
             Rewriter.removeParseHooks(scoped.id);
             Rewriter.removeShared(scoped.id);
+            Rewriter.removeRunInScope(scoped.id);
             Net.offAny(netOnAny);
             this.net.removeAllListeners();
             Hotkeys.removeHotkeys(scoped.id);

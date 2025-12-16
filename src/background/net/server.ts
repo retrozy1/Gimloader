@@ -8,11 +8,12 @@ import SettingsHandler from "$bg/messageHandlers/settings";
 import StorageHandler from "$bg/messageHandlers/storage";
 import MiscHandler from "$bg/messageHandlers/misc";
 import { statePromise } from "$bg/state";
+import { nop } from "$shared/utils";
 
 type Port = chrome.runtime.Port;
 
 interface Message {
-    type: keyof Messages;
+    type: keyof Messages | keyof OnceMessages;
     message: any;
     returnId?: string;
 }
@@ -30,8 +31,8 @@ export default new class Server {
         chrome.runtime.onConnect.addListener(this.onConnect.bind(this));
 
         // these are only used to keep the worker alive
-        chrome.runtime.onMessageExternal.addListener(() => {});
-        chrome.runtime.onMessage.addListener(() => {});
+        chrome.runtime.onMessageExternal.addListener(nop);
+        chrome.runtime.onMessage.addListener(nop);
 
         HotkeysHandler.init();
         LibrariesHandler.init();
@@ -59,7 +60,7 @@ export default new class Server {
     async onPortMessage(port: Port, msg: Message) {
         const { type, message, returnId } = msg;
 
-        const invalidateMessages: Message["type"][] = [
+        const stateInvalidate: Message["type"][] = [
             "pluginCreate",
             "pluginDelete",
             "pluginEdit",
@@ -72,8 +73,16 @@ export default new class Server {
             "libraryDeleteAll"
         ];
 
+        const alwaysInvalidate: Message["type"][] = [
+            "tryTogglePlugin",
+            "trySetAllPlugins",
+            "tryDeleteAllLibraries",
+            "pluginTryDelete",
+            "libraryTryDelete"
+        ];
+
         // If it comes from a game port the cache has been invalidated already
-        const invalidated = port.name !== "game" && invalidateMessages.includes(type);
+        const invalidated = alwaysInvalidate.includes(type) || port.name !== "game" && stateInvalidate.includes(type);
 
         if(invalidated) {
             this.executeAndSend("cacheInvalid", { invalid: true });
@@ -131,6 +140,6 @@ export default new class Server {
         const listener = this.messageListeners.get(type);
         if(!listener) return;
 
-        await listener(await statePromise, message, () => {});
+        await listener(await statePromise, message, nop);
     }
 }();
