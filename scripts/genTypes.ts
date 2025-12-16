@@ -10,6 +10,7 @@ fs.rmSync("types.d.ts");
 
 types = types.replaceAll(`import("$types/stores/stores").`, "")
     .replaceAll(`import("types/stores/stores").`, "")
+    .replaceAll(`import("types/scripts").`, "")
     .replaceAll("Input.Pointer", "import(\"phaser\").Input.Pointer")
     .replaceAll("Types.Tweens", "import(\"phaser\").Types.Tweens")
     .replaceAll(" Tweens.Tween", " import(\"phaser\").Tweens.Tween")
@@ -25,7 +26,10 @@ let match: RegExpExecArray | null;
 const addDeclaration = () => {
     if(!match) return;
 
-    const name = match[2].replace("<T>", "");
+    const name = match[2]
+        .replace("<T>", "")
+        .replace("<T", "");
+    
     if(declarations.has(name)) console.log("Duplicate declaration for", name);
     declarations.set(name, match[1]);
 }

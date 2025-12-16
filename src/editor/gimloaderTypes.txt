@@ -2346,6 +2346,19 @@ interface Stores {
 type SettingsChangeCallback = (value: any, remote: boolean) => void;
 
 
+interface CustomSection<T = any> {
+    type: "customsection";
+    id: string;
+    default?: T;
+    onChange?: (value: T, remote: boolean) => void;
+    render: (container: HTMLElement, currentValue: T, onChange: (newValue: T) => void) => (() => void) | void;
+}
+
+interface CustomSetting<T = any> extends BaseSetting<T> {
+    type: "custom";
+    render: (container: HTMLElement, currentValue: T, update: (newValue: T) => void) => (() => void) | void;
+}
+
 interface ColorSetting extends BaseSetting<string> {
     type: "color";
     rgba?: boolean;
@@ -2436,7 +2449,7 @@ class PluginsApi {
     /** Whether a plugin exists and is enabled */
     isEnabled(name: string): boolean;
     /** Gets the headers of a plugin, such as version, author, and description */
-    getHeaders(name: string): import("types/scripts").ScriptHeaders;
+    getHeaders(name: string): ScriptHeaders;
     /** Gets the exported values of a plugin, if it has been enabled */
     get(name: string): any;
     /**
@@ -2448,13 +2461,32 @@ class PluginsApi {
     };
 }
 
+interface ScriptHeaders {
+    name: string;
+    description: string;
+    author: string;
+    version: string | null;
+    reloadRequired: string;
+    isLibrary: string;
+    downloadUrl: string | null;
+    webpage: string | null;
+    needsLib: string[];
+    optionalLib: string[];
+    deprecated: string | null;
+    gamemode: string[];
+    changelog: string[];
+    /** Only available for plugins */
+    needsPlugin: string[];
+    hasSettings: string;
+}
+
 class LibsApi {
     /** A list of all the libraries installed */
     get list(): string[];
     /** Gets whether or not a plugin is installed and enabled */
     isEnabled(name: string): boolean;
     /** Gets the headers of a library, such as version, author, and description */
-    getHeaders(name: string): import("types/scripts").ScriptHeaders;
+    getHeaders(name: string): ScriptHeaders;
     /** Gets the exported values of a library */
     get(name: string): any;
 }

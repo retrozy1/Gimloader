@@ -241,7 +241,7 @@ export default class Rewriter {
         this.evaluate[name] = evalCode;
         const root = name === this.rootScript;
         const code = this.scriptCode[name];
-        
+
         for(let i = 0; i < this.runInScopes.length; i++) {
             const hook = this.runInScopes[i];
             if(!this.shouldRunHook(name, root, hook.prefix)) continue;
@@ -252,7 +252,7 @@ export default class Rewriter {
                     this.runInScopes.splice(i, 1);
                     i--;
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error("Error in runInScope hook:", e);
             }
         }
@@ -297,14 +297,14 @@ export default class Rewriter {
     }
 
     static runInScope(pluginName: string | null, prefix: Prefix, callback: RunInScopeCallback) {
-        for(let name in this.scriptCode) {
+        for(const name in this.scriptCode) {
             if(!this.shouldRunHook(name, name === this.rootScript, prefix)) continue;
 
             try {
                 const evalCode = this.evaluate[name];
                 const result = callback(this.scriptCode[name], evalCode);
                 if(result === true) return nop;
-            } catch(e) {
+            } catch (e) {
                 console.error("Error in runInScope hook:", e);
             }
         }
