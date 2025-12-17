@@ -16,10 +16,9 @@ statePromise.then((state) => {
 
 // open the editor when requested
 Server.onMessage("showEditor", async (_, { type, name }) => {
-    const params = new URLSearchParams({
-        type,
-        name
-    });
+    const params = new URLSearchParams();
+    params.set("type", type);
+    if(name) params.set("name", name);
 
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 
