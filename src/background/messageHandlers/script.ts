@@ -49,7 +49,7 @@ export default abstract class ScriptHandler {
         // Update scripts
         Scripts.delete(script.name);
         Scripts.createScript(this.type, script);
-        
+
         Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }

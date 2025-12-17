@@ -73,7 +73,7 @@ export default new class Server {
             const callback = this.listeners.get(type);
             if(!callback) return;
 
-            let cancelled = await callback(await statePromise, message);
+            const cancelled = await callback(await statePromise, message);
             if(cancelled === true) return;
 
             // send the message to other connected ports
@@ -102,7 +102,7 @@ export default new class Server {
         const callback = this.listeners.get(type);
         if(!callback) return;
 
-        let cancelled = await callback(await statePromise, message);
+        const cancelled = await callback(await statePromise, message);
         if(cancelled === true) return;
 
         for(const port of this.open) {

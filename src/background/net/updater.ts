@@ -122,7 +122,6 @@ export default class Updater {
         this.updates = [];
         state.availableUpdates = [];
 
-        Server.executeAndSend("cacheInvalid", { invalid: true });
         Server.send("availableUpdates", []);
     }
 
@@ -150,7 +149,6 @@ export default class Updater {
             const result = await Downloader.fetchScript(headers.downloadUrl);
             if(!this.shouldUpdate(headers, result.headers)) return respond({ updated: false });
 
-            Server.executeAndSend("cacheInvalid", { invalid: true });
             await this.applyUpdate(message.name, result.text, result.dependencies);
 
             respond({ updated: true, version: result.headers.version });

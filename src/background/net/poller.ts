@@ -34,7 +34,6 @@ export default class Poller {
         const code = await res.text();
 
         if(!this.enabled) return;
-        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.sendRequest();
         await Server.trigger("editOrCreate", { code });
     }

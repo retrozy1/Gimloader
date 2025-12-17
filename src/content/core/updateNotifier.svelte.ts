@@ -1,5 +1,4 @@
 import Port from "$shared/net/port.svelte";
-import Rewriter from "./rewriter";
 import { englishList } from "$shared/utils";
 import { createConfirmToast } from "$shared/toast/create";
 
