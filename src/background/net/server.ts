@@ -18,7 +18,7 @@ interface Message {
     returnId?: string;
 }
 
-type UpdateCallback<Channel extends keyof Messages> = (state: State, message: Messages[Channel]) => void | Promise<void>;
+type UpdateCallback<Channel extends keyof Messages> = (state: State, message: Messages[Channel]) => void | true | Promise<void | true>;
 type MessageCallback<Channel extends keyof OnceMessages> = (state: State, message: OnceMessages[Channel], respond: (response?: OnceResponses[Channel]) => void) => void | Promise<void>;
 
 export default new class Server {
@@ -60,34 +60,6 @@ export default new class Server {
     async onPortMessage(port: Port, msg: Message) {
         const { type, message, returnId } = msg;
 
-        const stateInvalidate: Message["type"][] = [
-            "pluginCreate",
-            "pluginDelete",
-            "pluginEdit",
-            "pluginToggled",
-            "pluginDeleteAll",
-            "pluginSetAll",
-            "libraryCreate",
-            "libraryDelete",
-            "libraryEdit",
-            "libraryDeleteAll"
-        ];
-
-        const alwaysInvalidate: Message["type"][] = [
-            "tryTogglePlugin",
-            "trySetAllPlugins",
-            "tryDeleteAllLibraries",
-            "pluginTryDelete",
-            "libraryTryDelete"
-        ];
-
-        // If it comes from a game port the cache has been invalidated already
-        const invalidated = alwaysInvalidate.includes(type) || port.name !== "game" && stateInvalidate.includes(type);
-
-        if(invalidated) {
-            this.executeAndSend("cacheInvalid", { invalid: true });
-        }
-
         if(returnId) {
             // message with a response (not done with .sendMessage to avoid race conditions)
             const callback = this.messageListeners.get(type);
@@ -101,7 +73,8 @@ export default new class Server {
             const callback = this.listeners.get(type);
             if(!callback) return;
 
-            await callback(await statePromise, message);
+            let cancelled = await callback(await statePromise, message);
+            if(cancelled === true) return;
 
             // send the message to other connected ports
             for(const openPort of this.open) {
@@ -127,9 +100,10 @@ export default new class Server {
 
     async executeAndSend<Channel extends keyof Messages>(type: Channel, message: Messages[Channel]) {
         const callback = this.listeners.get(type);
-        if(callback) {
-            await callback(await statePromise, message);
-        }
+        if(!callback) return;
+
+        let cancelled = await callback(await statePromise, message);
+        if(cancelled === true) return;
 
         for(const port of this.open) {
             port.postMessage({ type, message });

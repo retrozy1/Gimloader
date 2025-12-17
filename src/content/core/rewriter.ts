@@ -94,9 +94,7 @@ export default class Rewriter {
         this.cleared = true;
         clear();
 
-        if(broadcast) {
-            Port.send("cacheInvalid", { invalid: false });
-        }
+        if(broadcast) Port.send("cacheInvalid", { invalid: false });
     }
 
     static loadingSrcs = new Map<string, Promise<string>>();

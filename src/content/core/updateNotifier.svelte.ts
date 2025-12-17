@@ -24,7 +24,6 @@ export default class UpdateNotifier {
 
         createConfirmToast(message, (apply) => {
             Port.sendAndRecieve("applyUpdates", { apply });
-            Rewriter.invalidate();
         });
     }
 }

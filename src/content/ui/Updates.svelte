@@ -6,12 +6,10 @@
     import { version } from "../../../package.json";
     import { toast } from "svelte-sonner";
     import Port from "$shared/net/port.svelte";
-    import Rewriter from "$core/rewriter";
     import { englishList } from "$shared/utils";
 
     async function checkAll() {
         if(!confirm("Do you want to try to update all plugins and all libraries?")) return;
-        Rewriter.invalidate();
         let names: string[] = await Port.sendAndRecieve("updateAll");
 
         if(names.length === 0) return toast.success("All scripts are up to date!");

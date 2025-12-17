@@ -1,11 +1,9 @@
 import { toast } from "svelte-sonner";
 import Port from "$shared/net/port.svelte";
 import type { UpdateResponse } from "$types/downloads";
-import Rewriter from "../rewriter";
 import type { Script } from "../scripts/script.svelte";
 
 export async function checkUpdate(script: Script) {
-    Rewriter.invalidate();
     const updated = await Port.sendAndRecieve("updateSingle", {
         name: script.headers.name
     });

@@ -33,12 +33,16 @@ export default new class PluginsHandler extends ScriptHandler {
 
         state.plugins.push(info);
         Scripts.createPlugin(info);
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
     onPluginToggled(state: State, message: StateMessages["pluginToggled"]) {
         const toggle = state.plugins.find(p => p.name === message.name);
         toggle.enabled = message.enabled;
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
@@ -46,6 +50,8 @@ export default new class PluginsHandler extends ScriptHandler {
         for(const plugin of state.plugins) {
             plugin.enabled = message.enabled;
         }
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
@@ -105,6 +111,7 @@ export default new class PluginsHandler extends ScriptHandler {
                 await Server.executeAndSend("pluginToggled", { name, enabled: true });
             }
 
+            Server.executeAndSend("cacheInvalid", { invalid: true });
             Server.executeAndSend("pluginToggled", { name: message.name, enabled: message.enabled });
 
             respond({ status: "success" });

@@ -13,6 +13,9 @@ export default class JsCacheHandler {
     }
 
     static onCacheInvalid(state: State, message: StateMessages["cacheInvalid"]) {
+        // Cancel the message if nothing changed
+        if(state.cacheInvalid === message.invalid) return true;
+
         state.cacheInvalid = message.invalid;
         this.save();
     }

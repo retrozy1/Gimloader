@@ -121,11 +121,13 @@ export default class Updater {
 
         this.updates = [];
         state.availableUpdates = [];
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         Server.send("availableUpdates", []);
     }
 
-    static onApplyUpdates(state: State, message: OnceMessages["applyUpdates"], respond: () => void) {
-        this.applyUpdates(state, message.apply);
+    static async onApplyUpdates(state: State, message: OnceMessages["applyUpdates"], respond: () => void) {
+        await this.applyUpdates(state, message.apply);
 
         respond();
     }
@@ -148,6 +150,7 @@ export default class Updater {
             const result = await Downloader.fetchScript(headers.downloadUrl);
             if(!this.shouldUpdate(headers, result.headers)) return respond({ updated: false });
 
+            Server.executeAndSend("cacheInvalid", { invalid: true });
             await this.applyUpdate(message.name, result.text, result.dependencies);
 
             respond({ updated: true, version: result.headers.version });

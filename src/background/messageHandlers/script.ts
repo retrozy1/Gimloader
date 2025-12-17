@@ -49,7 +49,8 @@ export default abstract class ScriptHandler {
         // Update scripts
         Scripts.delete(script.name);
         Scripts.createScript(this.type, script);
-
+        
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
@@ -59,6 +60,8 @@ export default abstract class ScriptHandler {
 
         state[this.key].splice(index, 1);
         Scripts.delete(message.name);
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
@@ -75,6 +78,8 @@ export default abstract class ScriptHandler {
     onScriptDeleteAll(state: State) {
         Scripts.clearType(this.type);
         state[this.key] = [];
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 

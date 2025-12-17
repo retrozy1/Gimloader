@@ -27,6 +27,8 @@ export default new class LibrariesHandler extends ScriptHandler {
 
         state.libraries.push(info);
         Scripts.createLibrary(info);
+
+        Server.executeAndSend("cacheInvalid", { invalid: true });
         this.save();
     }
 
