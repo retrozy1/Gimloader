@@ -85,6 +85,14 @@ gimloaderTypes += added.map(name => declarations.get(name)).join("\n\n")
     .replaceAll("ReactElement", "import('react').ReactElement");
 
 gimloaderTypes = gimloaderTypes.replaceAll(": Stores", ": Stores.Stores");
+gimloaderTypes += `
+interface Plugins {
+    [name: string]: any;
+}
+
+interface Libraries {
+    [name: string]: any;
+}`;
 
 let declaration =
 `declare const api: Gimloader.Api;

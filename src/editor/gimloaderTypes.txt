@@ -2451,7 +2451,7 @@ class PluginsApi {
     /** Gets the headers of a plugin, such as version, author, and description */
     getHeaders(name: string): ScriptHeaders;
     /** Gets the exported values of a plugin, if it has been enabled */
-    get(name: string): any;
+    get<T extends keyof Gimloader.Plugins>(name: T): Gimloader.Plugins[T];
     /**
      * @deprecated Use {@link get} instead
      * @hidden
@@ -2488,7 +2488,7 @@ class LibsApi {
     /** Gets the headers of a library, such as version, author, and description */
     getHeaders(name: string): ScriptHeaders;
     /** Gets the exported values of a library */
-    get(name: string): any;
+    get<T extends keyof Gimloader.Libraries>(name: T): Gimloader.Libraries[T];
 }
 
 class ScopedCommandsApi {
@@ -2987,11 +2987,11 @@ class Api {
     /** Methods for getting info on libraries */
     static libs: Readonly<LibsApi>;
     /** Gets the exported values of a library */
-    static lib: (name: string) => any;
+    static lib: <T extends keyof Gimloader.Libraries>(name: T) => Gimloader.Libraries[T];
     /** Methods for getting info on plugins */
     static plugins: Readonly<PluginsApi>;
     /** Gets the exported values of a plugin, if it has been enabled */
-    static plugin: (name: string) => any;
+    static plugin: <T extends keyof Gimloader.Plugins>(name: T) => Gimloader.Plugins[T];
     /** Gimkit's internal react instance */
     static get React(): typeof import("react");
     /** Gimkit's internal reactDom instance */
@@ -3060,11 +3060,11 @@ class Api {
     /** Methods for getting info on libraries */
     libs: Readonly<LibsApi>;
     /** Gets the exported values of a library */
-    lib: (name: string) => any;
+    lib: <T extends keyof Gimloader.Libraries>(name: T) => Gimloader.Libraries[T];
     /** Methods for getting info on plugins */
     plugins: Readonly<PluginsApi>;
     /** Gets the exported values of a plugin, if it has been enabled */
-    plugin: (name: string) => any;
+    plugin: <T extends keyof Gimloader.Plugins>(name: T) => Gimloader.Plugins[T];
     /** Gimkit's internal react instance */
     get React(): typeof import("react");
     /** Gimkit's internal reactDom instance */
@@ -3085,6 +3085,13 @@ class Api {
      * This function is not available for libraries
      */
     openSettingsMenu: (callback: () => void) => void;
+}
+interface Plugins {
+    [name: string]: any;
+}
+
+interface Libraries {
+    [name: string]: any;
 }
 }
 

@@ -22,10 +22,10 @@ class LibsApi {
     }
 
     /** Gets the exported values of a library */
-    get(name: string) {
+    get<T extends keyof Gimloader.Libraries>(name: T): Gimloader.Libraries[T] {
         validate("libs.get", arguments, ["name", "string"]);
 
-        return LibManager.getExports(name);
+        return LibManager.getExports(name as string);
     }
 }
 

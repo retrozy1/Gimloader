@@ -22,10 +22,10 @@ class PluginsApi {
     }
 
     /** Gets the exported values of a plugin, if it has been enabled */
-    get(name: string) {
+    get<T extends keyof Gimloader.Plugins>(name: T): Gimloader.Plugins[T] {
         validate("plugins.get", arguments, ["name", "string"]);
 
-        return PluginManager.getExports(name);
+        return PluginManager.getExports(name as string);
     }
 
     /**

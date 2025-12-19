@@ -32,3 +32,13 @@ interface Window {
     /** @deprecated No longer supported */
     platformerPhysics: any;
 }
+
+declare namespace Gimloader {
+    interface Plugins {
+        [name: string]: any;
+    }
+
+    interface Libraries {
+        [name: string]: any;
+    }
+}
