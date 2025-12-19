@@ -61,7 +61,7 @@
         return options;
     });
 
-    function onKeydown(e: KeyboardEvent) {
+    function windowKeydown(e: KeyboardEvent) {
         if(!Commands.open) return;
 
         if(e.key === "ArrowDown") {
@@ -125,10 +125,18 @@
         };
     };
 
+    function inputKeydown(e: KeyboardEvent) {
+        e.stopPropagation();
+        
+        if(e.key === "Escape") {
+            Commands.open = false;
+        }
+    }
+
     const inputClass = "placeholder:text-muted-foreground outline-hidden flex h-10 w-full rounded-md py-3 text-sm";
 </script>
 
-<svelte:window onkeydown={onKeydown} />
+<svelte:window onkeydown={windowKeydown} />
 
 {#snippet item(text: string, index: number)}
     <button
@@ -150,7 +158,8 @@
     <Dialog.Content
         class="flex flex-col p-0 gap-0 overflow-hidden z-100"
         style="width: min(600px, 90vw)"
-        showCloseButton={false}>
+        showCloseButton={false}
+        onkeydown={inputKeydown}>
         {#if !Commands.action}
             <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8">
                 <Search class="size-4 shrink-0 opacity-50" />
