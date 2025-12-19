@@ -127,7 +127,7 @@
 
     function inputKeydown(e: KeyboardEvent) {
         e.stopPropagation();
-        
+
         if(e.key === "Escape") {
             Commands.open = false;
         }
