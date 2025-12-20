@@ -6,6 +6,7 @@
     import { computeCommandScore } from "bits-ui";
     import { watch } from "runed";
     import type { Action } from "svelte/action";
+    import { stopPropagation } from "svelte/legacy";
 
     let selectedIndex = $state(0);
     let searched = $state("");
@@ -125,14 +126,6 @@
         };
     };
 
-    function inputKeydown(e: KeyboardEvent) {
-        e.stopPropagation();
-
-        if(e.key === "Escape") {
-            Commands.open = false;
-        }
-    }
-
     const inputClass = "placeholder:text-muted-foreground outline-hidden flex h-10 w-full rounded-md py-3 text-sm";
 </script>
 
@@ -159,7 +152,7 @@
         class="flex flex-col p-0 gap-0 overflow-hidden z-100"
         style="width: min(600px, 90vw)"
         showCloseButton={false}
-        onkeydown={inputKeydown}>
+        stopPropagation={true}>
         {#if !Commands.action}
             <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8">
                 <Search class="size-4 shrink-0 opacity-50" />
