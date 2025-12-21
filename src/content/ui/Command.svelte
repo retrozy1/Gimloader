@@ -62,7 +62,7 @@
         return options;
     });
 
-    function windowKeydown(e: KeyboardEvent) {
+    function inputKeydown(e: KeyboardEvent) {
         if(!Commands.open) return;
 
         if(e.key === "ArrowDown") {
@@ -129,8 +129,6 @@
     const inputClass = "placeholder:text-muted-foreground outline-hidden flex h-10 w-full rounded-md py-3 text-sm";
 </script>
 
-<svelte:window onkeydown={windowKeydown} />
-
 {#snippet item(text: string, index: number)}
     <button
         use:makeVisible={index === selectedIndex}
@@ -161,6 +159,7 @@
                     bind:value={searched}
                     spellcheck={false}
                     class={inputClass}
+                    onkeydown={inputKeydown}
                 />
             </div>
             <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
@@ -180,6 +179,7 @@
                     bind:value={selectSearch}
                     spellcheck={false}
                     class={inputClass}
+                    onkeydown={inputKeydown}
                 />
             </div>
             <div class="max-h-80 scroll-py-1 overflow-y-auto overflow-x-hidden p-2">
@@ -195,6 +195,7 @@
                     spellcheck={false}
                     maxlength={Commands.action.options.maxLength}
                     class={inputClass}
+                    onkeydown={inputKeydown}
                 />
             </div>
         {:else}
@@ -208,6 +209,7 @@
                     min={Commands.action.options.min}
                     max={Commands.action.options.max}
                     step={Commands.action.options.decimal ? null : 1}
+                    onkeydown={inputKeydown}
                 />
             </div>
         {/if}
