@@ -13,6 +13,7 @@
     import ScriptTextOutline from "svelte-material-icons/ScriptTextOutline.svelte";
     import AlertTriangleOutline from "svelte-material-icons/AlertOutline.svelte";
     import Modals from "$content/core/modals.svelte";
+    import InformationOutline from "svelte-material-icons/InformationOutline.svelte";
 
     interface Props {
         startDrag: () => void;
@@ -50,7 +51,9 @@
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
             {library?.headers.name}
             {#if library?.headers.version}
-                <span class="text-sm">v{library?.headers.version}</span>
+                <span class="text-sm">
+                    v{library?.headers.version}
+                </span>
             {/if}
         </h2>
     {/snippet}

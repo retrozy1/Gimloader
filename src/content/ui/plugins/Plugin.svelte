@@ -74,7 +74,9 @@
         <h2 class="overflow-ellipsis overflow-hidden whitespace-nowrap grow text-xl font-bold! mb-0!">
             {plugin?.headers.name}
             {#if plugin?.headers.version}
-                <span class="text-sm">v{plugin?.headers.version}</span>
+                <span class="text-sm">
+                    v{plugin?.headers.version}
+                </span>
             {/if}
         </h2>
     {/snippet}
