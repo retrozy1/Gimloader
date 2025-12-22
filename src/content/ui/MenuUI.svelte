@@ -67,7 +67,6 @@
         ondragleave={() => modalDragCounter--}
         ondragover={(e) => e.preventDefault()}
         ondrop={onDrop}
-        stopPropagation={true}
         style="max-width: min(1280px, calc(100% - 32px))">
         {#if Port.disconnected}
             <div

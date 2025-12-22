@@ -149,8 +149,7 @@
     <Dialog.Content
         class="flex flex-col p-0 gap-0 overflow-hidden z-100"
         style="width: min(600px, 90vw)"
-        showCloseButton={false}
-        stopPropagation={true}>
+        showCloseButton={false}>
         {#if !Commands.action}
             <div class="flex h-9 items-center gap-2 border-b pl-3 pr-8">
                 <Search class="size-4 shrink-0 opacity-50" />
