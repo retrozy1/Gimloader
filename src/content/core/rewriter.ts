@@ -19,6 +19,12 @@ interface ParsedJs {
 // true = index only, false = anything
 type Prefix = string | boolean;
 
+export interface ParseModifier {
+    check?: string;
+    find: RegExp;
+    replace: string | ((substring: string, ...args: any[]) => string);
+}
+
 interface ParseHook {
     id?: string;
     prefix: Prefix;
@@ -32,6 +38,13 @@ interface RunInScope {
     id?: string;
     prefix: Prefix;
     callback: RunInScopeCallback;
+}
+
+export interface Exposer {
+    check?: string;
+    find: RegExp;
+    callback: (val: any) => void;
+    multiple?: boolean;
 }
 
 export default class Rewriter {
@@ -256,7 +269,26 @@ export default class Rewriter {
         }
     }
 
-    static addParseHook(pluginName: string | null, prefix: Prefix, callback: (code: string) => string) {
+    static addParseHook(pluginName: string | null, prefix: Prefix, modifier: ParseModifier | ((code: string) => string)) {
+        if(typeof modifier === "function") {
+            const object: ParseHook = { prefix, callback: modifier };
+            if(pluginName) object.id = pluginName;
+    
+            return splicer(this.parseHooks, object);
+        }
+
+        // Automatically create a callback
+        const callback = (code: string) => {
+            if(modifier.check && !code.includes(modifier.check)) return;
+
+            // Typescript can't figure this out for some reason
+            if(typeof modifier.replace === "string") {
+                return code.replace(modifier.find, modifier.replace);
+            } else {
+                return code.replace(modifier.find, modifier.replace);
+            }
+        }
+
         const object: ParseHook = { prefix, callback };
         if(pluginName) object.id = pluginName;
 
@@ -315,6 +347,28 @@ export default class Rewriter {
 
     static removeRunInScope(pluginName: string) {
         clearId(this.runInScopes, pluginName);
+    }
+
+    static exposeVar(pluginName: string | null, prefix: Prefix, exposer: Exposer) {
+        const id = crypto.randomUUID();
+        const shared = this.createShared(pluginName, id, exposer.callback);
+        let cancel = this.runInScope(pluginName, prefix, (code, evalCode) => {
+            if(exposer.check && !code.includes(exposer.check)) return;
+
+            let match = code.match(exposer.find);
+            if(!match) return;
+
+            const val = match[1] || match[0];
+            evalCode(`${shared}(${val});`);
+
+            if(exposer.multiple) return;
+            return true;
+        });
+
+        return () => {
+            this.removeSharedById(pluginName, id);
+            cancel();
+        }
     }
 
     static createMemoized(id: string, getter: () => any) {

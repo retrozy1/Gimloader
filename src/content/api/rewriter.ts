@@ -1,5 +1,24 @@
-import Rewriter, { type RunInScopeCallback } from "$core/rewriter";
+import Rewriter, { type Exposer, type ParseModifier, type RunInScopeCallback } from "$core/rewriter";
 import { validate } from "$content/utils";
+import * as z from "zod";
+
+const ParseModifierSchema = z.union([
+    z.function(),
+    z.object({
+        check: z.string().optional(),
+        find: z.instanceof(RegExp),
+        replace: z.union([z.string(), z.function()])
+    })
+]);
+
+const ParseHookModifier = z.union([z.function(), ParseModifierSchema]);
+
+const ExposerSchema = z.object({
+    check: z.string().optional(),
+    find: z.instanceof(RegExp),
+    callback: z.function(),
+    multiple: z.boolean().optional()
+});
 
 /**
  * The rewriter API allows you to modify the bundled code of Gimkit in order to expose values
@@ -27,12 +46,14 @@ class RewriterApi {
      * @param pluginName The name of the plugin creating the hook.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
-     * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
+     * @param modifier A function that will modify the code, which should return the modified code.
+     * Can also be an object or array of objects with regex `find` and `replace`, as well as a `check` string.
      */
-    addParseHook(pluginName: string, prefix: string | boolean, callback: (code: string) => string) {
-        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["callback", "function"]);
+    addParseHook(pluginName: string, prefix: string | boolean, modifier: ParseModifier | ((code: string) => string)) {
+        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"],
+            ["modifier", ParseHookModifier]);
 
-        return Rewriter.addParseHook(pluginName, prefix, callback);
+        return Rewriter.addParseHook(pluginName, prefix, modifier);
     }
 
     /** Removes all parse hooks created by a certain plugin */
@@ -76,7 +97,7 @@ class RewriterApi {
     runInScope(pluginName: string, prefix: string | boolean, callback: RunInScopeCallback) {
         validate("rewriter.runInScope", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["callback", "function"]);
 
-        Rewriter.runInScope(pluginName, prefix, callback);
+        return Rewriter.runInScope(pluginName, prefix, callback);
     }
 
     /** Stops all hooks created by {@link runInScope} */
@@ -84,6 +105,13 @@ class RewriterApi {
         validate("rewriter.removeRunInScopeHooks", arguments, ["pluginName", "string"]);
 
         Rewriter.removeRunInScope(pluginName);
+    }
+
+    /** A utility function that exposes a variable based on regex to get its name. */
+    exposeVar(pluginName: string, prefix: string | boolean, exposer: Exposer) {
+        validate("rewriter.exposeVar", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["exposer", ExposerSchema]);
+
+        return Rewriter.exposeVar(pluginName, prefix, exposer);
     }
 }
 
@@ -119,7 +147,7 @@ class ScopedRewriterApi {
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(prefix: string | boolean, callback: (code: string) => string) {
-        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
+        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", ParseHookModifier]);
 
         return Rewriter.addParseHook(this.id, prefix, callback);
     }
@@ -150,7 +178,14 @@ class ScopedRewriterApi {
     runInScope(prefix: string | boolean, callback: RunInScopeCallback) {
         validate("rewriter.runInScope", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
 
-        Rewriter.runInScope(this.id, prefix, callback);
+        return Rewriter.runInScope(this.id, prefix, callback);
+    }
+
+    /** A utility function that exposes a variable based on regex to get its name. */
+    exposeVar(prefix: string | boolean, exposer: Exposer) {
+        validate("rewriter.exposeVar", arguments, ["prefix", "string|boolean"], ["exposer", ExposerSchema]);
+
+        return Rewriter.exposeVar(this.id, prefix, exposer);
     }
 }
 
