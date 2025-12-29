@@ -1,5 +1,6 @@
 import SettingsHandler from "$bg/messageHandlers/settings";
 import Server from "$bg/net/server";
+import { parseScriptHeaders } from "$shared/parseHeader";
 
 export default class Poller {
     static enabled = false;
@@ -35,6 +36,14 @@ export default class Poller {
 
         if(!this.enabled) return;
         this.sendRequest();
-        await Server.trigger("editOrCreate", { code });
+
+        // This doesn't properly handle the plugin being renamed, but there's no good way to tell
+        // The difference between a plugin being renamed and the server switching which plugin its serving
+        // So this works well enough for now
+        const headers = parseScriptHeaders(code);
+        await Server.trigger("editOrCreate", {
+            code,
+            name: headers.name
+        });
     }
 }

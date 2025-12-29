@@ -2,3 +2,4 @@ Added rewriter.runInScope option to allow certain plugins to start without needi
 Fixed cache not being properly cleared sometimes
 Fixed some types in editor
 Fixed regression with new scripts being named "undefined"
+Fixed poller deleting and recreating plugin each time
