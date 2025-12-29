@@ -50,8 +50,7 @@ class RewriterApi {
      * Can also be an object or array of objects with regex `find` and `replace`, as well as a `check` string.
      */
     addParseHook(pluginName: string, prefix: string | boolean, modifier: ParseModifier | ((code: string) => string)) {
-        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"],
-            ["modifier", ParseHookModifier]);
+        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["modifier", ParseHookModifier]);
 
         return Rewriter.addParseHook(pluginName, prefix, modifier);
     }
