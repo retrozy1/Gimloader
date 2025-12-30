@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Zip source code
-        run: zip -r -x .git source.zip . -x ".git/*"
+        run: zip -r source.zip . -x ".git/*"
 
       - name: Install bun
         uses: oven-sh/setup-bun@v2
@@ -23,25 +23,44 @@ jobs:
         run: bun i --frozen-lockfile
 
       - name: Build for Firefox
-        run: bun run buildAllFirefox && zip -r firefox.zip ./extension/build
+        run: |
+          bun run buildAllFirefox
+          cd extension/build
+          zip -r ../../firefox.zip .
+
+      - name: Read release notes
+        id: read_notes
+        run: |
+          {
+            echo "notes<<EOF"
+            cat release-notes.txt
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
 
       - name: Release on AMO
-        uses: wdzeng/firefox-addon@v1
+        uses: browser-actions/release-firefox-addon@latest
         with:
-          addon-guid: gimloader@thelazysquid.github.io
-          xpi-path: firefox.zip
-          source-file-path: source.zip
-          approval-notes: |
+          addon-id: gimloader@thelazysquid.github.io
+          addon-path: firefox.zip
+          source-path: source.zip
+          approval-note: |
             To build from source:
             1. Install bun from bun.com
             2. bun i --frozen-lockfile
             3. bun run buildAllFirefox
             The extension will be output in ./extension/build
-          jwt-issuer: ${{ secrets.AMO_JWT_ISSUER }}
-          jwt-secret: ${{ secrets.AMO_JWT_SECRET }}
+          license: MIT
+          release-note: ${{ steps.read_notes.outputs.notes }}
+          auth-api-issuer: ${{ secrets.AMO_ISSUER }}
+          auth-api-secret: ${{ secrets.AMO_SECRET }}
 
       - name: Build for Chrome
-        run: bun run buildAllChrome && zip -r chrome.zip ./extension/build
+        run: |
+          bun run buildAll
+          cd extension/build
+          zip -r ../../chrome.zip .
 
       - name: Release on Chrome Webstore
         uses: mnao305/chrome-extension-upload@v5.0.0
