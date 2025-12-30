@@ -2581,12 +2581,6 @@ interface Exposer {
     multiple?: boolean;
 }
 
-interface ParseModifier {
-    check?: string;
-    find: RegExp;
-    replace: string | ((substring: string, ...args: any[]) => string);
-}
-
 class RewriterApi {
     /**
      * Creates a hook that will modify the code of a script before it is run.
@@ -2595,10 +2589,9 @@ class RewriterApi {
      * @param pluginName The name of the plugin creating the hook.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
-     * @param modifier A function that will modify the code, which should return the modified code.
-     * Can also be an object or array of objects with regex `find` and `replace`, as well as a `check` string.
+     * @param callback A function that will modify the code, which should return the modified code.
      */
-    addParseHook(pluginName: string, prefix: string | boolean, modifier: ParseModifier | ((code: string) => string)): () => void;
+    addParseHook(pluginName: string, prefix: string | boolean, modifier: (code: string) => string): () => void;
     /** Removes all parse hooks created by a certain plugin */
     removeParseHooks(pluginName: string): void;
     /**

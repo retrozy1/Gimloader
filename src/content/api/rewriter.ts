@@ -1,17 +1,6 @@
-import Rewriter, { type Exposer, type ParseModifier, type RunInScopeCallback } from "$core/rewriter";
+import Rewriter, { type Exposer, type RunInScopeCallback } from "$core/rewriter";
 import { validate } from "$content/utils";
 import * as z from "zod";
-
-const ParseModifierSchema = z.union([
-    z.function(),
-    z.object({
-        check: z.string().optional(),
-        find: z.instanceof(RegExp),
-        replace: z.union([z.string(), z.function()])
-    })
-]);
-
-const ParseHookModifier = z.union([z.function(), ParseModifierSchema]);
 
 const ExposerSchema = z.object({
     check: z.string().optional(),
@@ -46,11 +35,10 @@ class RewriterApi {
      * @param pluginName The name of the plugin creating the hook.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
-     * @param modifier A function that will modify the code, which should return the modified code.
-     * Can also be an object or array of objects with regex `find` and `replace`, as well as a `check` string.
+     * @param callback A function that will modify the code, which should return the modified code.
      */
-    addParseHook(pluginName: string, prefix: string | boolean, modifier: ParseModifier | ((code: string) => string)) {
-        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["modifier", ParseHookModifier]);
+    addParseHook(pluginName: string, prefix: string | boolean, modifier: (code: string) => string) {
+        validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["modifier", "function"]);
 
         return Rewriter.addParseHook(pluginName, prefix, modifier);
     }
@@ -146,7 +134,7 @@ class ScopedRewriterApi {
      * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
      */
     addParseHook(prefix: string | boolean, callback: (code: string) => string) {
-        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", ParseHookModifier]);
+        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
 
         return Rewriter.addParseHook(this.id, prefix, callback);
     }
