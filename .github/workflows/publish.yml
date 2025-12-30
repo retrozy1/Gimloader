@@ -33,7 +33,7 @@ jobs:
         run: |
           {
             echo "notes<<EOF"
-            cat release-notes.txt
+            cat release-notes.txt | sed 's/^/- /'
             echo
             echo EOF
           } >> "$GITHUB_OUTPUT"
