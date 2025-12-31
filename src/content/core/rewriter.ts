@@ -34,6 +34,7 @@ interface RunInScope {
     callback: RunInScopeCallback;
 }
 
+/** @inline */
 export interface Exposer {
     check?: string;
     find: RegExp;

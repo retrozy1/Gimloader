@@ -1,2 +1,3 @@
 Added api.requestReload method for scripts
 Fixed id property being accessible on api namespaces
+Fixed poller not showing toasts

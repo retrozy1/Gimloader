@@ -41,6 +41,8 @@ export default class Poller {
         // The difference between a plugin being renamed and the server switching which plugin its serving
         // So this works well enough for now
         const headers = parseScriptHeaders(code);
+        Server.send("toast", { type: "success", message: `Hot reloaded ${headers.name}` });
+        
         await Server.trigger("editOrCreate", {
             code,
             name: headers.name

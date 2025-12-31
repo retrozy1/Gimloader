@@ -35,7 +35,7 @@ class RewriterApi {
      * @param pluginName The name of the plugin creating the hook.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
-     * @param callback A function that will modify the code, which should return the modified code.
+     * @param modifier A function that will modify the code, which should return the modified code.
      */
     addParseHook(pluginName: string, prefix: string | boolean, modifier: (code: string) => string) {
         validate("rewriter.addParseHook", arguments, ["pluginName", "string"], ["prefix", "string|boolean"], ["modifier", "function"]);
@@ -135,12 +135,12 @@ class ScopedRewriterApi {
      * addParseHook should always be called in the top level of a script.
      * @param prefix Limits the hook to only running on scripts beginning with this prefix.
      * Passing `true` will only run on the index script, and passing `false` will run on all scripts.
-     * @param callback The function that will modify the code. Should return the modified code. Cannot have side effects.
+     * @param modifier A function that will modify the code, which should return the modified code.
      */
-    addParseHook(prefix: string | boolean, callback: (code: string) => string) {
-        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
+    addParseHook(prefix: string | boolean, modifier: (code: string) => string) {
+        validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["modifier", "function"]);
 
-        return Rewriter.addParseHook(this.#id, prefix, callback);
+        return Rewriter.addParseHook(this.#id, prefix, modifier);
     }
 
     /**
