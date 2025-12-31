@@ -43,7 +43,11 @@ class PatcherApi {
 }
 
 class ScopedPatcherApi {
-    constructor(private readonly id: string) {}
+    readonly #id: string;
+
+    constructor(id: string) {
+        this.#id = id;
+    }
 
     /**
      * Runs a callback after a function on an object has been run
@@ -52,7 +56,7 @@ class ScopedPatcherApi {
     after(object: any, method: string, callback: PatcherAfterCallback) {
         validate("patcher.after", arguments, ["object", "object"], ["method", "string"], ["callback", "function"]);
 
-        return Patcher.after(this.id, object, method, callback);
+        return Patcher.after(this.#id, object, method, callback);
     }
 
     /**
@@ -63,7 +67,7 @@ class ScopedPatcherApi {
     before(object: any, method: string, callback: PatcherBeforeCallback) {
         validate("patcher.after", arguments, ["object", "object"], ["method", "string"], ["callback", "function"]);
 
-        return Patcher.before(this.id, object, method, callback);
+        return Patcher.before(this.#id, object, method, callback);
     }
 
     /**
@@ -73,7 +77,7 @@ class ScopedPatcherApi {
     instead(object: any, method: string, callback: PatcherInsteadCallback) {
         validate("patcher.after", arguments, ["object", "object"], ["method", "string"], ["callback", "function"]);
 
-        return Patcher.instead(this.id, object, method, callback);
+        return Patcher.instead(this.#id, object, method, callback);
     }
 }
 

@@ -2492,7 +2492,7 @@ class LibsApi {
 }
 
 class ScopedCommandsApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(options: CommandOptions, callback: CommandCallback): () => void;
@@ -2542,7 +2542,7 @@ class CommandsApi {
 }
 
 class ScopedRewriterApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /**
      * Creates a hook that will modify the code of a script before it is run.
@@ -2571,7 +2571,7 @@ class ScopedRewriterApi {
     exposeVar(prefix: string | boolean, exposer: Exposer): () => void;
 }
 
-type RunInScopeCallback = (code: string, run: (evalCode: string) => void) => void | true;
+type RunInScopeCallback = (code: string, run: (evalCode: string) => void) => true | void;
 
 
 interface Exposer {
@@ -2618,7 +2618,7 @@ class RewriterApi {
 }
 
 class ScopedPatcherApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /**
      * Runs a callback after a function on an object has been run
@@ -2667,7 +2667,7 @@ class PatcherApi {
 }
 
 class ScopedStorageApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /** Gets a value that has previously been saved */
     getValue(key: string, defaultValue?: any): any;
@@ -2703,7 +2703,7 @@ class StorageApi {
 }
 
 class ScopedUIApi extends BaseUIApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /**
      * Adds a style to the DOM
@@ -2744,8 +2744,7 @@ class UIApi extends BaseUIApi {
 }
 
 class ScopedNetApi extends BaseNetApi {
-    private readonly id;
-    private readonly defaultGamemode;
+    #private;
     constructor(id: string, defaultGamemode: string[]);
     /**
      * Runs a callback when the game is loaded, or runs it immediately if the game has already loaded.
@@ -2873,7 +2872,7 @@ class ParcelApi extends BaseParcelApi {
 }
 
 class ScopedHotkeysApi extends BaseHotkeysApi {
-    private readonly id;
+    #private;
     constructor(id: string);
     /**
      * Adds a hotkey which will fire when certain keys are pressed
@@ -2973,6 +2972,7 @@ class HotkeysApi extends BaseHotkeysApi {
 }
 
 class Api {
+    #private;
     /**
      * @deprecated Gimkit has switched from Parcel to vite, rendering this api useless.
      * @hidden
@@ -3088,7 +3088,7 @@ class Api {
      * {@link https://ant.design/components/notification}
      */
     get notification(): any;
-    /** Run a callback when the plugin or library is disabled */
+    /** Run a callback when the script is disabled */
     onStop: (callback: () => void) => void;
     /**
      * Run a callback when the plugin's settings menu button is clicked
@@ -3096,6 +3096,8 @@ class Api {
      * This function is not available for libraries
      */
     openSettingsMenu: (callback: () => void) => void;
+    /** Display a modal to the user indicating that the script requires a reload */
+    requestReload: () => void;
 }
 interface Plugins {
     [name: string]: any;

@@ -123,7 +123,11 @@ class RewriterApi {
  * ```
  */
 class ScopedRewriterApi {
-    constructor(private readonly id: string) {}
+    readonly #id: string;
+
+    constructor(id: string) {
+        this.#id = id;
+    }
 
     /**
      * Creates a hook that will modify the code of a script before it is run.
@@ -136,7 +140,7 @@ class ScopedRewriterApi {
     addParseHook(prefix: string | boolean, callback: (code: string) => string) {
         validate("rewriter.addParseHook", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
 
-        return Rewriter.addParseHook(this.id, prefix, callback);
+        return Rewriter.addParseHook(this.#id, prefix, callback);
     }
 
     /**
@@ -148,14 +152,14 @@ class ScopedRewriterApi {
     createShared(id: string, value: any) {
         validate("rewriter.createShared", arguments, ["id", "string"], ["value", "any"]);
 
-        return Rewriter.createShared(this.id, id, value);
+        return Rewriter.createShared(this.#id, id, value);
     }
 
     /** Removes the shared value with a certain id created by {@link createShared} */
     removeSharedById(id: string) {
         validate("rewriter.removeSharedById", arguments, ["id", "string"]);
 
-        Rewriter.removeSharedById(this.id, id);
+        Rewriter.removeSharedById(this.#id, id);
     }
 
     /**
@@ -165,14 +169,14 @@ class ScopedRewriterApi {
     runInScope(prefix: string | boolean, callback: RunInScopeCallback) {
         validate("rewriter.runInScope", arguments, ["prefix", "string|boolean"], ["callback", "function"]);
 
-        return Rewriter.runInScope(this.id, prefix, callback);
+        return Rewriter.runInScope(this.#id, prefix, callback);
     }
 
     /** A utility function that exposes a variable based on regex to get its name. */
     exposeVar(prefix: string | boolean, exposer: Exposer) {
         validate("rewriter.exposeVar", arguments, ["prefix", "string|boolean"], ["exposer", ExposerSchema]);
 
-        return Rewriter.exposeVar(this.id, prefix, exposer);
+        return Rewriter.exposeVar(this.#id, prefix, exposer);
     }
 }
 

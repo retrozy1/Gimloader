@@ -179,8 +179,12 @@ class HotkeysApi extends BaseHotkeysApi {
 }
 
 class ScopedHotkeysApi extends BaseHotkeysApi {
-    constructor(private readonly id: string) {
+    readonly #id: string;
+
+    constructor(id: string) {
         super();
+
+        this.#id = id;
     }
 
     /**
@@ -190,7 +194,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
     addHotkey(options: HotkeyOptions, callback: KeyboardCallback) {
         validate("hotkeys.addHotkey", arguments, ["options", HotkeyOptionsSchema], ["callback", "function"]);
 
-        return Hotkeys.addHotkey(this.id, options, callback);
+        return Hotkeys.addHotkey(this.#id, options, callback);
     }
 
     /**
@@ -200,7 +204,7 @@ class ScopedHotkeysApi extends BaseHotkeysApi {
     addConfigurableHotkey(options: ConfigurableHotkeyOptions, callback: KeyboardCallback) {
         validate("hotkeys.addConfigurableHotkey", arguments, ["options", ConfigurableHotkeyOptionsSchema], ["callback", "function"]);
 
-        return Hotkeys.addConfigurableHotkey(`${this.id}-${options.category}-${options.title}`, options, callback, this.id);
+        return Hotkeys.addConfigurableHotkey(`${this.#id}-${options.category}-${options.title}`, options, callback, this.#id);
     }
 }
 

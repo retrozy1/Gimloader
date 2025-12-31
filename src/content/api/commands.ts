@@ -91,12 +91,16 @@ export class CommandsApi {
  * ```
  */
 export class ScopedCommandsApi {
-    constructor(private readonly id: string) {}
+    readonly #id: string;
+
+    constructor(id: string) {
+        this.#id = id;
+    }
 
     /** Adds a command to the user's command palette. Can request additional input within the callback. */
     addCommand(options: CommandOptions, callback: CommandCallback) {
         validate("commands.addCommand", arguments, ["options", CommandOptionsSchema], ["callback", "function"]);
 
-        return Commands.addCommand(this.id, options, callback);
+        return Commands.addCommand(this.#id, options, callback);
     }
 }

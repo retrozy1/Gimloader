@@ -179,8 +179,14 @@ class NetApi extends BaseNetApi {
  * ```
  */
 class ScopedNetApi extends BaseNetApi {
-    constructor(private readonly id: string, private readonly defaultGamemode: string[]) {
+    readonly #id: string;
+    readonly #defaultGamemode: string[];
+
+    constructor(id: string, defaultGamemode: string[]) {
         super();
+
+        this.#id = id;
+        this.#defaultGamemode = defaultGamemode;
     }
 
     /**
@@ -190,23 +196,23 @@ class ScopedNetApi extends BaseNetApi {
      */
     onLoad(callback: (type: ConnectionType, gamemode: string) => void, gamemode?: string | string[]) {
         validate("Net.onLoad", arguments, ["callback", "function"], ["gamemode?", GamemodeSchema]);
-        if(gamemode === undefined) gamemode = this.defaultGamemode;
+        if(gamemode === undefined) gamemode = this.#defaultGamemode;
 
-        return Net.pluginOnLoad(this.id, callback, gamemode);
+        return Net.pluginOnLoad(this.#id, callback, gamemode);
     }
 
     /** Runs a callback when a request is made that matches a certain path (can have wildcards) */
     modifyFetchRequest(path: string, callback: (options: RequesterOptions) => any) {
         validate("net.modifyFetchRequest", arguments, ["path", "string"], ["callback", "function"]);
 
-        return Net.modifyFetchRequest(this.id, path, callback);
+        return Net.modifyFetchRequest(this.#id, path, callback);
     }
 
     /** Runs a callback when a response is recieved for a request under a certain path (can have wildcards) */
     modifyFetchResponse(path: string, callback: (response: any) => any) {
         validate("net.modifyFetchResponse", arguments, ["path", "string"], ["callback", "function"]);
 
-        return Net.modifyFetchResponse(this.id, path, callback);
+        return Net.modifyFetchResponse(this.#id, path, callback);
     }
 }
 

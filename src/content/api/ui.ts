@@ -50,8 +50,12 @@ class UIApi extends BaseUIApi {
 }
 
 class ScopedUIApi extends BaseUIApi {
-    constructor(private readonly id: string) {
+    readonly #id: string;
+
+    constructor(id: string) {
         super();
+
+        this.#id = id;
     }
 
     /**
@@ -61,7 +65,7 @@ class ScopedUIApi extends BaseUIApi {
     addStyles(style: string) {
         validate("UI.removeStyles", arguments, ["style", "string"]);
 
-        return UI.addStyles(this.id, style);
+        return UI.addStyles(this.#id, style);
     }
 }
 

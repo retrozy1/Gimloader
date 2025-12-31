@@ -21,6 +21,7 @@ import Rewriter from "$core/rewriter";
 import createSettingsApi from "./settings";
 import Commands from "$content/core/commands.svelte";
 import { nop } from "$shared/utils";
+import Modals from "$content/core/modals.svelte";
 
 class Api {
     /**
@@ -133,8 +134,11 @@ class Api {
         return this.plugins;
     }
 
+    #id: string;
     constructor(type?: string, name?: string) {
         const scoped = setupScoped(type, name);
+        this.#id = scoped.id;
+
         this.onStop = scoped.onStop;
         this.openSettingsMenu = scoped.openSettingsMenu;
 
@@ -247,7 +251,7 @@ class Api {
         return GimkitInternals.notification;
     }
 
-    /** Run a callback when the plugin or library is disabled */
+    /** Run a callback when the script is disabled */
     onStop: (callback: () => void) => void;
 
     /**
@@ -256,6 +260,9 @@ class Api {
      * This function is not available for libraries
      */
     openSettingsMenu: (callback: () => void) => void;
+
+    /** Display a modal to the user indicating that the script requires a reload */
+    requestReload = () => Modals.addReloadNeeded(this.#id);
 }
 
 Object.freeze(Api);
