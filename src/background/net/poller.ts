@@ -42,7 +42,7 @@ export default class Poller {
         // So this works well enough for now
         const headers = parseScriptHeaders(code);
         Server.send("toast", { type: "success", message: `Hot reloaded ${headers.name}` });
-        
+
         await Server.trigger("editOrCreate", {
             code,
             name: headers.name
