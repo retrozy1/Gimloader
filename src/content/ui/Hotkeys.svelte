@@ -107,7 +107,7 @@
 
 <svelte:window onkeydown={onKeydown} />
 
-<div class="flex flex-col">
+<div class="flex flex-col max-h-full gap-2">
     <div class="grow overflow-y-auto grid gap-x-5 gap-y-1 pb-1" style="grid-template-columns: auto auto auto 1fr">
         {#if Object.keys(categories).length === 0}
             <h1 class="col-span-4 text-center font-bold text-3xl pt-5">There aren't any hotkeys!</h1>
@@ -149,9 +149,6 @@
                 </button>
                 <div></div>
             {/each}
-            {#if i > 0}
-                <div class="h-px bg-gray-200 col-span-4"></div>
-            {/if}
         {/each}
     </div>
     <div>
