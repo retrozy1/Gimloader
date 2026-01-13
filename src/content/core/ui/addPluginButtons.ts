@@ -57,6 +57,24 @@ export function addPluginButtons() {
         return code;
     });
 
+    // Add the wrench button to the homescreen when logged out
+    Rewriter.addParseHook(null, "App", (code) => {
+        const index = code.indexOf(`name:"far fa-gamepad"`);
+        if(index === -1) return;
+
+        const start = code.lastIndexOf("push(", index) + 5;
+        const end = code.indexOf("})})", index) + 3;
+        let insert = code.slice(start, end);
+
+        insert = insert.replace("Join Game", "Plugins");
+        insert = insert.replace("fa-gamepad", "fa-wrench gl-listButton");
+        insert = insert.replace('window.open("/join","_self")', `${openUI}()`);
+
+        code = code.slice(0, start) + insert + "," + code.slice(start);
+
+        return code;
+    });
+
     // Add the wrench button to the ingame 2d HUD
     Rewriter.addParseHook(null, "App", (code) => {
         const index = code.indexOf(`tooltip:"Sound"`);
@@ -203,5 +221,41 @@ export function addPluginButtons() {
             + `onClick:()=>${openUI}(),className:"gl-button"}),` + code.slice(insertIndex);
 
         return code;
+    });
+
+    // Add the button to the Draw That host screen
+    Rewriter.addParseHook(null, "index", (code) => {
+        const index = code.indexOf(".draw.background.play(),");
+        if(index === -1) return;
+
+        const start = code.indexOf('jsx("div",{children:', index) + 20;
+        const end = code.indexOf("})]})}),", start);
+        const soundItem = code.slice(start, end);
+
+        let pluginsItem = Rewriter.replaceBetween(soundItem, "title:`", "`,", "title:`Plugins`,");
+        pluginsItem = pluginsItem.replace("{title", '{className:"gl-button",title');
+        pluginsItem = Rewriter.replaceBetween(pluginsItem, "icon", ")", `icon:${createElement}("i",{className:"far fa-wrench"})`);
+        pluginsItem = Rewriter.replaceBetween(pluginsItem, "onClick:", "}", `onClick:()=>${openUI}()}`);
+
+        code = code.replace(soundItem, `[${pluginsItem},${soundItem}]`);
+        code = code.replace('.jsx("div",{children:[', '.jsx("div",{style:{display:"flex",gap:5},children:[');
+
+        return code;
+    });
+
+    // Add the button to the Draw That host ending screen
+    Rewriter.addParseHook(null, "index", (code) => {
+        const index = code.indexOf('children:"View Report"}):null,');
+        if(index === -1) return;
+
+        const start = code.indexOf("&&", index) + 2;
+        const end = code.indexOf(",", code.indexOf("View Drawings"));
+        let replace = code.slice(start, end);
+
+        replace = replace.replace("View Drawings", "Plugins");
+        replace = replace.replace("this.openDrawingModal", `()=>${openUI}()`);
+        replace = Rewriter.replaceBetween(replace, "icon", ")", `className:"gl-button",icon:${createElement}("i",{className:"far fa-wrench"})`);
+
+        return code.slice(0, index + 30) + `${replace},` + code.slice(index + 30);
     });
 }
