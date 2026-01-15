@@ -1,4 +1,5 @@
 # Gimloader
+[![Discord Support Server](https://img.shields.io/badge/Discord-Support_Server-5865F2?logo=discord)](https://discord.gg/qG3zrETuMH)
 
 Gimloader is a Gimkit plugin loader and manager, which allows you to modify the game to improve your experience. Gimloader comes with a variety of official plugins for things like freely moving your camera, timing speedruns, in-game chat, and much more.
 
