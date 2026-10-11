@@ -194,7 +194,7 @@ export default new class Net {
             };
         });
 
-        Rewriter.addParseHook(null, true, (code) => {
+        Rewriter.addParseHook(null, "utils-", (code) => {
             const index = code.indexOf("JSON.stringify({url");
             if(index === -1) return code;
 
@@ -202,7 +202,7 @@ export default new class Net {
             const end = code.indexOf("})}})}", index) + 6;
             const func = code.slice(start, end);
 
-            code = code.slice(0, start) + `${wrapRequester}(${func});` + code.slice(end);
+            code = code.slice(0, start) + `${wrapRequester}(${func})` + code.slice(end);
             return code;
         });
 
