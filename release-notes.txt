@@ -1,1 +1,2 @@
 Fixed buttons in tycoon modes still being missing
+Added developer option to disable script caching

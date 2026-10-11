@@ -74,6 +74,10 @@ export default class Rewriter {
             StateManager.apply("cacheInvalid", { invalid: false });
         }
 
+        StateManager.settings.on("disableCache", (value) => {
+            if(value) this.invalidate();
+        });
+
         Object.defineProperties(window, {
             "GLImport": {
                 value: this.import.bind(this),
@@ -142,9 +146,10 @@ export default class Rewriter {
         const existing = this.loadingSrcs.get(name);
         if(existing) return existing;
 
+        const disableCache = StateManager.settings.settings.value.disableCache;
         const promise = new Promise<string>(async (res) => {
             let parsed: ParsedJs | undefined;
-            if(!this.cleared && !skipPluginHooks) parsed = await get(name);
+            if(!this.cleared && !skipPluginHooks && !disableCache) parsed = await get(name);
 
             if(!parsed) {
                 const url = this.bundleHash
@@ -155,7 +160,7 @@ export default class Rewriter {
                 const js = await resp.text();
                 parsed = this.parse(js, name, root, skipPluginHooks);
 
-                if(!skipPluginHooks) set(name, parsed);
+                if(!skipPluginHooks && !disableCache) set(name, parsed);
             }
 
             const code = await this.prepareJs(parsed);
