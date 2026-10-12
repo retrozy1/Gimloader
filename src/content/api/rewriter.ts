@@ -7,16 +7,21 @@ const NonGlobalRegexSchema = z.instanceof(RegExp).refine((regex) => !regex.globa
 });
 
 const ExposeOptionsSchema = z.object({
+    /** A string which must be found in the file for regex to run */
     check: z.string().optional(),
+    /** Non-global regex with the first group being the name of the variable */
     find: NonGlobalRegexSchema,
     callback: z.function(),
     multiple: z.boolean().optional()
 });
 
 const SwapOptionsSchema = z.object({
+    /** A string which must be found in the file for regex to run */
     check: z.string().optional(),
+    /** Non-global regex with the first group being the name of the variable */
     find: NonGlobalRegexSchema,
     callback: z.function(),
+    /** Runs eval in the scope of the file on the result of callback, which should be a string */
     evalNew: z.boolean().optional()
 });
 
