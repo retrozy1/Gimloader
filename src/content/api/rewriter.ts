@@ -1,12 +1,19 @@
-import Rewriter, { type Exposer, type RunInScopeCallback } from "$core/rewriter";
+import Rewriter, { type ExposeVarOptions, type RunInScopeCallback, type SwapVarOptions } from "$core/rewriter";
 import { validate } from "$content/utils";
 import * as z from "zod";
 
-const ExposerSchema = z.object({
+const ExposeOptionsSchema = z.object({
     check: z.string().optional(),
     find: z.instanceof(RegExp),
     callback: z.function(),
     multiple: z.boolean().optional()
+});
+
+const SwapOptionsSchema = z.object({
+    check: z.string().optional(),
+    find: z.instanceof(RegExp),
+    callback: z.function(),
+    evalNew: z.boolean().optional()
 });
 
 /**
@@ -99,15 +106,34 @@ class RewriterApi {
      * api.rewriter.exposeVar("App", {
      *     check: "StringThatMustExistInFile",
      *     find: /let (\w+) = something/g,
-     *     multiple: false,
-     *     callback: (var) => console.log(var)
+     *     callback: (val) => console.log(val)
      * });
      * ```
      */
-    exposeVar(prefix: string | boolean, exposer: Exposer) {
-        validate("rewriter.exposeVar", arguments, ["prefix", "string|boolean"], ["exposer", ExposerSchema]);
+    exposeVar(prefix: string | boolean, options: ExposeVarOptions) {
+        validate("rewriter.exposeVar", arguments, ["prefix", "string|boolean"], ["options", ExposeOptionsSchema]);
 
-        return Rewriter.exposeVar(this.#id, prefix, exposer);
+        return Rewriter.exposeVar(this.#id, prefix, options);
+    }
+
+    /**
+     * A utility function that exposes a variable based on regex to get its name.
+     * @returns A function that removes the hook when called
+     * @example
+     * ```js
+     * api.rewriter.swapVar("App", {
+     *     check: "StringThatMustExistInFile",
+     *     find: /let (\w+) = something/g,
+     *     callback: (val) => {
+     *         return "newValue";
+     *     }
+     * });
+     * ```
+     */
+    swapVar(prefix: string | boolean, options: SwapVarOptions) {
+        validate("rewriter.swapVar", arguments, ["prefix", "string|boolean"], ["options", SwapOptionsSchema]);
+
+        return Rewriter.swapVar(this.#id, prefix, options);
     }
 }
 

@@ -38,11 +38,19 @@ interface RunInScope {
 }
 
 /** @inline */
-export interface Exposer {
+export interface ExposeVarOptions {
     check?: string;
     find: RegExp;
-    callback: (val: any) => void;
+    callback: (val: any, initial: boolean) => void;
     multiple?: boolean;
+}
+
+/** @inline */
+export interface SwapVarOptions {
+    check?: string;
+    find: RegExp;
+    callback: (val: any, initial: boolean) => any;
+    evalNew?: boolean;
 }
 
 export default class Rewriter {
@@ -330,8 +338,14 @@ export default class Rewriter {
         return `GLShared["${sharedId}"]`;
     }
 
-    static removeSharedById(pluginName: string, id: string) {
-        delete this.shared[`${pluginName}-${id}`];
+    static getShared(pluginName: string | null, id: string) {
+        if(pluginName) return this.shared[`${pluginName}-${id}`];
+        return this.shared[id];
+    }
+
+    static removeSharedById(pluginName: string | null, id: string) {
+        if(pluginName) delete this.shared[`${pluginName}-${id}`];
+        else delete this.shared[id];
     }
 
     static runInScope(pluginName: string | null, prefix: Prefix, callback: RunInScopeCallback) {
@@ -353,24 +367,63 @@ export default class Rewriter {
         return Cleanup.addCleanedUpItem(pluginName, this.runInScopes, object);
     }
 
-    static exposeVar(pluginName: string | null, prefix: Prefix, exposer: Exposer) {
+    static exposeVar(pluginName: string | null, prefix: Prefix, options: ExposeVarOptions) {
         const id = crypto.randomUUID();
-        const shared = this.createShared(pluginName, id, exposer.callback);
-        const cancel = this.runInScope(pluginName, prefix, (code, evalCode) => {
-            if(exposer.check && !code.includes(exposer.check)) return;
+        const shared = this.createShared(pluginName, id, options.callback);
+        const cancel = this.runInScope(pluginName, prefix, (code, evalCode, initial) => {
+            if(options.check && !code.includes(options.check)) return;
 
-            const match = code.match(exposer.find);
+            const match = code.match(options.find);
             if(!match) return;
 
             const val = match[1] || match[0];
-            evalCode(`${shared}(${val});`);
+            evalCode(`${shared}(${val},${initial});`);
 
-            if(exposer.multiple) return;
+            if(options.multiple) return;
             return true;
         });
 
         return () => {
             if(pluginName) this.removeSharedById(pluginName, id);
+            cancel();
+        };
+    }
+
+    static swapVar(pluginName: string | null, prefix: Prefix, options: SwapVarOptions) {
+        const originalId = crypto.randomUUID();
+        const original = this.createShared(pluginName, originalId, undefined);
+        let cleanup: () => void;
+
+        const cancel = this.runInScope(pluginName, prefix, (code, evalCode, initial) => {
+            if(options.check && !code.includes(options.check)) return;
+
+            const match = code.match(options.find);
+            if(!match) return;
+
+            const val = match[1] || match[0];
+            evalCode(`${original}=${val};`);
+
+            const originalVal = this.getShared(pluginName, originalId);
+            const newVal = options.callback(originalVal, initial);
+            const newId = crypto.randomUUID();
+            const newShared = this.createShared(pluginName, newId, newVal);
+
+            if(options.evalNew) evalCode(`${val}=eval(${newShared});`);
+            else evalCode(`${val}=${newShared};`);
+            this.removeSharedById(pluginName, newId);
+
+            cleanup = () => {
+                evalCode(`${val}=${original};`);
+                this.removeSharedById(pluginName, originalId);
+            };
+
+            if(pluginName) Cleanup.onFirst(pluginName, cleanup);
+
+            return true;
+        });
+
+        return () => {
+            cleanup?.();
             cancel();
         };
     }

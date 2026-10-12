@@ -1,9 +1,15 @@
 import EventEmitter3 from "eventemitter3";
 
 export default class Cleanup {
-    static onStopEvents = new EventEmitter3();
+    static firstEvents = new EventEmitter3();
     static events = new EventEmitter3();
+    static onStopEvents = new EventEmitter3();
     static cleanupDisabled = false;
+
+    static onFirst(id: string, callback: () => void) {
+        if(this.cleanupDisabled) return;
+        this.firstEvents.once(id, callback);
+    }
 
     static on(id: string, callback: () => void) {
         if(this.cleanupDisabled) return;
@@ -21,6 +27,7 @@ export default class Cleanup {
     static cleanup(id: string) {
         // onStop events need to go first since they might use things (eg createShared) that get cleaned up after
         this.onStopEvents.emit(id);
+        this.firstEvents.emit(id);
         this.events.emit(id);
     }
 
