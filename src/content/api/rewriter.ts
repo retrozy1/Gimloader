@@ -2,16 +2,20 @@ import Rewriter, { type ExposeVarOptions, type RunInScopeCallback, type SwapVarO
 import { validate } from "$content/utils";
 import * as z from "zod";
 
+const NonGlobalRegexSchema = z.instanceof(RegExp).refine((regex) => !regex.global, {
+    error: "Regex must not be global"
+});
+
 const ExposeOptionsSchema = z.object({
     check: z.string().optional(),
-    find: z.instanceof(RegExp),
+    find: NonGlobalRegexSchema,
     callback: z.function(),
     multiple: z.boolean().optional()
 });
 
 const SwapOptionsSchema = z.object({
     check: z.string().optional(),
-    find: z.instanceof(RegExp),
+    find: NonGlobalRegexSchema,
     callback: z.function(),
     evalNew: z.boolean().optional()
 });
