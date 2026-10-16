@@ -10,6 +10,7 @@ import Cleanup from "$core/scripts/cleanup";
 export default class UI {
     static React: typeof React;
     static ReactDOM: typeof ReactDOM;
+    static isForcingUpdate = false;
 
     static init() {
         Rewriter.exposeExports("react-", "React", ".version=", (react: typeof React) => {
@@ -20,10 +21,26 @@ export default class UI {
             this.ReactDOM = reactDOM;
         });
 
+        let stopForceTimeoutSet = false;
+        const isForcingUpdate = Rewriter.createShared(null, "isForcingUpdate", () => {
+            if(!this.isForcingUpdate) return false;
+            if(stopForceTimeoutSet) return true;
+
+            stopForceTimeoutSet = true;
+            setTimeout(() => {
+                stopForceTimeoutSet = false;
+                this.isForcingUpdate = false;
+            }, 0);
+
+            return true;
+        });
+
         // Make react treat [function].__overrideReact as the component
         Rewriter.addParseHook(null, "assertThisInitialized-", (code) => {
             const index = code.indexOf("(301));");
             if(index === -1) return code;
+
+            code = code.replace(/(.!==null&&!.)(\?\(.\.updateQueue=.\.updateQueue)/g, `$1&&!${isForcingUpdate}()$2`);
 
             const startIndex = code.indexOf("=", code.lastIndexOf(":", index)) + 1;
             const endIndex = code.indexOf("(", startIndex);
@@ -62,20 +79,40 @@ export default class UI {
         }, 0);
     }
 
+    static rootFiber: any = null;
     static rootStateNode: any = null;
+    static seenNodes = new Set<any>();
     static runForceReactUpdate() {
-        const stateNode = this.rootStateNode ?? this.findStateNode();
-        if(!stateNode) throw new Error("forceReactUpdate called before DOM has loaded");
+        if(!this.rootFiber || !this.rootStateNode) {
+            this.rootFiber ??= this.findRootFiber();
+            this.rootStateNode ??= this.findStateNode(this.rootFiber);
+        }
 
-        const render = stateNode.render;
-        stateNode.render = () => {
-            stateNode.render = render;
-        };
+        if(!this.rootStateNode || !this.rootFiber) throw new Error("forceReactUpdate called before DOM has loaded");
 
-        stateNode.forceUpdate(() => stateNode.forceUpdate());
+        this.isForcingUpdate = true;
+        this.seenNodes.clear();
+        this.markPaths(this.rootFiber);
+        this.seenNodes.clear();
+
+        // @ts-expect-error missing for some reason
+        this.ReactDOM.flushSync(() => this.rootStateNode.forceUpdate());
     }
 
-    static findStateNode() {
+    static markPaths(fiber: any) {
+        if(!fiber || this.seenNodes.has(fiber)) return;
+        this.seenNodes.add(fiber);
+
+        fiber.lanes |= 2;
+        fiber.childLanes |= 2;
+
+        this.markPaths(fiber.alternate);
+        this.markPaths(fiber.child);
+        this.markPaths(fiber.sibling);
+        this.markPaths(fiber.return);
+    }
+
+    static findRootFiber() {
         const root = document.getElementById("root");
         if(!root) return;
 
@@ -85,7 +122,11 @@ export default class UI {
         const key = Object.keys(child).find(k => k.startsWith("__reactFiber$"));
         if(!key) return;
 
-        let current = child[key];
+        return child[key];
+    }
+
+    static findStateNode(fiber: any) {
+        let current = fiber;
         while(current?.return) {
             current = current.return;
             const stateNode = current.stateNode;
