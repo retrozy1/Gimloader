@@ -4,7 +4,6 @@ import styles from "$content/css/styles.css";
 import tailwindStyles from "$content/css/tailwind.css";
 import { domLoaded } from "$content/utils";
 import Rewriter from "../rewriter";
-import fixCanvasCrash from "./fixCanvasCrash";
 import Cleanup from "$core/scripts/cleanup";
 
 export default class UI {
@@ -49,7 +48,6 @@ export default class UI {
             return code.slice(0, startIndex) + `(${funcName}.__overrideReact??${funcName})` + code.slice(endIndex);
         });
 
-        fixCanvasCrash();
         this.addCoreStyles();
     }
 
