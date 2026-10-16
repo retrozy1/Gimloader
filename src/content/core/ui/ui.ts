@@ -20,6 +20,18 @@ export default class UI {
             this.ReactDOM = reactDOM;
         });
 
+        // Make react treat [function].__overrideReact as the component
+        Rewriter.addParseHook(null, "assertThisInitialized-", (code) => {
+            const index = code.indexOf("(301));");
+            if(index === -1) return code;
+
+            const startIndex = code.indexOf("=", code.lastIndexOf(":", index)) + 1;
+            const endIndex = code.indexOf("(", startIndex);
+            const funcName = code.slice(startIndex, endIndex);
+
+            return code.slice(0, startIndex) + `(${funcName}.__overrideReact??${funcName})` + code.slice(endIndex);
+        });
+
         fixCanvasCrash();
         this.addCoreStyles();
     }
