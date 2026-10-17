@@ -1,20 +1,48 @@
 import { nop } from "$shared/utils";
-import type { FunctionKeys, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherSwapCallback } from "$types/api/patcher";
+import type { BaseFunction, FunctionKeys, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherSwapCallback } from "$types/api/patcher";
 import Cleanup from "./scripts/cleanup";
 
-type Patch =
-    | { callback: PatcherBeforeCallback<any>; type: "before" }
-    | { callback: PatcherAfterCallback<any>; type: "after" }
-    | { callback: PatcherInsteadCallback<any>; type: "instead" }
-    | { callback: PatcherSwapCallback<any>; type: "swap" };
+export interface PatchOptions {
+    once?: boolean;
+}
+
+export interface BasePatch extends PatchOptions {
+    cleanup?: () => void;
+}
+
+export interface BeforePatch extends BasePatch {
+    type: "before";
+    callback: PatcherBeforeCallback<any>;
+}
+
+export interface AfterPatch extends BasePatch {
+    type: "after";
+    callback: PatcherAfterCallback<any>;
+}
+
+export interface InsteadPatch extends BasePatch {
+    type: "instead";
+    callback: PatcherInsteadCallback<any>;
+}
+
+export interface SwapPatch extends BasePatch {
+    type: "swap";
+    callback: PatcherSwapCallback<any>;
+}
+
+type Patch = BeforePatch | AfterPatch | InsteadPatch | SwapPatch;
 
 interface PatchedProperty {
     original: any;
     patches: Patch[];
 }
 
+const originalSymbol = Symbol("originalFunction");
+const patchesSymbol = Symbol("patches");
+
 export default class Patcher {
     static patches = new WeakMap<object, Map<PropertyKey, PatchedProperty>>();
+    static reactPatches = new WeakMap<BaseFunction, Patch[]>();
 
     static applyPatches(object: any, property: PropertyKey) {
         const properties = this.patches.get(object);
@@ -24,11 +52,45 @@ export default class Patcher {
         if(!patches) return;
 
         delete object[property];
+        const reapply = this.applyPatches.bind(this, object, property);
 
         if(patches.patches.length === 0) {
             object[property] = patches.original;
+            this.applyReactPatches(patches.original, patches.original);
+            return;
+        }
+
+        const newFunction = createPatchedFunction(patches.patches, patches.original, reapply) as any;
+
+        // copy over prototypes and attributes
+        for(const key of Object.getOwnPropertyNames(patches.original)) {
+            try {
+                newFunction[key] = patches.original[key];
+            } catch {}
+        }
+
+        Object.setPrototypeOf(newFunction, Object.getPrototypeOf(patches.original));
+        newFunction.toString = () => patches.original.toString();
+
+        // Show what the patches/original were for react patching and debugging
+        newFunction[originalSymbol] = patches.original;
+        newFunction[patchesSymbol] = patches;
+
+        this.applyReactPatches(newFunction, patches.original);
+        object[property] = newFunction;
+    }
+
+    static applyReactPatches(component: any, original: any) {
+        const patches = this.reactPatches.get(original);
+        if(!patches) return;
+
+        const reapply = this.applyReactPatches.bind(this, component, original);
+
+        if(patches.length === 0) {
+            delete component.__overrideReact;
+            delete original.__overrideReact;
         } else {
-            object[property] = createPatch(patches.patches, patches.original);
+            component.__overrideReact = createPatchedFunction(patches, original, reapply);
         }
     }
 
@@ -48,7 +110,7 @@ export default class Patcher {
         patches.patches.push(patch);
         this.applyPatches(object, property);
 
-        return Cleanup.manualOrAutoCleanup(id, () => {
+        const cleanup = Cleanup.manualOrAutoCleanup(id, () => {
             const index = patches.patches.indexOf(patch);
             if(index === -1) return;
 
@@ -61,15 +123,44 @@ export default class Patcher {
             if(properties.size > 0) return;
             this.patches.delete(object);
         });
+
+        patch.cleanup = cleanup;
+        return cleanup;
+    }
+
+    static addReactPatch(id: string | null, component: any, patch: Patch) {
+        const originalFunction = component[originalSymbol] ?? component;
+        if(!this.reactPatches.has(originalFunction)) this.reactPatches.set(originalFunction, []);
+
+        const patches = this.reactPatches.get(originalFunction);
+        if(!patches) return nop;
+
+        patches.push(patch);
+        this.applyReactPatches(component, originalFunction);
+
+        const cleanup = Cleanup.manualOrAutoCleanup(id, () => {
+            const index = patches.indexOf(patch);
+            if(index === -1) return;
+
+            patches.splice(index, 1);
+            this.applyReactPatches(component, originalFunction);
+
+            if(patches.length > 0) return;
+            this.reactPatches.delete(originalFunction);
+        });
+
+        patch.cleanup = cleanup;
+        return cleanup;
     }
 
     static after<O extends object, K extends FunctionKeys<O>>(
         id: string | null,
         object: O,
         property: K,
-        callback: PatcherAfterCallback<O[K]>
+        callback: PatcherAfterCallback<O[K]>,
+        options: PatchOptions = {}
     ) {
-        const patch: Patch = { callback, type: "after" };
+        const patch: Patch = { ...options, callback, type: "after" };
 
         return this.addPatch(id, object, property, patch);
     }
@@ -78,9 +169,10 @@ export default class Patcher {
         id: string | null,
         object: O,
         property: K,
-        callback: PatcherBeforeCallback<O[K]>
+        callback: PatcherBeforeCallback<O[K]>,
+        options: PatchOptions = {}
     ) {
-        const patch: Patch = { callback, type: "before" };
+        const patch: Patch = { ...options, callback, type: "before" };
 
         return this.addPatch(id, object, property, patch);
     }
@@ -89,9 +181,10 @@ export default class Patcher {
         id: string | null,
         object: O,
         property: K,
-        callback: PatcherInsteadCallback<O[K]>
+        callback: PatcherInsteadCallback<O[K]>,
+        options: PatchOptions = {}
     ) {
-        const patch: Patch = { callback, type: "instead" };
+        const patch: Patch = { ...options, callback, type: "instead" };
 
         return this.addPatch(id, object, property, patch);
     }
@@ -100,19 +193,62 @@ export default class Patcher {
         id: string | null,
         object: O,
         property: K,
-        callback: PatcherSwapCallback<O[K]>
+        callback: PatcherSwapCallback<O[K]>,
+        options: PatchOptions = {}
     ) {
-        const patch: Patch = { callback, type: "swap" };
+        const patch: Patch = { ...options, callback, type: "swap" };
 
         return this.addPatch(id, object, property, patch);
     }
+
+    static afterReact<F extends BaseFunction>(
+        id: string | null,
+        component: F,
+        callback: PatcherAfterCallback<F>,
+        options: PatchOptions = {}
+    ) {
+        const patch: Patch = { ...options, callback, type: "after" };
+
+        return this.addReactPatch(id, component, patch);
+    }
+
+    static beforeReact<F extends BaseFunction>(
+        id: string | null,
+        component: F,
+        callback: PatcherBeforeCallback<F>,
+        options: PatchOptions = {}
+    ) {
+        const patch: Patch = { ...options, callback, type: "before" };
+
+        return this.addReactPatch(id, component, patch);
+    }
+
+    static insteadReact<F extends BaseFunction>(
+        id: string | null,
+        component: F,
+        callback: PatcherBeforeCallback<F>,
+        options: PatchOptions = {}
+    ) {
+        const patch: Patch = { ...options, callback, type: "before" };
+
+        return this.addReactPatch(id, component, patch);
+    }
+
+    static swapReact<F extends BaseFunction>(
+        id: string | null,
+        component: F,
+        callback: PatcherSwapCallback<F>,
+        options: PatchOptions = {}
+    ) {
+        const patch: Patch = { ...options, callback, type: "swap" };
+
+        return this.addReactPatch(id, component, patch);
+    }
 }
 
-const originalSymbol = Symbol("originalFunction");
-const patchesSymbol = Symbol("patches");
-
-function createPatch(patches: Patch[], original: any) {
-    const newFunction = function PatchedFunction(this: any) {
+function createPatchedFunction(patches: Patch[], original: any, reapply: () => void) {
+    return function PatchedFunction(this: any) {
+        const initialNumPatches = patches.length;
         let shouldRunOriginal = true;
         let returnValue: any;
         let patchIndex = patches.length - 1;
@@ -120,10 +256,19 @@ function createPatch(patches: Patch[], original: any) {
         // Run patches in reverse order
         for(; patchIndex >= 0; patchIndex--) {
             const patch = patches[patchIndex];
+            if(patch.type === "after") continue;
+
+            if(patch.once) {
+                patches.splice(patchIndex, 1);
+                patch.cleanup?.();
+            }
 
             if(patch.type === "before") {
                 const cancel = patch.callback(this, arguments as any);
-                if(cancel) return;
+                if(cancel) {
+                    if(patches.length !== initialNumPatches) reapply();
+                    return;
+                }
             } else if(patch.type === "instead") {
                 returnValue = patch.callback(this, arguments as any);
                 shouldRunOriginal = false;
@@ -143,28 +288,17 @@ function createPatch(patches: Patch[], original: any) {
             const patch = patches[patchIndex];
             if(patch.type !== "after") continue;
 
+            if(patch.once) {
+                patches.splice(patchIndex, 1);
+                patch.cleanup?.();
+                patchIndex--;
+            }
+
             const newReturn = patch.callback(this, arguments as any, returnValue);
             if(newReturn) returnValue = newReturn;
         }
 
+        if(patches.length !== initialNumPatches) reapply();
         return returnValue;
-    } as any;
-
-    // copy over prototypes and attributes
-    for(const key of Object.getOwnPropertyNames(original)) {
-        try {
-            newFunction[key] = original[key];
-        } catch {}
-    }
-
-    Object.setPrototypeOf(newFunction, Object.getPrototypeOf(original));
-
-    // copy toString from the original
-    newFunction.toString = () => original.toString();
-
-    // Show what the patches/original were for debugging
-    newFunction[originalSymbol] = original;
-    newFunction[patchesSymbol] = patches;
-
-    return newFunction;
+    };
 }

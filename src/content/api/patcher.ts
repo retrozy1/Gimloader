@@ -1,6 +1,11 @@
-import type { FunctionKeys, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherSwapCallback } from "$types/api/patcher";
-import Patcher from "$core/patcher";
+import type { BaseFunction, FunctionKeys, PatcherAfterCallback, PatcherBeforeCallback, PatcherInsteadCallback, PatcherSwapCallback } from "$types/api/patcher";
+import Patcher, { type PatchOptions } from "$core/patcher";
 import { validate } from "$content/utils";
+import * as z from "zod";
+
+const PatchOptionsSchema = z.strictObject({
+    once: z.boolean().optional()
+});
 
 function checkMethod(fnName: string, object: object, method: PropertyKey) {
     const type = typeof object?.[method as keyof typeof object];
@@ -33,12 +38,13 @@ class PatcherApi {
     after<O extends object, K extends FunctionKeys<O>>(
         object: O,
         method: K,
-        callback: PatcherAfterCallback<O[K]>
+        callback: PatcherAfterCallback<O[K]>,
+        options?: PatchOptions
     ) {
-        validate("patcher.after", arguments, ["object", "any"], ["method", "string"], ["callback", "function"]);
+        validate("patcher.after", arguments, ["object", "any"], ["method", "string"], ["callback", "function"], ["options?", PatchOptionsSchema]);
         checkMethod("patcher.after", object, method);
 
-        return Patcher.after(this.#id, object, method, callback);
+        return Patcher.after(this.#id, object, method, callback, options);
     }
 
     /**
@@ -58,12 +64,13 @@ class PatcherApi {
     before<O extends object, K extends FunctionKeys<O>>(
         object: O,
         method: K,
-        callback: PatcherBeforeCallback<O[K]>
+        callback: PatcherBeforeCallback<O[K]>,
+        options?: PatchOptions
     ) {
-        validate("patcher.before", arguments, ["object", "any"], ["method", "string"], ["callback", "function"]);
+        validate("patcher.before", arguments, ["object", "any"], ["method", "string"], ["callback", "function"], ["options?", PatchOptionsSchema]);
         checkMethod("patcher.before", object, method);
 
-        return Patcher.before(this.#id, object, method, callback);
+        return Patcher.before(this.#id, object, method, callback, options);
     }
 
     /**
@@ -82,12 +89,13 @@ class PatcherApi {
     instead<O extends object, K extends FunctionKeys<O>>(
         object: O,
         method: K,
-        callback: PatcherInsteadCallback<O[K]>
+        callback: PatcherInsteadCallback<O[K]>,
+        options?: PatchOptions
     ) {
-        validate("patcher.instead", arguments, ["object", "any"], ["method", "string"], ["callback", "function"]);
+        validate("patcher.instead", arguments, ["object", "any"], ["method", "string"], ["callback", "function"], ["options?", PatchOptionsSchema]);
         checkMethod("patcher.instead", object, method);
 
-        return Patcher.instead(this.#id, object, method, callback);
+        return Patcher.instead(this.#id, object, method, callback, options);
     }
 
     /**
@@ -106,12 +114,82 @@ class PatcherApi {
     swap<O extends object, K extends FunctionKeys<O>>(
         object: O,
         method: K,
-        callback: PatcherSwapCallback<O[K]>
+        callback: PatcherSwapCallback<O[K]>,
+        options?: PatchOptions
     ) {
-        validate("patcher.swap", arguments, ["object", "any"], ["method", "string"], ["callback", "function"]);
+        validate("patcher.swap", arguments, ["object", "any"], ["method", "string"], ["callback", "function"], ["options?", PatchOptionsSchema]);
         checkMethod("patcher.swap", object, method);
 
-        return Patcher.swap(this.#id, object, method, callback);
+        return Patcher.swap(this.#id, object, method, callback, options);
+    }
+
+    /**
+     * Runs a callback after a React component has been run without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.afterReact(ReactComponent, (thisVal, args, returnVal) => {
+     *     console.log("Came after:", returnVal); // Logs once the component is rendered
+     * });
+     * ```
+     */
+    afterReact<F extends BaseFunction>(component: F, callback: PatcherAfterCallback<F>, options?: PatchOptions) {
+        validate("patcher.afterReact", arguments, ["func", "function"], ["callback", "function"], ["options?", PatchOptionsSchema]);
+
+        return Patcher.afterReact(this.#id, component, callback, options);
+    }
+
+    /**
+     * Runs a callback before a React component is run without changing the reference to the original component.
+     * Return true from the callback to prevent the component from running
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.beforeReact(ReactComponent, (thisVal, args) => {
+     *     console.log("Came before:", args); // Logs before the component is rendered
+     * });
+     * ```
+     */
+    beforeReact<F extends BaseFunction>(component: F, callback: PatcherBeforeCallback<F>, options?: PatchOptions) {
+        validate("patcher.beforeReact", arguments, ["func", "function"], ["callback", "function"], ["options?", PatchOptionsSchema]);
+
+        return Patcher.beforeReact(this.#id, component, callback, options);
+    }
+
+    /**
+     * Runs a callback instead of a React component without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.insteadReact(ReactComponent, (thisVal, args) => {
+     *     return GL.React.createElement("div", null, "New component!");
+     * });
+     * ```
+     */
+    insteadReact<F extends BaseFunction>(component: F, callback: PatcherInsteadCallback<F>, options?: PatchOptions) {
+        validate("patcher.insteadReact", arguments, ["func", "function"], ["callback", "function"], ["options?", PatchOptionsSchema]);
+
+        return Patcher.insteadReact(this.#id, component, callback, options);
+    }
+
+    /**
+     * Swaps a React component with another React component without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.insteadReact(ReactComponent, (arg1, arg2) => {
+     *     return GL.React.createElement("div", null, "New component!");
+     * });
+     * ```
+     */
+    swapReact<F extends BaseFunction>(component: F, callback: PatcherSwapCallback<F>, options?: PatchOptions) {
+        validate("patcher.swapReact", arguments, ["func", "function"], ["callback", "function"], ["options?", PatchOptionsSchema]);
+
+        return Patcher.swapReact(this.#id, component, callback, options);
     }
 }
 Object.freeze(PatcherApi);

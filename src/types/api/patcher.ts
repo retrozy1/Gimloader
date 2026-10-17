@@ -1,4 +1,5 @@
-type BaseFunction = (...args: any[]) => any;
+/** @inline */
+export type BaseFunction = (...args: any[]) => any;
 
 export type FunctionKeys<T> = keyof {
     [K in keyof T as T[K] extends BaseFunction ? K : never]: T[K];

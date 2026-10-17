@@ -1757,8 +1757,6 @@ type Untyped = any;
 type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never;
 type IsAny<T> = 0 extends (1 & T) ? true : false;
 type IsUnion<T, U extends T = T> = (T extends any ? (U extends T ? false : true) : never) extends false ? false : true;
-interface EmptyObject {
-}
 
 namespace ClassicStores {
     interface LastDrawRound {
@@ -9617,7 +9615,7 @@ type ExtractSettingObject<T extends SettingItem> = IsAny<T> extends true ? {
     [key: string]: any;
 } : IsUnion<T> extends true ? {
     [key: string]: any;
-} : T extends TranscludeSetting ? EmptyObject : T extends SettingGroup ? ExtractSettingObject<T["settings"][number]> : T extends ToggleSettingGroup<infer Id> ? ExtractSettingObject<T["settings"][number]> | {
+} : T extends TranscludeSetting ? {} : T extends SettingGroup ? ExtractSettingObject<T["settings"][number]> : T extends ToggleSettingGroup<infer Id> ? ExtractSettingObject<T["settings"][number]> | {
     [K in Id]: boolean;
 } : T extends PluginSetting<infer Id> ? {
     [K in Id]: DescriptionToReturnType<T>;
@@ -9755,11 +9753,18 @@ class HotkeysApi {
 /** @inline */
 type RunInScopeCallback = (code: string, run: (evalCode: string) => any, initial: boolean) => true | void;
 /** @inline */
-interface Exposer {
+interface ExposeVarOptions {
     check?: string;
     find: RegExp;
-    callback: (val: any) => void;
+    callback: (val: any, initial: boolean) => void;
     multiple?: boolean;
+}
+/** @inline */
+interface SwapVarOptions {
+    check?: string;
+    find: RegExp;
+    callback: (val: any, initial: boolean) => any;
+    evalNew?: boolean;
 }
 
 /**
@@ -9827,13 +9832,27 @@ class RewriterApi {
      * ```js
      * api.rewriter.exposeVar("App", {
      *     check: "StringThatMustExistInFile",
-     *     find: /let (\w+) = something/g,
-     *     multiple: false,
-     *     callback: (var) => console.log(var)
+     *     find: /let (\w+) = something/,
+     *     callback: (val) => console.log(val)
      * });
      * ```
      */
-    exposeVar(prefix: string | boolean, exposer: Exposer): () => void;
+    exposeVar(prefix: string | boolean, options: ExposeVarOptions): () => void;
+    /**
+     * A utility function that exposes a variable based on regex to get its name.
+     * @returns A function that removes the hook when called
+     * @example
+     * ```js
+     * api.rewriter.swapVar("App", {
+     *     check: "StringThatMustExistInFile",
+     *     find: /let (\w+) = something/,
+     *     callback: (val) => {
+     *         return "newValue";
+     *     }
+     * });
+     * ```
+     */
+    swapVar(prefix: string | boolean, options: SwapVarOptions): () => void;
 }
 
 namespace Schema {
@@ -11190,6 +11209,7 @@ class StorageApi {
     onChange(key: string, callback: ValueChangeCallback): () => void;
 }
 
+/** @inline */
 type BaseFunction = (...args: any[]) => any;
 type FunctionKeys<T> = keyof {
     [K in keyof T as T[K] extends BaseFunction ? K : never]: T[K];
@@ -11202,6 +11222,10 @@ type PatcherBeforeCallback<T> = (thisVal: any, args: T extends BaseFunction ? Pa
 type PatcherInsteadCallback<T> = (thisVal: any, args: T extends BaseFunction ? Parameters<T> : any[]) => any;
 /** @inline */
 type PatcherSwapCallback<T> = (...args: T extends BaseFunction ? Parameters<T> : any[]) => any;
+
+interface PatchOptions {
+    once?: boolean;
+}
 
 /** Functions for intercepting the arguments and return values of functions */
 class PatcherApi {
@@ -11220,7 +11244,7 @@ class PatcherApi {
      * object.method(); // Logs "Came after: 100"
      * ```
      */
-    after<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherAfterCallback<O[K]>): () => void;
+    after<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherAfterCallback<O[K]>, options?: PatchOptions): () => void;
     /**
      * Runs a callback before a function on an object has been run.
      * Return true from the callback to prevent the function from running
@@ -11235,7 +11259,7 @@ class PatcherApi {
      * object.method(5, 6); // Logs "Came before: [5, 6]"
      * ```
      */
-    before<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherBeforeCallback<O[K]>): () => void;
+    before<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherBeforeCallback<O[K]>, options?: PatchOptions): () => void;
     /**
      * Runs a function instead of a function on an object
      * @returns A function to remove the patch
@@ -11249,7 +11273,7 @@ class PatcherApi {
      * console.log(object.method(5, 6)); // Logs "11" instead of "100"
      * ```
      */
-    instead<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherInsteadCallback<O[K]>): () => void;
+    instead<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherInsteadCallback<O[K]>, options?: PatchOptions): () => void;
     /**
      * Replaces a function on an object with another function
      * @returns A function to remove the patch
@@ -11263,7 +11287,56 @@ class PatcherApi {
      * console.log(object.method(5, 6)); // Logs "11" instead of "100"
      * ```
      */
-    swap<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherSwapCallback<O[K]>): () => void;
+    swap<O extends object, K extends FunctionKeys<O>>(object: O, method: K, callback: PatcherSwapCallback<O[K]>, options?: PatchOptions): () => void;
+    /**
+     * Runs a callback after a React component has been run without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.afterReact(ReactComponent, (thisVal, args, returnVal) => {
+     *     console.log("Came after:", returnVal); // Logs once the component is rendered
+     * });
+     * ```
+     */
+    afterReact<F extends BaseFunction>(component: F, callback: PatcherAfterCallback<F>, options?: PatchOptions): () => void;
+    /**
+     * Runs a callback before a React component is run without changing the reference to the original component.
+     * Return true from the callback to prevent the component from running
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.beforeReact(ReactComponent, (thisVal, args) => {
+     *     console.log("Came before:", args); // Logs before the component is rendered
+     * });
+     * ```
+     */
+    beforeReact<F extends BaseFunction>(component: F, callback: PatcherBeforeCallback<F>, options?: PatchOptions): () => void;
+    /**
+     * Runs a callback instead of a React component without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.insteadReact(ReactComponent, (thisVal, args) => {
+     *     return GL.React.createElement("div", null, "New component!");
+     * });
+     * ```
+     */
+    insteadReact<F extends BaseFunction>(component: F, callback: PatcherInsteadCallback<F>, options?: PatchOptions): () => void;
+    /**
+     * Swaps a React component with another React component without changing the reference to the original component.
+     * @returns A function to remove the patch
+     * @example
+     * ```js
+     * const ReactComponent = () => {...}; // A React component used by Gimkit
+     * api.patcher.insteadReact(ReactComponent, (arg1, arg2) => {
+     *     return GL.React.createElement("div", null, "New component!");
+     * });
+     * ```
+     */
+    swapReact<F extends BaseFunction>(component: F, callback: PatcherSwapCallback<F>, options?: PatchOptions): () => void;
 }
 
 /** @inline */
