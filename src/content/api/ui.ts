@@ -13,13 +13,13 @@ const gimkitComponents = ["notification", "message", "modal"] as const;
 type GimkitComponents = Pick<Internals, typeof gimkitComponents[number]>;
 const ComponentsSchema = z.union(gimkitComponents.map((type) => z.literal(type)));
 
-const ButtonSchema = z.object({
+const ButtonSchema = z.strictObject({
     text: z.string(),
     style: z.enum(["primary", "danger", "close"]).optional(),
     onClick: z.function({ output: z.any() }).optional()
 });
 
-const ModalOptionsSchema = z.object({
+const ModalOptionsSchema = z.strictObject({
     id: z.string().optional(),
     title: z.string().optional(),
     style: z.string().optional(),
@@ -35,7 +35,7 @@ interface PromptOptions {
     placeholder?: string;
 }
 
-const PromptOptionsSchema = z.object({
+const PromptOptionsSchema = z.strictObject({
     text: z.string().optional(),
     defaultVal: z.string().optional(),
     placeholder: z.string().optional()

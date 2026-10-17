@@ -5,7 +5,7 @@ import * as z from "zod";
 
 const CommandOptionsSchema = z.union([
     z.string(),
-    z.object({
+    z.strictObject({
         text: z.union([z.string(), z.function()]),
         keywords: z.array(z.string()).optional(),
         hidden: z.function().optional()

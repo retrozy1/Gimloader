@@ -7,21 +7,21 @@ import * as z from "zod";
 type KeyboardCallback = (e: KeyboardEvent) => void;
 
 const HotkeyTriggerSchema = z.union([
-    z.object({ key: z.string() }),
-    z.object({ keys: z.array(z.string()).min(1) })
-]).and(z.object({
+    z.strictObject({ key: z.string() }),
+    z.strictObject({ keys: z.array(z.string()).min(1) })
+]).and(z.strictObject({
     ctrl: z.boolean().optional(),
     shift: z.boolean().optional(),
     alt: z.boolean().optional(),
     meta: z.boolean().optional()
 }));
 
-const HotkeyOptionsSchema = HotkeyTriggerSchema.and(z.object({
+const HotkeyOptionsSchema = HotkeyTriggerSchema.and(z.strictObject({
     preventDefault: z.boolean().optional(),
     stopPropagation: z.boolean().optional()
 }));
 
-const ConfigurableHotkeyOptionsSchema = z.object({
+const ConfigurableHotkeyOptionsSchema = z.strictObject({
     category: z.string(),
     title: z.string(),
     preventDefault: z.boolean().optional(),

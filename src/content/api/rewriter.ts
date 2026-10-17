@@ -6,7 +6,7 @@ const NonGlobalRegexSchema = z.instanceof(RegExp).refine((regex) => !regex.globa
     error: "Regex must not be global"
 });
 
-const ExposeOptionsSchema = z.object({
+const ExposeOptionsSchema = z.strictObject({
     /** A string which must be found in the file for regex to run */
     check: z.string().optional(),
     /** Non-global regex with the first group being the name of the variable */
@@ -15,7 +15,7 @@ const ExposeOptionsSchema = z.object({
     multiple: z.boolean().optional()
 });
 
-const SwapOptionsSchema = z.object({
+const SwapOptionsSchema = z.strictObject({
     /** A string which must be found in the file for regex to run */
     check: z.string().optional(),
     /** Non-global regex with the first group being the name of the variable */

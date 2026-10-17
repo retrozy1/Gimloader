@@ -9,14 +9,14 @@ import { StateManager } from "@gimloader/ipc";
 
 export type { PluginSettings };
 
-const BaseSchema = z.object({
+const BaseSchema = z.strictObject({
     id: z.string(),
     title: z.string(),
     description: z.string().optional(),
     onChange: z.function().optional()
 });
 
-const OptionSchema = z.object({
+const OptionSchema = z.strictObject({
     label: z.string(),
     value: z.string()
 });
@@ -82,7 +82,7 @@ const CustomSchema = BaseSchema.extend({
     render: z.function()
 });
 
-const CustomSectionSchema = z.object({
+const CustomSectionSchema = z.strictObject({
     type: z.literal("customsection"),
     id: z.string(),
     default: z.any().optional(),
@@ -91,7 +91,7 @@ const CustomSectionSchema = z.object({
 });
 
 // any type annotations needed so typescript doesn't explode from circular reference
-const GroupSchema = z.object({
+const GroupSchema = z.strictObject({
     type: z.literal("group"),
     title: z.string(),
     id: z.string().optional(),
@@ -104,7 +104,7 @@ const ToggleGroupSchema = BaseSchema.extend({
     default: z.boolean().optional()
 }) as any;
 
-const TranscludeSchema = z.object({
+const TranscludeSchema = z.strictObject({
     type: z.literal("transclude"),
     fromPlugin: z.string(),
     id: z.string(),

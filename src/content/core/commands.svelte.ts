@@ -11,22 +11,22 @@ class CancelError extends Error {
     }
 }
 
-const SelectSchema = z.object({
+const SelectSchema = z.strictObject({
     title: z.string(),
-    options: z.array(z.object({
+    options: z.array(z.strictObject({
         label: z.string(),
         value: z.any()
     })).min(1)
 });
 
-const NumberSchema = z.object({
+const NumberSchema = z.strictObject({
     title: z.string(),
     min: z.number().optional(),
     max: z.number().optional(),
     decimal: z.boolean().optional()
 });
 
-const StringSchema = z.object({
+const StringSchema = z.strictObject({
     title: z.string(),
     maxLength: z.number().optional()
 });
